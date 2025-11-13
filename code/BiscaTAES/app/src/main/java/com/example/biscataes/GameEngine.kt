@@ -58,6 +58,8 @@ class GameEngine {
     }
 
     // --- 3. Funções de Ação (para mais tarde) ---
+    var playerCardOnTable: Card? = null
+    var botCardOnTable: Card? = null
 
     // Esta função será chamada quando o jogador humano jogar uma carta
     fun playerPlaysCard(cardIndex: Int) {
@@ -72,17 +74,55 @@ class GameEngine {
         // Lógica para comprar cartas do baralho...
         // Lógica para verificar o fim do jogo...
 
-        val playedCard = player.playCard(cardIndex)
-        Log.d("GameEngine", "O jogador (Humano) jogou: $playedCard")
+        val playerCard = player.playCard(cardIndex)
+        playerCardOnTable = playerCard
+        Log.d("GameEngine", "O jogador (Humano) jogou: $playerCard")
 
-        // --- PRÓXIMOS PASSOS (Ainda não implementados) ---
-        // 2. Lógica para o Bot responder...
+        // 2. O Bot reage
+        val botCard = findBestCardForBot(playerCard)
+        // O Bot tem de "jogar" (remover) a carta da sua mão
+        val botCardIndex = bot.getHand().indexOf(botCard)
+        botCardOnTable = bot.playCard(botCardIndex)
+        Log.d("GameEngine", "O Bot (IA) jogou: $botCardOnTable")
+
         // 3. Lógica para ver quem ganhou a vaza...
         // 4. Lógica para comprar cartas do baralho...
         // 5. Lógica para verificar o fim do jogo...
 
     }
+    // --- LÓGICA DO BOT ---
+    // Esta função decide qual a melhor carta para o Bot jogar
+    private fun findBestCardForBot(playerCard: Card): Card {
+        val botHand = bot.getHand()
 
+        // 1. Tentar ganhar com Trunfos
+        val winningTrumps = botHand.filter {
+            it.isTrump && (!playerCard.isTrump || it.rank.strength > playerCard.rank.strength)
+        }
+        if (winningTrumps.isNotEmpty()) {
+            // Joga o trunfo mais baixo que ganha
+            return winningTrumps.minByOrNull { it.rank.strength }!!
+        }
+
+        // 2. Tentar ganhar com o mesmo naipe
+        val winningSameSuit = botHand.filter {
+            !it.isTrump && it.suit == playerCard.suit && it.rank.strength > playerCard.rank.strength
+        }
+        if (winningSameSuit.isNotEmpty()) {
+            // Joga a carta mais alta (para garantir) do mesmo naipe
+            return winningSameSuit.maxByOrNull { it.rank.strength }!!
+        }
+
+        // 3. Não pode ganhar. Tentar jogar a carta mais baixa que não seja trunfo
+        val nonTrumps = botHand.filter { !it.isTrump }
+        if (nonTrumps.isNotEmpty()) {
+            // Joga a carta de menor valor (pontos primeiro, depois força)
+            return nonTrumps.minWithOrNull(compareBy({ it.rank.points }, { it.rank.strength }))!!
+        }
+
+        // 4. Se só tiver trunfos, joga o trunfo mais baixo
+        return botHand.minByOrNull { it.rank.strength }!!
+    }
     // Função para obter a mão do jogador (para a UI)
     fun getPlayerHand(): List<Card> {
         return player.getHand()

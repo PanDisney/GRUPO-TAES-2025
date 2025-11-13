@@ -71,6 +71,7 @@ class GameActivity : AppCompatActivity() {
                 Log.d("GameActivity", "Clicou na carta: $card (íice: $index)")
                 gameEngine.playerPlaysCard(index)
                 drawPlayerHand() // Redesenha a mão
+                updateTableView()
             }
 
             handLayout.addView(cardTextView)
@@ -80,7 +81,43 @@ class GameActivity : AppCompatActivity() {
     //
     // --- FUNÇÕES AJUDANTES (NOVAS) ---
     //
+    // --- NOVA FUNÇÃO ---
+    // Atualiza as cartas na "mesa"
+    private fun updateTableView() {
+        // Encontrar os TextViews da mesa
+        val playerCardView = findViewById<TextView>(R.id.playerPlayedCardView)
+        val botCardView = findViewById<TextView>(R.id.botPlayedCardView)
 
+        // Apanhar as cartas da mesa a partir do motor
+        val playerCard = gameEngine.playerCardOnTable
+        val botCard = gameEngine.botCardOnTable
+
+        // Atualizar a carta do jogador
+        if (playerCard != null) {
+            playerCardView.text = "${getRankSymbol(playerCard.rank)}\n${getSuitSymbol(playerCard.suit)}"
+            if (playerCard.suit == Suit.HEARTS || playerCard.suit == Suit.DIAMONDS) {
+                playerCardView.setTextColor(Color.RED)
+            } else {
+                playerCardView.setTextColor(Color.BLACK)
+            }
+            playerCardView.visibility = TextView.VISIBLE // Tornar visível
+        } else {
+            playerCardView.visibility = TextView.INVISIBLE // Esconder
+        }
+
+        // Atualizar a carta do Bot
+        if (botCard != null) {
+            botCardView.text = "${getRankSymbol(botCard.rank)}\n${getSuitSymbol(botCard.suit)}"
+            if (botCard.suit == Suit.HEARTS || botCard.suit == Suit.DIAMONDS) {
+                botCardView.setTextColor(Color.RED)
+            } else {
+                botCardView.setTextColor(Color.BLACK)
+            }
+            botCardView.visibility = TextView.VISIBLE // Tornar visível
+        } else {
+            botCardView.visibility = TextView.INVISIBLE // Esconder
+        }
+    }
     // Converte um Rank num símbolo de texto
     private fun getRankSymbol(rank: Rank): String {
         return when (rank) {
