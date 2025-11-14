@@ -9,10 +9,14 @@ import android.view.Gravity // <-- IMPORTAR GRAVIDADE (para centrar o texto)
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.os.Handler
+import android.os.Looper
+
 
 class GameActivity : AppCompatActivity() {
 
     private lateinit var gameEngine: GameEngine
+    private var isUiLocked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,6 +26,8 @@ class GameActivity : AppCompatActivity() {
 
         // Chamar a nossa função de desenhar (agora atualizada)
         drawPlayerHand()
+        displayTrumpCard()
+        updateScoreboardView()
     }
 
     //
@@ -67,14 +73,41 @@ class GameActivity : AppCompatActivity() {
             // --- Fim do estilo ---
 
             // --- Listener de clique (igual a antes) ---
+
             cardTextView.setOnClickListener {
-                Log.d("GameActivity", "Clicou na carta: $card (íice: $index)")
-                gameEngine.playerPlaysCard(index)
-                drawPlayerHand() // Redesenha a mão
-                updateTableView()
+                // Se a UI estiver bloqueada (à espera do delay), não faz nada
+                if (isUiLocked) return@setOnClickListener
+
+                // 1. Bloquear a UI para evitar cliques duplos
+                isUiLocked = true
+
+                Log.d("GameActivity", "Clicou na carta: $card (índice: $index)")
+
+                // 2. Avisar o motor (que ativa o Bot)
+                if (gameEngine.isPlayerTurn()) {
+                    // --- O JOGADOR LIDERA A VAZA ---
+                    gameEngine.playerLeadsTrick(index)
+                    updateTableView() // Mostra AMBAS as cartas na mesa
+                } else {
+                    // --- O JOGADOR RESPONDE AO BOT ---
+                    gameEngine.playerResponds(index)
+                    updateTableView() // Mostra a carta do jogador (a do bot já lá está)
+                }
+
+                // 3. Redesenhar a mão (para a carta jogada desaparecer)
+                drawPlayerHand()
+
+                // 4. Redesenhar a mesa (para mostrar as cartas jogadas)
+                startTrickResolutionDelay()
+
+                // 5. --- Atraso (Delay) de 1.5 segundos ---
+
             }
 
+
             handLayout.addView(cardTextView)
+
+
         }
     }
 
@@ -118,6 +151,45 @@ class GameActivity : AppCompatActivity() {
             botCardView.visibility = TextView.INVISIBLE // Esconder
         }
     }
+    // --- NOVA FUNÇÃO ---
+// Mostra a carta de trunfo no ecrã
+    private fun displayTrumpCard() {
+        // 1. Ir buscar a carta de trunfo ao motor
+        val trumpCard = gameEngine.trumpCard
+
+        // 2. Encontrar o TextView no layout
+        val trumpView = findViewById<TextView>(R.id.trumpCardView)
+
+        if (trumpCard != null) {
+            // 3. Usar as funções helper que já temos
+            trumpView.text = "${getRankSymbol(trumpCard.rank)}\n${getSuitSymbol(trumpCard.suit)}"
+
+            // 4. Definir a cor
+            if (trumpCard.suit == Suit.HEARTS || trumpCard.suit == Suit.DIAMONDS) {
+                trumpView.setTextColor(Color.RED)
+            } else {
+                trumpView.setTextColor(Color.BLACK)
+            }
+        } else {
+            // Segurança: se por algum motivo não houver trunfo, esconde
+            trumpView.visibility = TextView.GONE
+        }
+    }
+
+    private fun updateScoreboardView() {
+        // 1. Encontrar os TextViews
+        val playerScoreView = findViewById<TextView>(R.id.playerScoreView)
+        val botScoreView = findViewById<TextView>(R.id.botScoreView)
+
+        // 2. Ir buscar os pontos ao motor de jogo
+        val playerPoints = gameEngine.playerPoints
+        val botPoints = gameEngine.botPoints
+
+        // 3. Atualizar o texto
+        playerScoreView.text = "Tu: $playerPoints"
+        botScoreView.text = "Bot: $botPoints"
+    }
+
     // Converte um Rank num símbolo de texto
     private fun getRankSymbol(rank: Rank): String {
         return when (rank) {
@@ -141,6 +213,53 @@ class GameActivity : AppCompatActivity() {
             Suit.DIAMONDS -> "♦"
             Suit.CLUBS -> "♣"
             Suit.SPADES -> "♠"
+        }
+    }
+
+    // --- NOVA FUNÇÃO (extraída) ---
+    private fun startTrickResolutionDelay() {
+        // Inicia o delay para resolver a vaza
+        Handler(Looper.getMainLooper()).postDelayed({
+
+            gameEngine.resolveCurrentTrick() // Resolve a vaza
+
+            // Atualiza toda a UI
+            updateTableView()      // Limpa a mesa
+            drawPlayerHand()       // Mostra a mão com a nova carta
+            updateScoreboardView() // Atualiza os pontos
+
+            // --- A GRANDE MUDANÇA ---
+            // Verifica se o Bot joga a seguir
+            checkIfBotPlaysFirst()
+
+        }, 1500) // 1.5s de delay
+    }
+
+    // --- NOVA FUNÇÃO ---
+    // Verifica se é a vez do Bot jogar primeiro
+    private fun checkIfBotPlaysFirst() {
+        // Se o jogo acabou, não faz nada
+        if (!gameEngine.isGameRunning) {
+            isUiLocked = false
+            // (Aqui podemos mostrar o ecrã de "Fim de Jogo")
+            return
+        }
+
+        if (!gameEngine.isPlayerTurn()) {
+            // É a vez do Bot liderar!
+            Log.d("GameActivity", "É a vez do Bot liderar a vaza.")
+            isUiLocked = true // Manter a UI bloqueada
+
+            // Simular o "pensamento" do Bot
+            Handler(Looper.getMainLooper()).postDelayed({
+                gameEngine.botLeadsTrick() // Bot joga a sua carta
+                updateTableView()          // Mostrar a carta do Bot na mesa
+                isUiLocked = false         // Desbloquear a UI para o jogador responder
+            }, 1000) // Bot "pensa" por 1 segundo
+
+        } else {
+            // É a vez do jogador, desbloqueia a UI
+            isUiLocked = false
         }
     }
 }

@@ -9,12 +9,19 @@ class GameEngine {
     private lateinit var bot: Player
     private lateinit var deck: Deck
 
+    // true = Humano joga primeiro, false = Bot joga primeiro
+    private var isPlayerTurnToLead = true
     // A carta de trunfo que fica virada para cima
     var trumpCard: Card? = null
         private set
 
     // Estado do jogo
     var isGameRunning = false
+        private set
+
+    var playerPoints = 0
+        private set
+    var botPoints = 0
         private set
 
     // --- 2. Função de Setup (Início) ---
@@ -62,33 +69,33 @@ class GameEngine {
     var botCardOnTable: Card? = null
 
     // Esta função será chamada quando o jogador humano jogar uma carta
-    fun playerPlaysCard(cardIndex: Int) {
-        if (!isGameRunning || cardIndex < 0 || cardIndex >= player.getHand().size) {
-            Log.w("GameEngine", "Tentativa de jogar carta inválida (índice: $cardIndex)")
-            return
-        }
+    fun playerLeadsTrick(cardIndex: Int) {
+        if (!isPlayerTurnToLead) return // Segurança
 
-        // Lógica para jogar a carta...
-        // Lógica para o Bot responder...
-        // Lógica para ver quem ganhou a vaza...
-        // Lógica para comprar cartas do baralho...
-        // Lógica para verificar o fim do jogo...
-
+        // 1. O jogador joga a carta
         val playerCard = player.playCard(cardIndex)
         playerCardOnTable = playerCard
-        Log.d("GameEngine", "O jogador (Humano) jogou: $playerCard")
+        Log.d("GameEngine", "O jogador (Humano) LIDEROU com: $playerCard")
 
-        // 2. O Bot reage
+        // 2. O Bot reage (usamos a lógica antiga)
         val botCard = findBestCardForBot(playerCard)
-        // O Bot tem de "jogar" (remover) a carta da sua mão
         val botCardIndex = bot.getHand().indexOf(botCard)
         botCardOnTable = bot.playCard(botCardIndex)
-        Log.d("GameEngine", "O Bot (IA) jogou: $botCardOnTable")
+        Log.d("GameEngine", "O Bot (IA) RESPONDEU com: $botCardOnTable")
+    }
 
-        // 3. Lógica para ver quem ganhou a vaza...
-        // 4. Lógica para comprar cartas do baralho...
-        // 5. Lógica para verificar o fim do jogo...
+    // --- NOVA FUNÇÃO ---
+    // O Bot escolhe uma carta para liderar a vaza
+    fun botLeadsTrick() {
+        if (isPlayerTurnToLead) return // Segurança
 
+        // Lógica simples: jogar a carta de menor valor (pontos, depois força)
+        val hand = bot.getHand()
+        val cardToPlay = hand.minWithOrNull(compareBy({ it.rank.points }, { it.rank.strength }))!!
+        val cardIndex = hand.indexOf(cardToPlay)
+
+        botCardOnTable = bot.playCard(cardIndex) // Remove da mão, põe na mesa
+        Log.d("GameEngine", "Bot (IA) LIDEROU com: $botCardOnTable")
     }
     // --- LÓGICA DO BOT ---
     // Esta função decide qual a melhor carta para o Bot jogar
@@ -123,9 +130,86 @@ class GameEngine {
         // 4. Se só tiver trunfos, joga o trunfo mais baixo
         return botHand.minByOrNull { it.rank.strength }!!
     }
+    fun playerResponds(playerCardIndex: Int) {
+        if (isPlayerTurnToLead) return // Segurança
+
+        val playerCard = player.playCard(playerCardIndex)
+        playerCardOnTable = playerCard
+        Log.d("GameEngine", "Jogador (Humano) RESPONDEU com: $playerCard")
+    }
+    // --- NOVA FUNÇÃO ---
+    // Chamada depois de ambas as cartas estarem na mesa
+    fun resolveCurrentTrick() {
+        if (playerCardOnTable == null || botCardOnTable == null) {
+            Log.e("GameEngine", "Erro: Tentou resolver a vaza mas as cartas não estão na mesa.")
+            return
+        }
+
+        val playerCard = playerCardOnTable!!
+        val botCard = botCardOnTable!!
+
+        // --- 1. Lógica de Quem Ganhou ---
+        val winningCard: Card
+        if (playerCard.isTrump && !botCard.isTrump) {
+            winningCard = playerCard
+        } else if (!playerCard.isTrump && botCard.isTrump) {
+            winningCard = botCard
+        } else if (playerCard.isTrump && botCard.isTrump) {
+            // Ambas são trunfo, ganha a mais forte
+            winningCard = if (playerCard.rank.strength > botCard.rank.strength) playerCard else botCard
+        } else if (playerCard.suit == botCard.suit) {
+            // Mesmo naipe (sem trunfo), ganha a mais forte
+            winningCard = if (playerCard.rank.strength > botCard.rank.strength) playerCard else botCard
+        } else {
+            // Naipes diferentes (sem trunfo), ganha quem jogou primeiro
+            winningCard = if (isPlayerTurnToLead) playerCard else botCard
+        }
+
+        // --- 2. Dar Cartas ao Vencedor ---
+        val winner: Player
+        val loser: Player
+
+        if (winningCard == playerCard) {
+            winner = player
+            loser = bot
+            isPlayerTurnToLead = true // Vencedor joga primeiro na próxima
+        } else {
+            winner = bot
+            loser = player
+            isPlayerTurnToLead = false // Vencedor joga primeiro na próxima
+        }
+
+        winner.addWonCards(listOf(playerCard, botCard))
+
+        // Atualizar contagem de pontos
+        playerPoints = player.calculatePoints()
+        botPoints = bot.calculatePoints()
+        Log.d("GameEngine", "Vaza ganha por ${winner.name}. Pontos: P $playerPoints - B $botPoints")
+
+        // --- 3. "Biscar" (Comprar Cartas) ---
+        // O vencedor compra primeiro, só se houver cartas no baralho
+        if (deck.cardsRemaining() > 0) {
+            deck.drawCard()?.let { winner.drawToHand(it) }
+        }
+        if (deck.cardsRemaining() > 0) {
+            deck.drawCard()?.let { loser.drawToHand(it) }
+        }
+
+        // --- 4. Limpar a Mesa ---
+        playerCardOnTable = null
+        botCardOnTable = null
+
+        // --- 5. Verificar Fim de Jogo ---
+        if (player.isHandEmpty() && deck.cardsRemaining() == 0) {
+            isGameRunning = false
+            Log.d("GameEngine", "--- FIM DE JOGO ---")
+            Log.d("GameEngine", "Resultado Final: Jogador $playerPoints - Bot $botPoints")
+        }
+    }
     // Função para obter a mão do jogador (para a UI)
     fun getPlayerHand(): List<Card> {
         return player.getHand()
     }
-
+    // Adicione esta função para a Activity poder perguntar
+    fun isPlayerTurn(): Boolean = isPlayerTurnToLead
 }
