@@ -2,6 +2,7 @@ package com.example.biscataes
 
 import android.content.Intent
 import android.graphics.Color // <-- IMPORTAR CORES
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.os.Handler
 import android.os.Looper
+import android.widget.Toast
 
 
 class GameActivity : AppCompatActivity() {
@@ -20,6 +22,7 @@ class GameActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_game)
 
         gameEngine = GameEngine()
@@ -28,6 +31,7 @@ class GameActivity : AppCompatActivity() {
         drawPlayerHand()
         displayTrumpCard()
         updateScoreboardView()
+
     }
 
     //
@@ -83,25 +87,28 @@ class GameActivity : AppCompatActivity() {
 
                 Log.d("GameActivity", "Clicou na carta: $card (índice: $index)")
 
-                // 2. Avisar o motor (que ativa o Bot)
+                // 2. Avisar o motor
                 if (gameEngine.isPlayerTurn()) {
                     // --- O JOGADOR LIDERA A VAZA ---
                     gameEngine.playerLeadsTrick(index)
                     updateTableView() // Mostra AMBAS as cartas na mesa
+
+                    // Redesenhar a mão e resolver a vaza
+                    drawPlayerHand()
+                    startTrickResolutionDelay()
                 } else {
                     // --- O JOGADOR RESPONDE AO BOT ---
-                    gameEngine.playerResponds(index)
-                    updateTableView() // Mostra a carta do jogador (a do bot já lá está)
+                    val moveWasValid = gameEngine.playerResponds(index)
+                    if (moveWasValid) {
+                        updateTableView() // Mostra a carta do jogador
+                        drawPlayerHand()
+                        startTrickResolutionDelay()
+                    } else {
+                        // Jogada inválida!
+                        Toast.makeText(this, "Jogada inválida! Deve assistir (jogar o mesmo naipe).", Toast.LENGTH_SHORT).show()
+                        isUiLocked = false // Desbloquear a UI para o jogador tentar de novo
+                    }
                 }
-
-                // 3. Redesenhar a mão (para a carta jogada desaparecer)
-                drawPlayerHand()
-
-                // 4. Redesenhar a mesa (para mostrar as cartas jogadas)
-                startTrickResolutionDelay()
-
-                // 5. --- Atraso (Delay) de 1.5 segundos ---
-
             }
 
 
@@ -241,7 +248,7 @@ class GameActivity : AppCompatActivity() {
         // Se o jogo acabou, não faz nada
         if (!gameEngine.isGameRunning) {
             isUiLocked = false
-            // (Aqui podemos mostrar o ecrã de "Fim de Jogo")
+            showEndGameDialog()
             return
         }
 
@@ -261,6 +268,48 @@ class GameActivity : AppCompatActivity() {
             // É a vez do jogador, desbloqueia a UI
             isUiLocked = false
         }
+    }
+
+    private fun showEndGameDialog() {
+        val result = gameEngine.gameResult
+        val title: String
+        val message: String
+
+        when (result) {
+            GameEngine.GameResult.PLAYER_WINS -> {
+                title = "Vitória!"
+                message = "Parabéns, você ganhou o jogo!"
+            }
+            GameEngine.GameResult.BOT_WINS -> {
+                title = "Derrota"
+                message = "O Bot ganhou desta vez. Tente novamente!"
+            }
+            GameEngine.GameResult.DRAW -> {
+                title = "Empate"
+                message = "O jogo terminou em empate."
+            }
+            else -> return // Não faz nada se o resultado for indefinido
+        }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setCancelable(false)
+
+        builder.setPositiveButton("Jogar Novamente") { _, _ ->
+            gameEngine.startNewGame()
+            drawPlayerHand()
+            displayTrumpCard()
+            updateScoreboardView()
+            updateTableView() // Limpa as cartas da mesa da jogada anterior
+        }
+
+        builder.setNegativeButton("Voltar ao Menu") { _, _ ->
+            finish() // Fecha a GameActivity
+        }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 }
 

@@ -4,7 +4,16 @@ import android.util.Log // Vamos usar isto para "imprimir" o estado do jogo
 
 class GameEngine {
 
+    enum class GameResult{
+        PLAYER_WINS,
+        BOT_WINS,
+        DRAW,
+        UNDEFINED
+    }
+
     // --- 1. Propriedades do Jogo ---
+    var gameResult: GameResult = GameResult.UNDEFINED
+        private set
     private lateinit var player: Player
     private lateinit var bot: Player
     private lateinit var deck: Deck
@@ -33,6 +42,8 @@ class GameEngine {
 
     // Função para preparar um novo jogo
     fun startNewGame() {
+        gameResult = GameResult.UNDEFINED
+
         // Criar os participantes
         player = Player("Humano", isBot = false)
         bot = Player("Bot", isBot = true)
@@ -101,9 +112,28 @@ class GameEngine {
     // Esta função decide qual a melhor carta para o Bot jogar
     private fun findBestCardForBot(playerCard: Card): Card {
         val botHand = bot.getHand()
+        val leadingSuit = playerCard.suit
 
-        // 1. Tentar ganhar com Trunfos
-        val winningTrumps = botHand.filter {
+        // --- NOVA LÓGICA DA REGRA DE ASSISTIR ---
+        val mustFollowSuit = deck.cardsRemaining() == 0
+        val availableCards: List<Card>
+
+        if (mustFollowSuit) {
+            val cardsOfLeadingSuit = botHand.filter { it.suit == leadingSuit }
+            if (cardsOfLeadingSuit.isNotEmpty()) {
+                availableCards = cardsOfLeadingSuit
+                Log.d("GameEngine", "Bot tem de assistir com o naipe $leadingSuit. Cartas disponíveis: $availableCards")
+            } else {
+                availableCards = botHand
+                Log.d("GameEngine", "Bot não tem o naipe $leadingSuit para assistir. Joga qualquer carta.")
+            }
+        } else {
+            availableCards = botHand
+        }
+        // --- FIM DA NOVA LÓGICA ---
+
+        // 1. Tentar ganhar com Trunfos (a partir das cartas disponíveis)
+        val winningTrumps = availableCards.filter {
             it.isTrump && (!playerCard.isTrump || it.rank.strength > playerCard.rank.strength)
         }
         if (winningTrumps.isNotEmpty()) {
@@ -111,8 +141,8 @@ class GameEngine {
             return winningTrumps.minByOrNull { it.rank.strength }!!
         }
 
-        // 2. Tentar ganhar com o mesmo naipe
-        val winningSameSuit = botHand.filter {
+        // 2. Tentar ganhar com o mesmo naipe (a partir das cartas disponíveis)
+        val winningSameSuit = availableCards.filter {
             !it.isTrump && it.suit == playerCard.suit && it.rank.strength > playerCard.rank.strength
         }
         if (winningSameSuit.isNotEmpty()) {
@@ -120,22 +150,49 @@ class GameEngine {
             return winningSameSuit.maxByOrNull { it.rank.strength }!!
         }
 
-        // 3. Não pode ganhar. Tentar jogar a carta mais baixa que não seja trunfo
-        val nonTrumps = botHand.filter { !it.isTrump }
+        // 3. Não pode ganhar. Tentar jogar a carta mais baixa que não seja trunfo (das disponíveis)
+        val nonTrumps = availableCards.filter { !it.isTrump }
         if (nonTrumps.isNotEmpty()) {
             // Joga a carta de menor valor (pontos primeiro, depois força)
             return nonTrumps.minWithOrNull(compareBy({ it.rank.points }, { it.rank.strength }))!!
         }
 
-        // 4. Se só tiver trunfos, joga o trunfo mais baixo
-        return botHand.minByOrNull { it.rank.strength }!!
+        // 4. Se só tiver trunfos (ou se for forçado a jogar de um naipe que só tem trunfos), joga a mais baixa
+        return availableCards.minByOrNull { it.rank.strength }!!
     }
-    fun playerResponds(playerCardIndex: Int) {
-        if (isPlayerTurnToLead) return // Segurança
 
-        val playerCard = player.playCard(playerCardIndex)
+    private fun isMoveValid(cardPlayed: Card, leadingCard: Card, playerHand: List<Card>): Boolean {
+        // A regra de "assistir" só se aplica quando não há mais cartas para comprar
+        if (deck.cardsRemaining() > 0) {
+            return true
+        }
+
+        val leadingSuit = leadingCard.suit
+        val playerHasSuit = playerHand.any { it.suit == leadingSuit }
+
+        // Se o jogador não tem o naipe, pode jogar qualquer carta
+        if (!playerHasSuit) {
+            return true
+        }
+
+        // Se o jogador tem o naipe, a carta jogada tem de ser desse naipe
+        return cardPlayed.suit == leadingSuit
+    }
+    fun playerResponds(playerCardIndex: Int): Boolean {
+        if (isPlayerTurnToLead) return false // Segurança
+
+        val playerCard = player.getHand()[playerCardIndex]
+        val leadingCard = botCardOnTable!!
+
+        if (!isMoveValid(playerCard, leadingCard, player.getHand())) {
+            Log.w("GameEngine", "Jogada inválida! O jogador deve assistir (jogar o mesmo naipe).")
+            return false // Indicate invalid move
+        }
+
+        player.playCard(playerCardIndex)
         playerCardOnTable = playerCard
         Log.d("GameEngine", "Jogador (Humano) RESPONDEU com: $playerCard")
+        return true
     }
     // --- NOVA FUNÇÃO ---
     // Chamada depois de ambas as cartas estarem na mesa
@@ -195,15 +252,32 @@ class GameEngine {
             deck.drawCard()?.let { loser.drawToHand(it) }
         }
 
-        // --- 4. Limpar a Mesa ---
+        // --- 4. Verificar se existem cartas no deck ---
+        if (deck.cardsRemaining() == 0) {
+            Log.d("GameEngine", "Baralho vazio! As regras de 'assistir' estão agora ativas.")
+        }
+
+        // --- 5. Limpar a Mesa ---
         playerCardOnTable = null
         botCardOnTable = null
 
-        // --- 5. Verificar Fim de Jogo ---
+        // --- 6. Verificar Fim de Jogo ---
         if (player.isHandEmpty() && deck.cardsRemaining() == 0) {
             isGameRunning = false
             Log.d("GameEngine", "--- FIM DE JOGO ---")
             Log.d("GameEngine", "Resultado Final: Jogador $playerPoints - Bot $botPoints")
+
+            // Determina quem é o vencedor
+            if (playerPoints > botPoints) {
+                gameResult = GameResult.PLAYER_WINS
+                Log.d("GameEngine", "Vencedor: Jogador!")
+            } else if (botPoints > playerPoints) {
+                gameResult = GameResult.BOT_WINS
+                Log.d("GameEngine", "Vencedor: Bot!")
+            } else {
+                gameResult = GameResult.DRAW
+                Log.d("GameEngine", "Empate!")
+            }
         }
     }
     // Função para obter a mão do jogador (para a UI)
@@ -212,4 +286,5 @@ class GameEngine {
     }
     // Adicione esta função para a Activity poder perguntar
     fun isPlayerTurn(): Boolean = isPlayerTurnToLead
+
 }
