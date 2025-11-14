@@ -1,0 +1,26 @@
+package com.example.biscataes
+
+import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import android.widget.Button
+import android.content.Intent
+
+class DashboardActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_dashboard)
+
+        val startGameButton = findViewById<Button>(R.id.buttonStartGame)
+
+        startGameButton.setOnClickListener {
+            // 3. Criar a Intenção para ir para o GameActivity
+            val intent = Intent(this, GameActivity::class.java)
+
+            // 4. Iniciar a nova activity
+            startActivity(intent)
+        }
+    }
+}
