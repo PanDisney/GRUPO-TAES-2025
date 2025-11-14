@@ -1,0 +1,23 @@
+Semana 2
+
+COISAS POR FAZER:
+
+US-02: Modo Anónimo - acrescentar classificação e histórico dos jogadores anônimos
+US-03: Visualização do Painel de Controlo - botão ver histórico, classificação e aceder a personalizações
+US-04: Iniciar Nova Partida - E o bot apresenta as suas cartas (ocultas/viradas ao contrário)
+
+TESTES KATALON
+
+USER STORIES:
+
+US-01: Autenticação de Utilizador Registado
+US-05: Verificação de Saldo de Moedas
+US-10: Progressão de Partida (4 Jogos)
+US-12: Conquista Capote (2 jogos)
+
+STORY POINTS: 35
+
+DAILY MEETINGS: Segunda-feira 16:00
+		Terça-feira 22:00
+		Quinta-Feira 16:00
+		Quarta-feira (esta semana) 18:00
