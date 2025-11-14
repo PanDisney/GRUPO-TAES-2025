@@ -13,7 +13,7 @@
 
 ---
 
-## US-02: Modo Anónimo
+## US-02: Modo Anónimo ✅
 **Como** um novo utilizador  
 **Quero** poder ignorar o login e jogar em modo anónimo  
 **Para** testar a aplicação sem criar uma conta
@@ -22,11 +22,11 @@
 - Dado que estou no ecrã de login
 - Quando clico em "Continuar como Anónimo"
 - Então posso aceder apenas a jogos de prática
-- E não posso jogar partidas, ganhar moedas, usar personalizações ou aceder a classificações e histórico
+- E não posso jogar partidas, ganhar moedas, usar personalizações ou aceder a classificações e histórico ❌
 
 ---
 
-## US-03: Visualização do Painel de Controlo
+## US-03: Visualização do Painel de Controlo ✅
 **Como** um utilizador (registado ou anónimo)  
 **Quero** ver um painel com acesso a todas as funcionalidades principais  
 **Para** navegar facilmente pela aplicação
@@ -34,7 +34,7 @@
 ### Critérios de Aceitação
 - Dado que fiz login ou entrei como anónimo
 - Quando acesso o painel de controlo
-- Então devo ver botões para: iniciar novo jogo, ver histórico, ver classificações e aceder a personalizações
+- Então devo ver botões para: iniciar novo jogo, (ver histórico, ver classificações e aceder a personalizações) ❌
 
 ---
 
@@ -77,7 +77,7 @@
 
 ---
 
-## US-07: Jogabilidade Básica - Jogar Carta
+## US-07: Jogabilidade Básica - Jogar Carta ✅
 **Como** um utilizador  
 **Quero** jogar uma carta da minha mão durante o jogo  
 **Para** avançar no jogo de Bisca
@@ -90,7 +90,7 @@
 
 ---
 
-## US-08: Determinação do Vencedor da Rodada
+## US-08: Determinação do Vencedor da Rodada ✅
 **Como** um utilizador  
 **Quero** ver qual carta venceu a rodada  
 **Para** compreender o jogo
@@ -104,7 +104,7 @@
 
 ---
 
-## US-09: Cálculo de Pontos
+## US-09: Cálculo de Pontos ✅
 **Como** um utilizador  
 **Quero** ver os pontos calculados corretamente após cada jogo  
 **Para** saber como estou a ganhar
