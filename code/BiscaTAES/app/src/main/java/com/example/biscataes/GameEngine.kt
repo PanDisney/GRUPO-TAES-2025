@@ -292,4 +292,8 @@ class GameEngine {
         return bot.getHand().size
     }
 
+    // Função para saber quantas cartas restam (para a UI)
+    fun getCardsRemaining(): Int {
+        return if (::deck.isInitialized) deck.cardsRemaining() else 0
+    }
 }

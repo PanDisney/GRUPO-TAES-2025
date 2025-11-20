@@ -43,7 +43,8 @@
             android:layout_height="wrap_content"
             android:text="TRUNFO"
             android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
 
         <TextView
             android:id="@+id/trumpCardView"
@@ -73,6 +74,26 @@
             android:textSize="16sp"
             android:textStyle="bold"
             tools:text="Bot: 0" />
+
+        <!-- Deck (Baralho) Container Vazio (Preenchido via Código) -->
+        <FrameLayout
+            android:id="@+id/deckContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp">
+            <!-- O conteudo será adicionado dinamicamente pelo codigo -->
+             <TextView
+                android:id="@+id/deckView"
+                android:layout_width="80dp"
+                android:layout_height="120dp"
+                android:background="@drawable/back_card_red"
+                android:gravity="center"
+                android:textColor="#000000"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:text="30" />
+        </FrameLayout>
+
     </LinearLayout>
 
     <!-- Carta jogada pelo Bot -->

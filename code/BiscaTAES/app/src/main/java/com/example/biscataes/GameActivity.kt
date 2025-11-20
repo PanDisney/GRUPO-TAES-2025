@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity // <-- IMPORTAR GRAVIDADE (para centrar o texto)
+import android.view.View // <-- IMPORTAR VIEW para VISIBLE/INVISIBLE
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -33,7 +34,7 @@ class GameActivity : AppCompatActivity() {
         drawBotHand() // <-- Desenhar a mão do Bot
         displayTrumpCard()
         updateScoreboardView()
-
+        updateDeckView() // <-- Atualiza o baralho
     }
 
     //
@@ -186,9 +187,9 @@ class GameActivity : AppCompatActivity() {
             } else {
                 playerCardView.setTextColor(Color.BLACK)
             }
-            playerCardView.visibility = TextView.VISIBLE // Tornar visível
+            playerCardView.visibility = View.VISIBLE // Tornar visível
         } else {
-            playerCardView.visibility = TextView.INVISIBLE // Esconder
+            playerCardView.visibility = View.INVISIBLE // Esconder
         }
 
         // Atualizar a carta do Bot
@@ -200,9 +201,9 @@ class GameActivity : AppCompatActivity() {
             } else {
                 botCardView.setTextColor(Color.BLACK)
             }
-            botCardView.visibility = TextView.VISIBLE // Tornar visível
+            botCardView.visibility = View.VISIBLE // Tornar visível
         } else {
-            botCardView.visibility = TextView.INVISIBLE // Esconder
+            botCardView.visibility = View.INVISIBLE // Esconder
         }
     }
     // --- NOVA FUNÇÃO ---
@@ -231,9 +232,11 @@ class GameActivity : AppCompatActivity() {
             } else {
                 trumpView.setTextColor(Color.BLACK)
             }
+            // GARANTIR QUE ESTÁ VISÍVEL
+            trumpView.visibility = View.VISIBLE
         } else {
             // Segurança: se por algum motivo não houver trunfo, esconde
-            trumpView.visibility = TextView.GONE
+            trumpView.visibility = View.GONE
         }
     }
 
@@ -249,6 +252,19 @@ class GameActivity : AppCompatActivity() {
         // 3. Atualizar o texto
         playerScoreView.text = "Tu: $playerPoints"
         botScoreView.text = "Bot: $botPoints"
+    }
+
+    // --- NOVA FUNÇÃO: Atualiza o Deck ---
+    private fun updateDeckView() {
+        val deckView = findViewById<TextView>(R.id.deckView)
+        val remaining = gameEngine.getCardsRemaining()
+
+        if (remaining > 0) {
+            deckView.text = remaining.toString()
+            deckView.visibility = View.VISIBLE
+        } else {
+            deckView.visibility = View.INVISIBLE
+        }
     }
 
     // Converte um Rank num símbolo de texto
@@ -289,6 +305,7 @@ class GameActivity : AppCompatActivity() {
             drawPlayerHand()       // Mostra a mão com a nova carta
             drawBotHand()          // <-- Atualiza mão do Bot (compra de cartas)
             updateScoreboardView() // Atualiza os pontos
+            updateDeckView()       // <-- Atualiza o deck (cartas compradas)
 
             // --- A GRANDE MUDANÇA ---
             // Verifica se o Bot joga a seguir
@@ -359,6 +376,7 @@ class GameActivity : AppCompatActivity() {
             displayTrumpCard()
             updateScoreboardView()
             updateTableView() // Limpa as cartas da mesa da jogada anterior
+            updateDeckView()  // <-- Atualiza o deck
         }
 
         builder.setNegativeButton("Voltar ao Menu") { _, _ ->
