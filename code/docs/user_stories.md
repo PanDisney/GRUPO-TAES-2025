@@ -311,3 +311,14 @@
 - Então sou redirecionado para um formulário de recuperação
 - E recebo um email com um link para redefinir a senha
 
+## US-25: Compra de Moedas
+**Como** um utilizador  
+**Quero** comprar moedas  
+**Para** atualizar o saldo
+
+### Critérios de Aceitação
+- Dado que estou no ecrã do utilizador
+- Quando clico em "Comprar Moedas"
+- Então sou redirecionado para um formulário de compra onde seleciono quantas moedas quero
+- E atualiza o saldo de moedas do utilizador
+
