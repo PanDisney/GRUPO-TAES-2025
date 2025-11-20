@@ -1,6 +1,6 @@
 # User Stories(24) - Projeto Bisca
 
-## US-01: Autenticação de Utilizador Registado
+## US-01: Autenticação de Utilizador Registado ✅
 **Como** um utilizador registado  
 **Quero** fazer login com as minhas credenciais  
 **Para** aceder a todas as funcionalidades da aplicação (moedas, histórico, classificações e personalizações)
@@ -51,7 +51,7 @@
 
 ---
 
-## US-05: Verificação de Saldo de Moedas
+## US-05: Verificação de Saldo de Moedas ✅
 **Como** um utilizador registado  
 **Quero** verificar o meu saldo de moedas antes de jogar  
 **Para** garantir que tenho moedas suficientes para a entrada da partida
@@ -64,7 +64,7 @@
 
 ---
 
-## US-06: Compra de Entrada de Partida
+## US-06: Compra de Entrada de Partida ✅
 **Como** um utilizador registado  
 **Quero** pagar a entrada de uma partida com as minhas moedas  
 **Para** jogar uma partida de verdade (não prática)
