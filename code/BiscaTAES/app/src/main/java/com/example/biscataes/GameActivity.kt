@@ -425,25 +425,9 @@ class GameActivity : AppCompatActivity() {
         builder.setMessage(message)
         builder.setCancelable(false)
 
-        builder.setPositiveButton("Jogar Novamente") { _, _ ->
-            if (currentCoins >= entryFee) { // Check if enough coins for another game
-                currentCoins -= entryFee // Deduct for the game just played
-                gameEngine.startNewGame()
-                resetUiForNewGame() // Use the helper function
-            } else {
-                Toast.makeText(this, "Saldo insuficiente para jogar novamente! Necessita de $entryFee moedas.", Toast.LENGTH_LONG).show()
-                val resultIntent = Intent()
-                resultIntent.putExtra("FINAL_COINS", currentCoins)
-                setResult(RESULT_OK, resultIntent)
-                finish() // Close GameActivity
-            }
-        }
-
-        builder.setNegativeButton("Voltar ao Menu") { _, _ ->
-            val resultIntent = Intent()
-            resultIntent.putExtra("FINAL_COINS", currentCoins)
-            setResult(RESULT_OK, resultIntent)
-            finish() // Fecha a GameActivity
+        builder.setPositiveButton("Próximo Jogo") { _, _ ->
+            gameEngine.startNewGame()
+            resetUiForNewGame()
         }
 
         val dialog = builder.create()
@@ -470,12 +454,24 @@ class GameActivity : AppCompatActivity() {
 
         // Botão para começar uma nova partida
         builder.setPositiveButton("Jogar Novamente") { _, _ ->
-            gameEngine.startNewMatch() // Reinicia a contagem de jogos
-            resetUiForNewGame()
+            if (currentCoins >= entryFee) { // Check if enough coins for another match
+                currentCoins -= entryFee // Deduct for the new match
+                gameEngine.startNewMatch() // Reinicia a contagem de jogos
+                resetUiForNewGame()
+            } else {
+                Toast.makeText(this, "Saldo insuficiente para iniciar uma nova partida! Necessita de $entryFee moedas.", Toast.LENGTH_LONG).show()
+                val resultIntent = Intent()
+                resultIntent.putExtra("FINAL_COINS", currentCoins)
+                setResult(RESULT_OK, resultIntent)
+                finish() // Close GameActivity
+            }
         }
 
         builder.setNegativeButton("Voltar ao Menu") { _, _ ->
-            finish()
+            val resultIntent = Intent()
+            resultIntent.putExtra("FINAL_COINS", currentCoins)
+            setResult(RESULT_OK, resultIntent)
+            finish() // Fecha a GameActivity
         }
 
         val dialog = builder.create()

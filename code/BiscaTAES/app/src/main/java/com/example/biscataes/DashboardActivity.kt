@@ -15,7 +15,7 @@ class DashboardActivity : AppCompatActivity() {
 
     companion object {
         private const val MOCK_ENTRY_FEE = 50 // Define a mock entry fee
-        private var mockCoins = 100 // Mock user's coin balance, now static
+        private var mockCoins = 1000 // Mock user's coin balance, now static
     }
 
     private lateinit var startGameButton: Button
