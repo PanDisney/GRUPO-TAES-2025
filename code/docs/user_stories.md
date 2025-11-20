@@ -38,7 +38,7 @@
 
 ---
 
-## US-04: Iniciar Nova Partida
+## US-04: Iniciar Nova Partida ✅
 **Como** um utilizador  
 **Quero** iniciar uma nova partida contra o bot  
 **Para** jogar Bisca

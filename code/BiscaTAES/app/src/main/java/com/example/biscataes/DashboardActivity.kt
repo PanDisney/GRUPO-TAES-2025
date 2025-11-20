@@ -7,6 +7,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.widget.Button
 import android.content.Intent
+import android.widget.TextView
 
 class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +21,12 @@ class DashboardActivity : AppCompatActivity() {
             val intent = Intent(this, GameActivity::class.java)
 
             // 4. Iniciar a nova activity
+            startActivity(intent)
+        }
+        
+        val rankingButton = findViewById<Button>(R.id.buttonRanking)
+        rankingButton.setOnClickListener {
+            val intent = Intent(this, RankingActivity::class.java)
             startActivity(intent)
         }
     }

@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BiscaTAES">
         <activity
+            android:name=".RankingActivity"
+            android:exported="false" />
+        <activity
             android:name=".GameActivity"
             android:exported="false" />
         <activity

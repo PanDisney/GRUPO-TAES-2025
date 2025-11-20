@@ -348,6 +348,9 @@ class GameActivity : AppCompatActivity() {
         val title: String
         val message: String
 
+        // Save the result using ScoreManager
+        ScoreManager.saveGameResult(this, result, gameEngine.playerPoints, gameEngine.botPoints)
+
         when (result) {
             GameEngine.GameResult.PLAYER_WINS -> {
                 title = "Vitória!"
