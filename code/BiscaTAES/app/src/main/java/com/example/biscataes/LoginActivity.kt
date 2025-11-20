@@ -48,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
         Toast.makeText(this, "A autenticar...", Toast.LENGTH_SHORT).show()
 
         // Fingir que recebemos dados do servidor
-        val fakeUserName = "Utilizador de Teste"
+        val fakeUserName = "Paquito"
 
         Toast.makeText(this, "Bem-vindo, $fakeUserName!", Toast.LENGTH_LONG).show()
 

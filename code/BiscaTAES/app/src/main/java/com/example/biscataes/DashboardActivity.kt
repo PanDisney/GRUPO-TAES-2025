@@ -1,39 +1,110 @@
 package com.example.biscataes
 
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import android.widget.Button
 import android.content.Intent
+import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+
+import androidx.activity.result.contract.ActivityResultContracts
 
 class DashboardActivity : AppCompatActivity() {
+
+    companion object {
+        private const val MOCK_ENTRY_FEE = 50 // Define a mock entry fee
+        private var mockCoins = 100 // Mock user's coin balance, now static
+    }
+
+    private lateinit var startGameButton: Button
+    private lateinit var rankingButton: Button
+    private lateinit var customizationButton: Button
+    private lateinit var buyCoinsButton: Button
+    private lateinit var welcomeText: TextView
+    private lateinit var avatarImageView: ImageView
+    private lateinit var coinsBalanceText: TextView
+
+    private val gameLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            // Game finished, update coins with the final balance from GameActivity
+            mockCoins = result.data?.getIntExtra("FINAL_COINS", mockCoins) ?: mockCoins
+            updateCoinDisplayAndButtonState()
+            Toast.makeText(this, "Bem-vindo de volta! Saldo atual: $mockCoins moedas.", Toast.LENGTH_LONG).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
-        val startGameButton = findViewById<Button>(R.id.buttonStartGame)
+        startGameButton = findViewById(R.id.buttonStartGame)
+        rankingButton = findViewById(R.id.buttonRanking)
+        customizationButton = findViewById(R.id.buttonCustomization)
+        buyCoinsButton = findViewById(R.id.buttonBuyCoins)
+        welcomeText = findViewById(R.id.welcomeText)
+        avatarImageView = findViewById(R.id.avatarImageView)
+        coinsBalanceText = findViewById(R.id.coinsBalanceText)
+
+        // Verificar se há dados de utilizador
+        val userName = intent.getStringExtra("USER_NAME")
+
+        if (userName != null) {
+            // Utilizador autenticado
+            welcomeText.text = "Bem-vindo, $userName!"
+            avatarImageView.visibility = View.VISIBLE
+            avatarImageView.setImageResource(R.drawable.my_avatar)
+            coinsBalanceText.visibility = View.VISIBLE
+            buyCoinsButton.visibility = View.VISIBLE
+            updateCoinDisplayAndButtonState() // Initial update
+        } else {
+            // Utilizador anónimo
+            welcomeText.text = "Bem-vindo, Anónimo!"
+            avatarImageView.visibility = View.GONE
+            coinsBalanceText.visibility = View.GONE
+            buyCoinsButton.visibility = View.GONE
+        }
 
         startGameButton.setOnClickListener {
-            // 3. Criar a Intenção para ir para o GameActivity
             val intent = Intent(this, GameActivity::class.java)
-
-            // 4. Iniciar a nova activity
-            startActivity(intent)
+            if (userName != null) {
+                if (mockCoins >= MOCK_ENTRY_FEE) {
+                    intent.putExtra("CURRENT_COINS", mockCoins)
+                    intent.putExtra("ENTRY_FEE", MOCK_ENTRY_FEE)
+                    gameLauncher.launch(intent)
+                } else {
+                    Toast.makeText(this, "Saldo insuficiente para iniciar o jogo! Necessita de $MOCK_ENTRY_FEE moedas.", Toast.LENGTH_LONG).show()
+                }
+            } else {
+                startActivity(intent)
+            }
         }
-        
-        val rankingButton = findViewById<Button>(R.id.buttonRanking)
+
         rankingButton.setOnClickListener {
             val intent = Intent(this, RankingActivity::class.java)
             startActivity(intent)
         }
 
-        val customizationButton = findViewById<Button>(R.id.buttonCustomization)
         customizationButton.setOnClickListener {
             val intent = Intent(this, CustomizationActivity::class.java)
             startActivity(intent)
+        }
+
+        buyCoinsButton.setOnClickListener {
+            // Ação para comprar moedas (ex: abrir um novo ecrã ou mostrar um diálogo)
+            Toast.makeText(this, "Aqui abriria o ecrã de compra de moedas!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun updateCoinDisplayAndButtonState() {
+        coinsBalanceText.visibility = View.VISIBLE
+        coinsBalanceText.text = "Moedas: $mockCoins"
+
+        if (mockCoins < MOCK_ENTRY_FEE) {
+            startGameButton.isEnabled = false
+        } else {
+            startGameButton.isEnabled = true
         }
     }
 }
