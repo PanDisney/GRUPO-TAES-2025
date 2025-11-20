@@ -2,6 +2,7 @@ package com.example.biscataes
 
 import android.content.Intent
 import android.graphics.Color // <-- IMPORTAR CORES
+import android.graphics.drawable.GradientDrawable // <-- Importar GradientDrawable para design melhor
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -29,6 +30,7 @@ class GameActivity : AppCompatActivity() {
 
         // Chamar a nossa função de desenhar (agora atualizada)
         drawPlayerHand()
+        drawBotHand() // <-- Desenhar a mão do Bot
         displayTrumpCard()
         updateScoreboardView()
 
@@ -66,9 +68,15 @@ class GameActivity : AppCompatActivity() {
             params.setMargins(8, 0, 8, 0)
             cardTextView.layoutParams = params
 
-            cardTextView.setBackgroundColor(0xFFFFFFFF.toInt()) // Fundo branco
+            // Design das cartas do Jogador (Frente)
+            val shape = GradientDrawable()
+            shape.shape = GradientDrawable.RECTANGLE
+            shape.setColor(Color.WHITE)
+            shape.setStroke(2, Color.BLACK)
+            shape.cornerRadius = 15f // Cantos arredondados
+            cardTextView.background = shape
 
-            // 3. Definir a cor (Vermelho ou Preto)
+            // 3. Definir a cor do texto (Vermelho ou Preto)
             if (card.suit == Suit.HEARTS || card.suit == Suit.DIAMONDS) {
                 cardTextView.setTextColor(Color.RED)
             } else {
@@ -95,6 +103,7 @@ class GameActivity : AppCompatActivity() {
 
                     // Redesenhar a mão e resolver a vaza
                     drawPlayerHand()
+                    drawBotHand() // Atualizar mão do bot (jogou carta)
                     startTrickResolutionDelay()
                 } else {
                     // --- O JOGADOR RESPONDE AO BOT ---
@@ -102,6 +111,7 @@ class GameActivity : AppCompatActivity() {
                     if (moveWasValid) {
                         updateTableView() // Mostra a carta do jogador
                         drawPlayerHand()
+                        drawBotHand() // Atualizar mão do bot (sincronizar)
                         startTrickResolutionDelay()
                     } else {
                         // Jogada inválida!
@@ -115,6 +125,31 @@ class GameActivity : AppCompatActivity() {
             handLayout.addView(cardTextView)
 
 
+        }
+    }
+
+    // --- NOVA FUNÇÃO: Desenhar a mão do Bot (Costas da carta) ---
+    private fun drawBotHand() {
+        val handSize = gameEngine.getBotHandSize()
+        val handLayout = findViewById<LinearLayout>(R.id.botHandLayout)
+
+        handLayout.removeAllViews()
+
+        for (i in 0 until handSize) {
+            val cardView = TextView(this)
+
+            // Estilo "Verso da Carta" - USANDO IMAGEM
+            cardView.setBackgroundResource(R.drawable.back_card_red) // <-- MUDANÇA AQUI PARA USAR A IMAGEM .PNG
+            cardView.text = "" // Sem texto
+
+            // Definir o tamanho da "carta" (EXATAMENTE igual ao do player)
+            val cardWidth = 120
+            val cardHeight = 180
+            val params = LinearLayout.LayoutParams(cardWidth, cardHeight)
+            params.setMargins(8, 0, 8, 0)
+            cardView.layoutParams = params
+
+            handLayout.addView(cardView)
         }
     }
 
@@ -132,9 +167,20 @@ class GameActivity : AppCompatActivity() {
         val playerCard = gameEngine.playerCardOnTable
         val botCard = gameEngine.botCardOnTable
 
+        // Helper para criar o shape das cartas jogadas
+        fun setupPlayedCardStyle(view: TextView) {
+            val shape = GradientDrawable()
+            shape.shape = GradientDrawable.RECTANGLE
+            shape.setColor(Color.WHITE)
+            shape.setStroke(2, Color.BLACK)
+            shape.cornerRadius = 15f
+            view.background = shape
+        }
+
         // Atualizar a carta do jogador
         if (playerCard != null) {
             playerCardView.text = "${getRankSymbol(playerCard.rank)}\n${getSuitSymbol(playerCard.suit)}"
+            setupPlayedCardStyle(playerCardView)
             if (playerCard.suit == Suit.HEARTS || playerCard.suit == Suit.DIAMONDS) {
                 playerCardView.setTextColor(Color.RED)
             } else {
@@ -148,6 +194,7 @@ class GameActivity : AppCompatActivity() {
         // Atualizar a carta do Bot
         if (botCard != null) {
             botCardView.text = "${getRankSymbol(botCard.rank)}\n${getSuitSymbol(botCard.suit)}"
+            setupPlayedCardStyle(botCardView)
             if (botCard.suit == Suit.HEARTS || botCard.suit == Suit.DIAMONDS) {
                 botCardView.setTextColor(Color.RED)
             } else {
@@ -170,6 +217,13 @@ class GameActivity : AppCompatActivity() {
         if (trumpCard != null) {
             // 3. Usar as funções helper que já temos
             trumpView.text = "${getRankSymbol(trumpCard.rank)}\n${getSuitSymbol(trumpCard.suit)}"
+
+            val shape = GradientDrawable()
+            shape.shape = GradientDrawable.RECTANGLE
+            shape.setColor(Color.WHITE)
+            shape.setStroke(2, Color.BLACK)
+            shape.cornerRadius = 15f
+            trumpView.background = shape
 
             // 4. Definir a cor
             if (trumpCard.suit == Suit.HEARTS || trumpCard.suit == Suit.DIAMONDS) {
@@ -233,6 +287,7 @@ class GameActivity : AppCompatActivity() {
             // Atualiza toda a UI
             updateTableView()      // Limpa a mesa
             drawPlayerHand()       // Mostra a mão com a nova carta
+            drawBotHand()          // <-- Atualiza mão do Bot (compra de cartas)
             updateScoreboardView() // Atualiza os pontos
 
             // --- A GRANDE MUDANÇA ---
@@ -261,6 +316,7 @@ class GameActivity : AppCompatActivity() {
             Handler(Looper.getMainLooper()).postDelayed({
                 gameEngine.botLeadsTrick() // Bot joga a sua carta
                 updateTableView()          // Mostrar a carta do Bot na mesa
+                drawBotHand()              // <-- Atualiza mão do Bot
                 isUiLocked = false         // Desbloquear a UI para o jogador responder
             }, 1000) // Bot "pensa" por 1 segundo
 
@@ -299,6 +355,7 @@ class GameActivity : AppCompatActivity() {
         builder.setPositiveButton("Jogar Novamente") { _, _ ->
             gameEngine.startNewGame()
             drawPlayerHand()
+            drawBotHand() // <-- Reiniciar mão do bot
             displayTrumpCard()
             updateScoreboardView()
             updateTableView() // Limpa as cartas da mesa da jogada anterior
@@ -312,4 +369,3 @@ class GameActivity : AppCompatActivity() {
         dialog.show()
     }
 }
-

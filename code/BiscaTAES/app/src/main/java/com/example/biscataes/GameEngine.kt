@@ -287,4 +287,9 @@ class GameEngine {
     // Adicione esta função para a Activity poder perguntar
     fun isPlayerTurn(): Boolean = isPlayerTurnToLead
 
+    // Função para obter o tamanho da mão do Bot (para desenhar cartas viradas)
+    fun getBotHandSize(): Int {
+        return bot.getHand().size
+    }
+
 }
