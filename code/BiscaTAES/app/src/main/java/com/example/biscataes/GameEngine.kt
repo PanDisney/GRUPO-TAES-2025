@@ -33,16 +33,33 @@ class GameEngine {
     var botPoints = 0
         private set
 
+    // --- US-10: Propriedades da Partida ---
+    var playerGamesWon = 0
+        private set
+    var botGamesWon = 0
+        private set
+    // --- Fim US-10 ---
+
     // --- 2. Função de Setup (Início) ---
     init {
         // Esta função é chamada assim que o GameEngine é criado
-        Log.d("GameEngine", "Motor de Jogo Criado. A iniciar novo jogo...")
+        Log.d("GameEngine", "Motor de Jogo Criado. A iniciar nova partida...")
+        startNewMatch()
+    }
+
+    // --- US-10: Iniciar uma nova partida (zera tudo) ---
+    fun startNewMatch() {
+        playerGamesWon = 0
+        botGamesWon = 0
         startNewGame()
     }
 
-    // Função para preparar um novo jogo
+
+    // Função para preparar um novo jogo (ronda)
     fun startNewGame() {
         gameResult = GameResult.UNDEFINED
+        playerPoints = 0 // Zerar pontos do jogo
+        botPoints = 0
 
         // Criar os participantes
         player = Player("Humano", isBot = false)
@@ -66,6 +83,7 @@ class GameEngine {
         }
 
         isGameRunning = true
+        isPlayerTurnToLead = true // Jogador começa sempre o primeiro jogo da partida
 
         // --- Debug: Imprimir o estado inicial ---
         Log.d("GameEngine", "--- Jogo Iniciado ---")
@@ -271,12 +289,41 @@ class GameEngine {
             if (playerPoints > botPoints) {
                 gameResult = GameResult.PLAYER_WINS
                 Log.d("GameEngine", "Vencedor: Jogador!")
+                // US-12: Lógica de Capote
+                when {
+                    playerPoints == 120 -> {
+                        playerGamesWon = 4 // Vence a partida inteira
+                        Log.d("GameEngine", "CAPOTE! Jogador vence a partida.")
+                    }
+                    playerPoints > 90 -> { // 91 a 119
+                        playerGamesWon += 2 // Ganha 2 jogos
+                        Log.d("GameEngine", "Boa vitória! Jogador ganha 2 jogos.")
+                    }
+                    else -> {
+                        playerGamesWon++ // Vitória normal
+                    }
+                }
             } else if (botPoints > playerPoints) {
                 gameResult = GameResult.BOT_WINS
                 Log.d("GameEngine", "Vencedor: Bot!")
-            } else {
+                // US-12: Lógica de Capote para o Bot
+                when {
+                    botPoints == 120 -> {
+                        botGamesWon = 4 // Vence a partida inteira
+                        Log.d("GameEngine", "CAPOTE! Bot vence a partida.")
+                    }
+                    botPoints > 90 -> { // 91 a 119
+                        botGamesWon += 2 // Ganha 2 jogos
+                        Log.d("GameEngine", "Boa vitória! Bot ganha 2 jogos.")
+                    }
+                    else -> {
+                        botGamesWon++ // Vitória normal
+                    }
+                }
+            } else { // Empate (60-60)
                 gameResult = GameResult.DRAW
                 Log.d("GameEngine", "Empate!")
+                // Ninguém ganha jogos num empate
             }
         }
     }

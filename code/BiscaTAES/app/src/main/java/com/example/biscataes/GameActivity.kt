@@ -261,19 +261,31 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    // --- US-10: ATUALIZADA ---
     private fun updateScoreboardView() {
-        // 1. Encontrar os TextViews
+        // 1. Encontrar os TextViews para os pontos
         val playerScoreView = findViewById<TextView>(R.id.playerScoreView)
         val botScoreView = findViewById<TextView>(R.id.botScoreView)
 
-        // 2. Ir buscar os pontos ao motor de jogo
+        // 2. Encontrar os TextViews para os jogos ganhos (NOVOS)
+        val playerGamesWonView = findViewById<TextView>(R.id.playerGamesWonView)
+        val botGamesWonView = findViewById<TextView>(R.id.botGamesWonView)
+
+        // 3. Ir buscar os pontos e jogos ganhos
         val playerPoints = gameEngine.playerPoints
         val botPoints = gameEngine.botPoints
+        val playerGames = gameEngine.playerGamesWon
+        val botGames = gameEngine.botGamesWon
 
-        // 3. Atualizar o texto
-        playerScoreView.text = "Tu: $playerPoints"
-        botScoreView.text = "Bot: $botPoints"
+        // 4. Atualizar o texto dos pontos
+        playerScoreView.text = "Tu: $playerPoints pts"
+        botScoreView.text = "Bot: $botPoints pts"
+
+        // 5. Atualizar o texto dos jogos ganhos, com destaque para 4 vitórias
+        playerGamesWonView.text = "Tu: $playerGames/4"
+        botGamesWonView.text = "Bot: $botGames/4"
     }
+
 
     // --- NOVA FUNÇÃO: Atualiza o Deck ---
     private fun updateDeckView() {
@@ -353,7 +365,7 @@ class GameActivity : AppCompatActivity() {
         // Se o jogo acabou, não faz nada
         if (!gameEngine.isGameRunning) {
             isUiLocked = false
-            showEndGameDialog()
+            showEndGameDialog() // US-10: A lógica vai para aqui
             return
         }
 
@@ -376,7 +388,15 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    // --- US-10: LÓGICA DE FIM DE PARTIDA ---
     private fun showEndGameDialog() {
+        // Primeiro, verificar se a partida acabou (alguém chegou a 4)
+        if (gameEngine.playerGamesWon >= 4 || gameEngine.botGamesWon >= 4) {
+            showEndMatchDialog()
+            return // Para não mostrar o diálogo de fim de jogo
+        }
+
+        // --- Se a partida não acabou, mostra o resultado do JOGO atual ---
         val result = gameEngine.gameResult
         val title: String
         val message: String
@@ -386,18 +406,18 @@ class GameActivity : AppCompatActivity() {
 
         when (result) {
             GameEngine.GameResult.PLAYER_WINS -> {
-                title = "Vitória!"
-                message = "Parabéns, você ganhou o jogo!"
+                title = "Jogo ganho!"
+                message = "Você ganhou este jogo. \nPontos: ${gameEngine.playerPoints} - ${gameEngine.botPoints}"
             }
             GameEngine.GameResult.BOT_WINS -> {
-                title = "Derrota"
-                message = "O Bot ganhou desta vez. Tente novamente!"
+                title = "Jogo perdido"
+                message = "O Bot ganhou este jogo. \nPontos: ${gameEngine.playerPoints} - ${gameEngine.botPoints}"
             }
             GameEngine.GameResult.DRAW -> {
                 title = "Empate"
-                message = "O jogo terminou em empate."
+                message = "Este jogo terminou em empate."
             }
-            else -> return // Não faz nada se o resultado for indefinido
+            else -> return
         }
 
         val builder = AlertDialog.Builder(this)
@@ -409,12 +429,7 @@ class GameActivity : AppCompatActivity() {
             if (currentCoins >= entryFee) { // Check if enough coins for another game
                 currentCoins -= entryFee // Deduct for the game just played
                 gameEngine.startNewGame()
-                drawPlayerHand()
-                drawBotHand() // <-- Reiniciar mão do bot
-                displayTrumpCard()
-                updateScoreboardView()
-                updateTableView() // Limpa as cartas da mesa da jogada anterior
-                updateDeckView()  // <-- Atualiza o deck
+                resetUiForNewGame() // Use the helper function
             } else {
                 Toast.makeText(this, "Saldo insuficiente para jogar novamente! Necessita de $entryFee moedas.", Toast.LENGTH_LONG).show()
                 val resultIntent = Intent()
@@ -433,5 +448,50 @@ class GameActivity : AppCompatActivity() {
 
         val dialog = builder.create()
         dialog.show()
+    }
+
+    // --- US-10: NOVA FUNÇÃO para o fim da PARTIDA ---
+    private fun showEndMatchDialog() {
+        val title: String
+        val message: String
+
+        if (gameEngine.playerGamesWon >= 4) {
+            title = "VITÓRIA NA PARTIDA!"
+            message = "Parabéns, você venceu a partida por ${gameEngine.playerGamesWon} a ${gameEngine.botGamesWon}!"
+        } else {
+            title = "DERROTA NA PARTIDA"
+            message = "O Bot venceu a partida por ${gameEngine.botGamesWon} a ${gameEngine.playerGamesWon}. Mais sorte para a próxima!"
+        }
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(title)
+        builder.setMessage(message)
+        builder.setCancelable(false)
+
+        // Botão para começar uma nova partida
+        builder.setPositiveButton("Jogar Novamente") { _, _ ->
+            gameEngine.startNewMatch() // Reinicia a contagem de jogos
+            resetUiForNewGame()
+        }
+
+        builder.setNegativeButton("Voltar ao Menu") { _, _ ->
+            finish()
+        }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    // --- US-10: NOVA FUNÇÃO para reiniciar a UI ---
+    private fun resetUiForNewGame() {
+        drawPlayerHand()
+        drawBotHand()
+        displayTrumpCard()
+        updateScoreboardView()
+        updateTableView() // Limpa a mesa
+        updateDeckView()
+        isUiLocked = false
+        // Se o bot ganhou o jogo anterior, ele começa a jogar
+        checkIfBotPlaysFirst()
     }
 }

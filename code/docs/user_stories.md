@@ -34,7 +34,7 @@
 ### Critérios de Aceitação
 - Dado que fiz login ou entrei como anónimo
 - Quando acesso o painel de controlo
-- Então devo ver botões para: iniciar novo jogo, (ver histórico, ver classificações e aceder a personalizações) ❌
+- Então devo ver botões para: iniciar novo jogo, (ver histórico, ver classificações e aceder a personalizações) 
 
 ---
 
@@ -150,7 +150,10 @@
 ### Critérios de Aceitação
 - Dado que joguei um jogo
 - Quando ganho entre 91 e 119 pontos
-- Então recebo 2 marcas (Capote)
+- Então recebo 2 marcas
+- E recebo moedas bónus
+- Quando ganho com 120 pontos 
+- Então venço o set (Capote)
 - E recebo moedas bónus
 
 ---

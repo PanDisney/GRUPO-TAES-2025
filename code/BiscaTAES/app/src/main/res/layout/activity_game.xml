@@ -36,7 +36,8 @@
         android:padding="8dp"
         app:layout_constraintTop_toBottomOf="@id/botHandScrollView"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="8dp">
+        app:layout_constraintBottom_toTopOf="@id/playerHandScrollView"
+        app:layout_constraintVertical_bias="0.5"> <!-- Centralizado verticalmente -->
 
         <TextView
             android:layout_width="wrap_content"
@@ -64,7 +65,7 @@
             android:gravity="center"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:text="Tu: 0" />
+            tools:text="Tu: 0 pts" />
 
         <TextView
             android:id="@+id/botScoreView"
@@ -73,7 +74,7 @@
             android:gravity="center"
             android:textSize="16sp"
             android:textStyle="bold"
-            tools:text="Bot: 0" />
+            tools:text="Bot: 0 pts" />
 
         <!-- Deck (Baralho) Container Vazio (Preenchido via Código) -->
         <FrameLayout
@@ -96,6 +97,46 @@
 
     </LinearLayout>
 
+    <!-- NEW: Games Won Scoreboard -->
+    <LinearLayout
+        android:id="@+id/gamesWonLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/botHandScrollView"
+        app:layout_constraintBottom_toTopOf="@id/playerHandScrollView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.5"
+        android:layout_marginEnd="16dp"> <!-- Adicionado margem para melhor espaçamento -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PARTIDA"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/playerGamesWonView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Tu: 0/4" />
+
+        <TextView
+            android:id="@+id/botGamesWonView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Bot: 0/4" />
+
+    </LinearLayout>
+
     <!-- Carta jogada pelo Bot -->
     <TextView
         android:id="@+id/botPlayedCardView"
@@ -106,7 +147,7 @@
         android:background="#FFFFFF"
         android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@id/botHandScrollView"
-        app:layout_constraintBottom_toTopOf="@id/playerPlayedCardView"
+        app:layout_constraintBottom_toTopOf="@id/playerHandScrollView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="K\n♣"
