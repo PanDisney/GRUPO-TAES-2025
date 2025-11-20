@@ -1,5 +1,6 @@
 package com.example.biscataes
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color // <-- IMPORTAR CORES
 import android.graphics.drawable.GradientDrawable // <-- Importar GradientDrawable para design melhor
@@ -136,11 +137,22 @@ class GameActivity : AppCompatActivity() {
 
         handLayout.removeAllViews()
 
+        // Obter a preferência do verso da carta
+        val sharedPref = getSharedPreferences("GameSettings", Context.MODE_PRIVATE)
+        val cardBackName = sharedPref.getString("card_back", "back_card_red") // Padrão: vermelho
+
+        val cardBackResId = resources.getIdentifier(cardBackName, "drawable", packageName)
+
+
         for (i in 0 until handSize) {
             val cardView = TextView(this)
 
             // Estilo "Verso da Carta" - USANDO IMAGEM
-            cardView.setBackgroundResource(R.drawable.back_card_red) // <-- MUDANÇA AQUI PARA USAR A IMAGEM .PNG
+            if (cardBackResId != 0) {
+                cardView.setBackgroundResource(cardBackResId)
+            } else {
+                cardView.setBackgroundResource(R.drawable.back_card_red) // Fallback
+            }
             cardView.text = "" // Sem texto
 
             // Definir o tamanho da "carta" (EXATAMENTE igual ao do player)
@@ -258,6 +270,18 @@ class GameActivity : AppCompatActivity() {
     private fun updateDeckView() {
         val deckView = findViewById<TextView>(R.id.deckView)
         val remaining = gameEngine.getCardsRemaining()
+
+        // Obter a preferência do verso da carta
+        val sharedPref = getSharedPreferences("GameSettings", Context.MODE_PRIVATE)
+        val cardBackName = sharedPref.getString("card_back", "back_card_red") // Padrão: vermelho
+        val cardBackResId = resources.getIdentifier(cardBackName, "drawable", packageName)
+
+        if (cardBackResId != 0) {
+            deckView.setBackgroundResource(cardBackResId)
+        } else {
+            deckView.setBackgroundResource(R.drawable.back_card_red)
+        }
+
 
         if (remaining > 0) {
             deckView.text = remaining.toString()

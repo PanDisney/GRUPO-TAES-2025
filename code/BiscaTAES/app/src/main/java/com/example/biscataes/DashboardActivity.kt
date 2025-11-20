@@ -29,5 +29,11 @@ class DashboardActivity : AppCompatActivity() {
             val intent = Intent(this, RankingActivity::class.java)
             startActivity(intent)
         }
+
+        val customizationButton = findViewById<Button>(R.id.buttonCustomization)
+        customizationButton.setOnClickListener {
+            val intent = Intent(this, CustomizationActivity::class.java)
+            startActivity(intent)
+        }
     }
 }

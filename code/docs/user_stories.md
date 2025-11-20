@@ -22,7 +22,7 @@
 - Dado que estou no ecrã de login
 - Quando clico em "Continuar como Anónimo"
 - Então posso aceder apenas a jogos de prática
-- E não posso jogar partidas, ganhar moedas, usar personalizações ou aceder a classificações e histórico ❌
+- E não posso jogar partidas, ganhar moedas, usar personalizações ou aceder a classificações e histórico 
 
 ---
 
