@@ -25,5 +25,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
 
         }
+
+        // --- 2. NOVO BOTÃO: LOGIN ---
+        val loginButton = findViewById<Button>(R.id.buttonLogin)
+        loginButton.setOnClickListener {
+            // Abre o ecrã de Login
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
