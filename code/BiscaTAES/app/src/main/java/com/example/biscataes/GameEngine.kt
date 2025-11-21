@@ -2,7 +2,7 @@ package com.example.biscataes
 
 import android.util.Log // Vamos usar isto para "imprimir" o estado do jogo
 
-class GameEngine {
+class GameEngine(startMode: String? = null) {
 
     enum class GameResult{
         PLAYER_WINS,
@@ -44,19 +44,19 @@ class GameEngine {
     init {
         // Esta função é chamada assim que o GameEngine é criado
         Log.d("GameEngine", "Motor de Jogo Criado. A iniciar nova partida...")
-        startNewMatch()
+        startNewMatch(startMode)
     }
 
     // --- US-10: Iniciar uma nova partida (zera tudo) ---
-    fun startNewMatch() {
+    fun startNewMatch(startMode: String? = null) {
         playerGamesWon = 0
         botGamesWon = 0
-        startNewGame()
+        startNewGame(true, startMode)
     }
 
 
     // Função para preparar um novo jogo (ronda)
-    fun startNewGame() {
+    fun startNewGame(isFirstGame: Boolean = false, startMode: String? = null) {
         gameResult = GameResult.UNDEFINED
         playerPoints = 0 // Zerar pontos do jogo
         botPoints = 0
@@ -67,7 +67,8 @@ class GameEngine {
 
         // Criar e preparar o baralho
         deck = Deck()
-        deck.shuffle()
+        val shouldShuffle = startMode != "NO_SHUFFLE"
+        deck.shuffleIfNeeded(shouldShuffle)
         trumpCard = deck.setTrump() // Define o trunfo
 
         // Verificar se o trunfo foi definido corretamente
@@ -83,7 +84,16 @@ class GameEngine {
         }
 
         isGameRunning = true
-        isPlayerTurnToLead = true // Jogador começa sempre o primeiro jogo da partida
+        if (isFirstGame) {
+            isPlayerTurnToLead = when (startMode) {
+                "BOT_STARTS" -> false
+                else -> true // Player starts by default or if "NO_SHUFFLE"
+            }
+        } else {
+            // For subsequent games in a match, the original logic is kept.
+            // A possible improvement is to have the winner of the previous game start.
+            isPlayerTurnToLead = true
+        }
 
         // --- Debug: Imprimir o estado inicial ---
         Log.d("GameEngine", "--- Jogo Iniciado ---")

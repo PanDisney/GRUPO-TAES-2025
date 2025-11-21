@@ -6,6 +6,7 @@ import android.widget.Button
 import android.content.Intent
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 
@@ -25,6 +26,9 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var welcomeText: TextView
     private lateinit var avatarImageView: ImageView
     private lateinit var coinsBalanceText: TextView
+    private lateinit var developerModeLayout: LinearLayout
+    private lateinit var devNoShuffleButton: Button
+    private lateinit var devStartBotFirstButton: Button
 
     private val gameLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
@@ -46,6 +50,11 @@ class DashboardActivity : AppCompatActivity() {
         welcomeText = findViewById(R.id.welcomeText)
         avatarImageView = findViewById(R.id.avatarImageView)
         coinsBalanceText = findViewById(R.id.coinsBalanceText)
+        developerModeLayout = findViewById(R.id.developerModeLayout)
+        devNoShuffleButton = findViewById(R.id.buttonDevStartPlayerFirst) // ID is the same
+        devStartBotFirstButton = findViewById(R.id.buttonDevStartBotFirst)
+
+        devNoShuffleButton.text = "Dev: No Shuffle"
 
         // Verificar se há dados de utilizador
         val userName = intent.getStringExtra("USER_NAME")
@@ -66,19 +75,23 @@ class DashboardActivity : AppCompatActivity() {
             buyCoinsButton.visibility = View.GONE
         }
 
+        // Developer Mode Toggle
+        welcomeText.setOnLongClickListener {
+            developerModeLayout.visibility = if (developerModeLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            Toast.makeText(this, "Developer Mode Toggled", Toast.LENGTH_SHORT).show()
+            true
+        }
+
         startGameButton.setOnClickListener {
-            val intent = Intent(this, GameActivity::class.java)
-            if (userName != null) {
-                if (mockCoins >= MOCK_ENTRY_FEE) {
-                    intent.putExtra("CURRENT_COINS", mockCoins)
-                    intent.putExtra("ENTRY_FEE", MOCK_ENTRY_FEE)
-                    gameLauncher.launch(intent)
-                } else {
-                    Toast.makeText(this, "Saldo insuficiente para iniciar o jogo! Necessita de $MOCK_ENTRY_FEE moedas.", Toast.LENGTH_LONG).show()
-                }
-            } else {
-                startActivity(intent)
-            }
+            startGameWithMode(null) // Normal game start
+        }
+
+        devNoShuffleButton.setOnClickListener {
+            startGameWithMode("NO_SHUFFLE")
+        }
+
+        devStartBotFirstButton.setOnClickListener {
+            startGameWithMode("BOT_STARTS")
         }
 
         rankingButton.setOnClickListener {
@@ -96,6 +109,25 @@ class DashboardActivity : AppCompatActivity() {
             mockCoins += 100 // Add 100 coins
             updateCoinDisplayAndButtonState()
             Toast.makeText(this, "100 moedas adicionadas!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun startGameWithMode(startMode: String?) {
+        val userName = intent.getStringExtra("USER_NAME")
+        val intent = Intent(this, GameActivity::class.java)
+
+        if (userName != null) {
+            if (mockCoins >= MOCK_ENTRY_FEE) {
+                intent.putExtra("CURRENT_COINS", mockCoins)
+                intent.putExtra("ENTRY_FEE", MOCK_ENTRY_FEE)
+                startMode?.let { intent.putExtra("START_MODE", it) }
+                gameLauncher.launch(intent)
+            } else {
+                Toast.makeText(this, "Saldo insuficiente para iniciar o jogo! Necessita de $MOCK_ENTRY_FEE moedas.", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            startMode?.let { intent.putExtra("START_MODE", it) }
+            startActivity(intent)
         }
     }
 

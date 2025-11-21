@@ -33,6 +33,12 @@ class Deck {
         cards.shuffle()
     }
 
+    fun shuffleIfNeeded(shouldShuffle: Boolean) {
+        if (shouldShuffle) {
+            cards.shuffle()
+        }
+    }
+
     // Função para puxar (comprar) a carta do topo
     fun drawCard(): Card? {
         if (cards.isEmpty()) {
