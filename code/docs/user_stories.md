@@ -311,6 +311,8 @@
 - Então sou redirecionado para um formulário de recuperação
 - E recebo um email com um link para redefinir a senha
 
+---
+
 ## US-25: Compra de Moedas ✅
 **Como** um utilizador  
 **Quero** comprar moedas  
@@ -321,4 +323,17 @@
 - Quando clico em "Comprar Moedas"
 - Então sou redirecionado para um formulário de compra onde seleciono quantas moedas quero
 - E atualiza o saldo de moedas do utilizador
+
+---
+
+## US-26: Continuar jogo✅
+**Como** um utilizador  
+**Quero** voltar ao jogo  
+**Para** continuar a jogar
+
+### Critérios de Aceitação
+- Dado que estou no ecrã do utilizador
+- Quando clico em "Continuar Jogo"
+- Então sou redirecionado para o jogo em que estava
+
 
