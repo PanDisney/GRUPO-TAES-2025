@@ -9,8 +9,9 @@ TESTES KATALON(SEMANA 3)
 USER STORIES:
 
 US-11: Ecrã de Resultados da Partida
-US-13: Conquista Bandeira
+US-13: Conquista Bandeira(testar)
 US-15: Visualização do Histórico de Partidas
+
 
 STORY POINTS: 30
 
