@@ -146,11 +146,7 @@
 
 ---
 
-<<<<<<< HEAD
 ## US-12: Conquista Capote✅
-=======
-## US-12: Conquista Capote ✅
->>>>>>> 78181fdb55f1b67b597210e0e147bb448a3213c6
 **Como** um utilizador  
 **Quero** ganhar a conquista Capote (2 marcas)  
 **Para** obter pontos bónus e reconhecimento
@@ -160,21 +156,18 @@
 - Quando ganho entre 91 e 119 pontos
 - Então recebo 2 marcas
 - E recebo moedas bónus
-- Quando ganho com 120 pontos 
-- Então venço o set (Capote)
-- E recebo moedas bónus
 
 ---
 
-## US-13: Conquista Bandeira
+## US-13: Conquista Bandeira ✅
 **Como** um utilizador  
-**Quero** ganhar a conquista Bandeira (3 marcas)  
+**Quero** ganhar a conquista Bandeira (4 marcas)  
 **Para** obter o máximo de pontos bónus
 
 ### Critérios de Aceitação
 - Dado que joguei um jogo
 - Quando ganho todos os 120 pontos
-- Então recebo 3 marcas (Bandeira)
+- Então recebo 4 marcas (Bandeira)
 - E recebo moedas bónus significativas
 
 ---
