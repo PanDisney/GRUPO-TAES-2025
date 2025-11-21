@@ -30,7 +30,7 @@ Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Personalizar'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.ImageButton (2)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.ImageButton - Card Yellow'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
 
