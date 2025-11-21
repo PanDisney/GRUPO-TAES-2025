@@ -20,11 +20,17 @@ import org.openqa.selenium.Keys as Keys
 Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\BiscaTAES\\app\\build\\outputs\\apk\\debug\\app-debug.apk', 
     true)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Jogar Anonimo'), 0)
+Mobile.tap(findTestObject('android.widget.Button - Login'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Personalizaes'), 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Email'), 'aluno@mail.com', 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.ImageButton'), 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Password'), '1234', 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Personalizar'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.ImageButton (2)'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
 

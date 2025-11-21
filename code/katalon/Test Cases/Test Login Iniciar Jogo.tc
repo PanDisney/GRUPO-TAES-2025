@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>Test Login Iniciar Jogo</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>9c295351-23af-4fe3-ae7f-0ce18dd356b2</testCaseGuid>
+</TestCaseEntity>

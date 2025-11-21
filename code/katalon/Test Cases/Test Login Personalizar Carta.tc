@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>Test Login Personalizar Carta</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>0c9ccc06-43ec-48c8-8630-cb504a73b380</testCaseGuid>
+</TestCaseEntity>
