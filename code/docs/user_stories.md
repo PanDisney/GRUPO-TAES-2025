@@ -117,7 +117,7 @@
 
 ---
 
-## US-10: Progressão de Partida (4 Jogos)
+## US-10: Progressão de Partida (4 Jogos) ✅
 **Como** um utilizador  
 **Quero** jogar múltiplos jogos até alguém chegar a 4 jogos ganhos  
 **Para** completar uma partida de Bisca
@@ -130,7 +130,7 @@
 
 ---
 
-## US-11: Ecrã de Resultados da Partida
+## US-11: Ecrã de Resultados da Partida 
 **Como** um utilizador  
 **Quero** ver os resultados detalhados após a partida  
 **Para** compreender o desempenho e as recompensas
@@ -142,7 +142,7 @@
 
 ---
 
-## US-12: Conquista Capote
+## US-12: Conquista Capote ✅
 **Como** um utilizador  
 **Quero** ganhar a conquista Capote (2 marcas)  
 **Para** obter pontos bónus e reconhecimento
@@ -311,7 +311,7 @@
 - Então sou redirecionado para um formulário de recuperação
 - E recebo um email com um link para redefinir a senha
 
-## US-25: Compra de Moedas
+## US-25: Compra de Moedas ✅
 **Como** um utilizador  
 **Quero** comprar moedas  
 **Para** atualizar o saldo
