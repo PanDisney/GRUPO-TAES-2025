@@ -1,0 +1,17 @@
+Semana 3
+
+COISAS POR FAZER:
+
+US-10: Progressão de Partida (4 Jogos) - botão de "Desistir" 
+
+TESTES KATALON(SEMANA 3)
+
+USER STORIES:
+
+US-11: Ecrã de Resultados da Partida
+US-13: Conquista Bandeira
+US-15: Visualização do Histórico de Partidas
+
+STORY POINTS: 30
+
+DAILY MEETINGS: 
