@@ -17,7 +17,7 @@ US-12: Conquista Capote (2 jogos)
 
 STORY POINTS: 35
 
-DAILY MEETINGS: Segunda-feira 16:00
-		Terça-feira 22:00
-		Quinta-Feira 16:00
-		Quarta-feira (esta semana) 18:00
+DAILY MEETINGS: Segunda-feira 16:00 - FEITO
+		Terça-feira 22:00 - FEITO
+		Quinta-Feira 16:00 - FEITO
+		Quarta-feira (esta semana) 18:00 - FEITO
