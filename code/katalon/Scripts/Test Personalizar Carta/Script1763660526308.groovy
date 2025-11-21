@@ -20,9 +20,13 @@ import org.openqa.selenium.Keys as Keys
 Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\BiscaTAES\\app\\build\\outputs\\apk\\debug\\app-debug.apk', 
     true)
 
-Mobile.tap(findTestObject('android.widget.Button - Jogar Anonimo'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Jogar Anonimo'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Classificao'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Personalizar'), 0)
 
-Mobile.closeApplication()
+Mobile.tap(findTestObject('Object Repository/android.widget.ImageButton'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo'), 0)
 

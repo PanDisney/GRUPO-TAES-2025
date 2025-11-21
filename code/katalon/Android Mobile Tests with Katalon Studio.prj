@@ -4,10 +4,12 @@
    <name>Android Mobile Tests with Katalon Studio</name>
    <tag></tag>
    <UUID>5eb2f934-6ef3-45d3-bf30-bd91f20f19de</UUID>
-   <freeLicense>false</freeLicense>
+   <freeLicense>true</freeLicense>
    <migratedVersion>5.9.0</migratedVersion>
+   <modifiedEdition>ENTERPRISE</modifiedEdition>
+   <modifiedVersion>10.3.2</modifiedVersion>
    <pageLoadTimeout>0</pageLoadTimeout>
-   <projectFileLocation>C:\Users\User\AndroidStudioProjects\TAES\katalon\Bisca\Android Mobile Tests with Katalon Studio.prj</projectFileLocation>
+   <projectFileLocation>C:\Users\User\AndroidStudioProjects\TAES\code\katalon\Android Mobile Tests with Katalon Studio.prj</projectFileLocation>
    <sourceContent>
       <sourceFolderList>
          <sourceFolderConfiguration>
