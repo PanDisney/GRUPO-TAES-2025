@@ -92,8 +92,10 @@ class DashboardActivity : AppCompatActivity() {
         }
 
         buyCoinsButton.setOnClickListener {
-            // Ação para comprar moedas (ex: abrir um novo ecrã ou mostrar um diálogo)
-            Toast.makeText(this, "Aqui abriria o ecrã de compra de moedas!", Toast.LENGTH_SHORT).show()
+            // Ação para comprar moedas (mock)
+            mockCoins += 100 // Add 100 coins
+            updateCoinDisplayAndButtonState()
+            Toast.makeText(this, "100 moedas adicionadas!", Toast.LENGTH_SHORT).show()
         }
     }
 
