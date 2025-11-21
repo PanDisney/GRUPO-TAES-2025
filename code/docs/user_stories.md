@@ -322,3 +322,16 @@
 - Quando clico em "Comprar Moedas"
 - Então sou redirecionado para um formulário de compra onde seleciono quantas moedas quero
 - E atualiza o saldo de moedas do utilizador
+
+## US-26 Ativação do Modo de Programador
+
+**Como** um utilizador avançado ou programador
+**Quero** poder ativar o Modo de Programador
+**Para** aceder a funcionalidades avançadas e ferramentas de depuração
+
+### Critérios de Aceitação
+- Dado que estou autenticado na aplicação
+- Quando acedo às definições da conta
+- Então devo ver a opção "Ativar Modo de Programador", que só fica disponível após confirmação de segurança extra
+- E, ao ativar o modo, aparecem opções adicionais como registo de logs detalhados, ferramentas de teste, visualização de estados  internos e simulação de cenários
+- E, ao desativar o modo, todas estas opções desaparecem da interface
