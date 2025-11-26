@@ -1,6 +1,6 @@
 # User Stories(24) - Projeto Bisca
 
-## US-01: Autenticação de Utilizador Registado✅
+## US-01: Autenticação de Utilizador Registado ✅
 **Como** um utilizador registado  
 **Quero** fazer login com as minhas credenciais  
 **Para** aceder a todas as funcionalidades da aplicação (moedas, histórico, classificações e personalizações)
@@ -146,7 +146,11 @@
 
 ---
 
+<<<<<<< HEAD
 ## US-12: Conquista Capote✅
+=======
+## US-12: Conquista Capote ✅
+>>>>>>> 78181fdb55f1b67b597210e0e147bb448a3213c6
 **Como** um utilizador  
 **Quero** ganhar a conquista Capote (2 marcas)  
 **Para** obter pontos bónus e reconhecimento
@@ -156,18 +160,21 @@
 - Quando ganho entre 91 e 119 pontos
 - Então recebo 2 marcas
 - E recebo moedas bónus
+- Quando ganho com 120 pontos 
+- Então venço o set (Capote)
+- E recebo moedas bónus
 
 ---
 
-## US-13: Conquista Bandeira ✅
+## US-13: Conquista Bandeira
 **Como** um utilizador  
-**Quero** ganhar a conquista Bandeira (4 marcas)  
+**Quero** ganhar a conquista Bandeira (3 marcas)  
 **Para** obter o máximo de pontos bónus
 
 ### Critérios de Aceitação
 - Dado que joguei um jogo
 - Quando ganho todos os 120 pontos
-- Então recebo 4 marcas (Bandeira)
+- Então recebo 3 marcas (Bandeira)
 - E recebo moedas bónus significativas
 
 ---
@@ -322,16 +329,3 @@
 - Quando clico em "Comprar Moedas"
 - Então sou redirecionado para um formulário de compra onde seleciono quantas moedas quero
 - E atualiza o saldo de moedas do utilizador
-
-## US-26 Ativação do Modo de Programador
-
-**Como** um utilizador avançado ou programador
-**Quero** poder ativar o Modo de Programador
-**Para** aceder a funcionalidades avançadas e ferramentas de depuração
-
-### Critérios de Aceitação
-- Dado que estou autenticado na aplicação
-- Quando acedo às definições da conta
-- Então devo ver a opção "Ativar Modo de Programador", que só fica disponível após confirmação de segurança extra
-- E, ao ativar o modo, aparecem opções adicionais como registo de logs detalhados, ferramentas de teste, visualização de estados  internos e simulação de cenários
-- E, ao desativar o modo, todas estas opções desaparecem da interface
