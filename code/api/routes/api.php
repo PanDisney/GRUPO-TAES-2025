@@ -13,6 +13,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [UserController::class, 'me']);
     Route::get('/users/me', [UserController::class, 'me']);
     Route::put('/users/me', [UserController::class, 'updateAuthenticatedUser']);
     Route::post('logout', [AuthController::class, 'logout']);
