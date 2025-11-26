@@ -34,7 +34,7 @@
 ### Critérios de Aceitação
 - Dado que fiz login ou entrei como anónimo
 - Quando acesso o painel de controlo
-- Então devo ver botões para: iniciar novo jogo, (ver histórico, ver classificações e aceder a personalizações) 
+- Então devo ver botões para: iniciar novo jogo, (ver histórico, ver classificações e aceder a personalizações) ...
 
 ---
 
@@ -51,7 +51,7 @@
 
 ---
 
-## US-05: Verificação de Saldo de Moedas ✅
+## US-05: Verificação de Saldo de Moedas✅
 **Como** um utilizador registado  
 **Quero** verificar o meu saldo de moedas antes de jogar  
 **Para** garantir que tenho moedas suficientes para a entrada da partida
@@ -64,7 +64,7 @@
 
 ---
 
-## US-06: Compra de Entrada de Partida ✅
+## US-06: Compra de Entrada de Partida✅
 **Como** um utilizador registado  
 **Quero** pagar a entrada de uma partida com as minhas moedas  
 **Para** jogar uma partida de verdade (não prática)
@@ -117,7 +117,11 @@
 
 ---
 
+<<<<<<< HEAD
+## US-10: Progressão de Partida (4 Jogos)✅...
+=======
 ## US-10: Progressão de Partida (4 Jogos) ✅
+>>>>>>> 78181fdb55f1b67b597210e0e147bb448a3213c6
 **Como** um utilizador  
 **Quero** jogar múltiplos jogos até alguém chegar a 4 jogos ganhos  
 **Para** completar uma partida de Bisca
@@ -142,7 +146,11 @@
 
 ---
 
+<<<<<<< HEAD
+## US-12: Conquista Capote✅
+=======
 ## US-12: Conquista Capote ✅
+>>>>>>> 78181fdb55f1b67b597210e0e147bb448a3213c6
 **Como** um utilizador  
 **Quero** ganhar a conquista Capote (2 marcas)  
 **Para** obter pontos bónus e reconhecimento
@@ -311,8 +319,6 @@
 - Então sou redirecionado para um formulário de recuperação
 - E recebo um email com um link para redefinir a senha
 
----
-
 ## US-25: Compra de Moedas ✅
 **Como** um utilizador  
 **Quero** comprar moedas  
@@ -323,17 +329,3 @@
 - Quando clico em "Comprar Moedas"
 - Então sou redirecionado para um formulário de compra onde seleciono quantas moedas quero
 - E atualiza o saldo de moedas do utilizador
-
----
-
-## US-26: Continuar jogo✅
-**Como** um utilizador  
-**Quero** voltar ao jogo  
-**Para** continuar a jogar
-
-### Critérios de Aceitação
-- Dado que estou no ecrã do utilizador
-- Quando clico em "Continuar Jogo"
-- Então sou redirecionado para o jogo em que estava
-
-

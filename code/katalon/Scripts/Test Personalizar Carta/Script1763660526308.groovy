@@ -24,7 +24,7 @@ Mobile.tap(findTestObject('Object Repository/android.widget.Button - Jogar Anoni
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Personalizar'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.ImageButton'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.ImageButton - Card Green'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
 

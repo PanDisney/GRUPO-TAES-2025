@@ -37,7 +37,8 @@ class GameActivity : AppCompatActivity() {
             currentCoins -= entryFee
         }
 
-        gameEngine = GameEngine()
+        val startMode = intent.getStringExtra("START_MODE")
+        gameEngine = GameEngine(startMode)
 
         // Chamar a nossa função de desenhar (agora atualizada)
         drawPlayerHand()
@@ -45,6 +46,7 @@ class GameActivity : AppCompatActivity() {
         displayTrumpCard()
         updateScoreboardView()
         updateDeckView() // <-- Atualiza o baralho
+        checkIfBotPlaysFirst()
     }
 
     //
@@ -444,50 +446,42 @@ class GameActivity : AppCompatActivity() {
             message = "Parabéns, você venceu a partida por ${gameEngine.playerGamesWon} a ${gameEngine.botGamesWon}!"
         } else {
             title = "DERROTA NA PARTIDA"
-            message = "O Bot venceu a partida por ${gameEngine.botGamesWon} a ${gameEngine.playerGamesWon}. Mais sorte para a próxima!"
+            message = "O Bot venceu a partida por ${gameEngine.botGamesWon} a ${gameEngine.playerGamesWon}!"
+        }
+
+        var finalCoins = currentCoins
+        if (gameEngine.playerGamesWon >= 4) {
+            finalCoins += entryFee * 2
         }
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
-        builder.setMessage(message)
+        builder.setMessage("$message\n\nSaldo final: $finalCoins moedas.")
         builder.setCancelable(false)
 
-        // Botão para começar uma nova partida
-        builder.setPositiveButton("Jogar Novamente") { _, _ ->
-            if (currentCoins >= entryFee) { // Check if enough coins for another match
-                currentCoins -= entryFee // Deduct for the new match
-                gameEngine.startNewMatch() // Reinicia a contagem de jogos
-                resetUiForNewGame()
-            } else {
-                Toast.makeText(this, "Saldo insuficiente para iniciar uma nova partida! Necessita de $entryFee moedas.", Toast.LENGTH_LONG).show()
-                val resultIntent = Intent()
-                resultIntent.putExtra("FINAL_COINS", currentCoins)
-                setResult(RESULT_OK, resultIntent)
-                finish() // Close GameActivity
-            }
-        }
-
-        builder.setNegativeButton("Voltar ao Menu") { _, _ ->
+        builder.setPositiveButton("Voltar ao Menu") { _, _ ->
             val resultIntent = Intent()
-            resultIntent.putExtra("FINAL_COINS", currentCoins)
+            resultIntent.putExtra("FINAL_COINS", finalCoins)
             setResult(RESULT_OK, resultIntent)
-            finish() // Fecha a GameActivity
+            finish()
         }
 
         val dialog = builder.create()
         dialog.show()
     }
 
-    // --- US-10: NOVA FUNÇÃO para reiniciar a UI ---
+    // --- US-10: NOVA FUNÇÃO para reiniciar a UI
     private fun resetUiForNewGame() {
         drawPlayerHand()
         drawBotHand()
         displayTrumpCard()
         updateScoreboardView()
-        updateTableView() // Limpa a mesa
         updateDeckView()
+        updateTableView() // Limpar as cartas da mesa
         isUiLocked = false
-        // Se o bot ganhou o jogo anterior, ele começa a jogar
+
+        // A decisão de quem joga a seguir é determinada pelo motor
         checkIfBotPlaysFirst()
     }
+
 }
