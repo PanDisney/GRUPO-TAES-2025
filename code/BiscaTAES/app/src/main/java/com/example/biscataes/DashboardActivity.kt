@@ -1,24 +1,61 @@
+@file:OptIn(InternalSerializationApi::class)
+
 package com.example.biscataes
 
-import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import android.widget.Button
+import android.content.Context
 import android.content.Intent
+import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.launch
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json // Added Json import
+
+// Wrapper class to match the {"data": {...}} structure from the API
+@Serializable
+data class ApiResponse(
+    val data: UserDataResponse
+)
+
+@Serializable
+data class UserDataResponse(
+    val name: String,
+    val email: String,
+    var coins: Int
+)
 
 class DashboardActivity : AppCompatActivity() {
 
     companion object {
         private const val MOCK_ENTRY_FEE = 50
-        private var mockCoins = 1000
     }
 
+    // Configured Json instance for Ktor
+    private val jsonSerializer = Json {
+        ignoreUnknownKeys = true
+    }
+
+    // UI Elements
     private lateinit var startGameButton: Button
     private lateinit var rankingButton: Button
     private lateinit var customizationButton: Button
@@ -30,11 +67,34 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var devNoShuffleButton: Button
     private lateinit var devDebugDealButton: Button
 
+    private var currentUser: UserDataResponse? = null
+
+    // Ktor HTTP Client with Authentication
+    private val client by lazy {
+        HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(jsonSerializer) // Pass the configured Json instance
+            }
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        val token = getAuthToken()
+                        if (token != null) {
+                            BearerTokens(token, "") // refresh token is not used
+                        } else {
+                            null
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private val gameLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            mockCoins = result.data?.getIntExtra("FINAL_COINS", mockCoins) ?: mockCoins
+            currentUser?.coins = result.data?.getIntExtra("FINAL_COINS", currentUser?.coins ?: 0) ?: (currentUser?.coins ?: 0)
             updateCoinDisplayAndButtonState()
-            Toast.makeText(this, "Bem-vindo de volta! Saldo atual: $mockCoins moedas.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Welcome back! Current balance: ${currentUser?.coins ?: 0} coins.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -42,6 +102,12 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        initializeViews()
+        setupListeners()
+        fetchUserData()
+    }
+
+    private fun initializeViews() {
         startGameButton = findViewById(R.id.buttonStartGame)
         rankingButton = findViewById(R.id.buttonRanking)
         customizationButton = findViewById(R.id.buttonCustomization)
@@ -55,85 +121,116 @@ class DashboardActivity : AppCompatActivity() {
 
         devNoShuffleButton.text = "Dev: No Shuffle"
         devDebugDealButton.text = "Dev: Debug Deal"
+    }
 
-        val userName = intent.getStringExtra("USER_NAME")
-
-        if (userName != null) {
-            welcomeText.text = "Bem-vindo, $userName!"
-            avatarImageView.visibility = View.VISIBLE
-            avatarImageView.setImageResource(R.drawable.my_avatar)
-            coinsBalanceText.visibility = View.VISIBLE
-            buyCoinsButton.visibility = View.VISIBLE
-            updateCoinDisplayAndButtonState()
-        } else {
-            welcomeText.text = "Bem-vindo, Anónimo!"
-            avatarImageView.visibility = View.GONE
-            coinsBalanceText.visibility = View.GONE
-            buyCoinsButton.visibility = View.GONE
-        }
-
+    private fun setupListeners() {
         welcomeText.setOnLongClickListener {
             developerModeLayout.visibility = if (developerModeLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
             Toast.makeText(this, "Developer Mode Toggled", Toast.LENGTH_SHORT).show()
             true
         }
 
-        startGameButton.setOnClickListener {
-            startGameWithMode(null)
-        }
+        startGameButton.setOnClickListener { startGameWithMode(null) }
+        devNoShuffleButton.setOnClickListener { startGameWithMode("NO_SHUFFLE") }
+        devDebugDealButton.setOnClickListener { startGameWithMode("DEBUG_DEAL") }
 
-        devNoShuffleButton.setOnClickListener {
-            startGameWithMode("NO_SHUFFLE")
-        }
-
-        devDebugDealButton.setOnClickListener {
-            startGameWithMode("DEBUG_DEAL")
-        }
-
-        rankingButton.setOnClickListener {
-            val intent = Intent(this, RankingActivity::class.java)
-            startActivity(intent)
-        }
-
-        customizationButton.setOnClickListener {
-            val intent = Intent(this, CustomizationActivity::class.java)
-            startActivity(intent)
-        }
+        rankingButton.setOnClickListener { startActivity(Intent(this, RankingActivity::class.java)) }
+        customizationButton.setOnClickListener { startActivity(Intent(this, CustomizationActivity::class.java)) }
 
         buyCoinsButton.setOnClickListener {
-            mockCoins += 100
-            updateCoinDisplayAndButtonState()
-            Toast.makeText(this, "100 moedas adicionadas!", Toast.LENGTH_SHORT).show()
+            currentUser?.let { user ->
+                user.coins += 100
+                updateCoinDisplayAndButtonState()
+                Toast.makeText(this, "100 coins added!", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(this, "Please log in to buy coins.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun startGameWithMode(startMode: String?) {
-        val userName = intent.getStringExtra("USER_NAME")
-        val intent = Intent(this, GameActivity::class.java)
+    private fun getAuthToken(): String? {
+        val sharedPref = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        return sharedPref.getString("auth_token", null)
+    }
 
-        if (userName != null) {
-            if (mockCoins >= MOCK_ENTRY_FEE) {
-                intent.putExtra("CURRENT_COINS", mockCoins)
-                intent.putExtra("ENTRY_FEE", MOCK_ENTRY_FEE)
-                startMode?.let { intent.putExtra("START_MODE", it) }
-                gameLauncher.launch(intent)
-            } else {
-                Toast.makeText(this, "Saldo insuficiente para iniciar o jogo! Necessita de $MOCK_ENTRY_FEE moedas.", Toast.LENGTH_LONG).show()
+    private fun fetchUserData() {
+        lifecycleScope.launch {
+            try {
+                val response: HttpResponse = client.get("http://10.0.2.2:8000/api/user")
+
+                when (response.status) {
+                    HttpStatusCode.OK -> {
+                        // Deserialize the full response and then extract the data object
+                        val apiResponse = response.body<ApiResponse>()
+                        val userData = apiResponse.data
+                        currentUser = userData
+                        updateUiWithUserData(userData)
+                    }
+                    HttpStatusCode.Unauthorized -> {
+                        val errorBody = response.body<String>()
+                        Log.e("DashboardActivity", "Authentication failed: $errorBody")
+                        handleAuthenticationError("Session expired or invalid token.")
+                    }
+                    else -> handleFetchError("Failed to fetch user data. Status: ${response.status}")
+                }
+            } catch (e: Exception) {
+                Log.e("DashboardActivity", "Error fetching user data", e)
+                handleAuthenticationError("Could not retrieve user data. Please log in again.")
             }
-        } else {
-            startMode?.let { intent.putExtra("START_MODE", it) }
-            startActivity(intent)
         }
+    }
+
+    private fun updateUiWithUserData(userData: UserDataResponse) {
+        welcomeText.text = "Welcome, ${userData.name}!"
+        coinsBalanceText.text = "Coins: ${userData.coins}"
+        avatarImageView.visibility = View.VISIBLE
+        coinsBalanceText.visibility = View.VISIBLE
+        buyCoinsButton.visibility = View.VISIBLE
+        developerModeLayout.visibility = View.GONE
+        updateCoinDisplayAndButtonState()
     }
 
     private fun updateCoinDisplayAndButtonState() {
-        coinsBalanceText.visibility = View.VISIBLE
-        coinsBalanceText.text = "Moedas: $mockCoins"
+        val currentCoins = currentUser?.coins ?: 0
+        coinsBalanceText.text = "Coins: $currentCoins"
+        startGameButton.isEnabled = currentCoins >= MOCK_ENTRY_FEE
+    }
 
-        if (mockCoins < MOCK_ENTRY_FEE) {
-            startGameButton.isEnabled = false
-        } else {
-            startGameButton.isEnabled = true
+    private fun startGameWithMode(startMode: String?) {
+        currentUser?.let { user ->
+            if (user.coins >= MOCK_ENTRY_FEE) {
+                val intent = Intent(this, GameActivity::class.java).apply {
+                    putExtra("CURRENT_COINS", user.coins)
+                    putExtra("ENTRY_FEE", MOCK_ENTRY_FEE)
+                    startMode?.let { putExtra("START_MODE", it) }
+                }
+                gameLauncher.launch(intent)
+            } else {
+                Toast.makeText(this, "Insufficient balance to start game! You need $MOCK_ENTRY_FEE coins.", Toast.LENGTH_LONG).show()
+            }
+        } ?: Toast.makeText(this, "Please log in to start a game.", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun handleFetchError(errorMessage: String) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+        welcomeText.text = "Welcome!"
+        avatarImageView.visibility = View.GONE
+        coinsBalanceText.visibility = View.GONE
+        buyCoinsButton.visibility = View.GONE
+        developerModeLayout.visibility = View.GONE
+        startGameButton.isEnabled = false
+    }
+
+    private fun handleAuthenticationError(errorMessage: String) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+        getSharedPreferences("auth_prefs", Context.MODE_PRIVATE).edit().remove("auth_token").apply()
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
+        startActivity(intent)
+        finish()
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        client.close()
     }
 }
