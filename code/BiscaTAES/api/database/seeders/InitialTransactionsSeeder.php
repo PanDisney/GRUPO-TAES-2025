@@ -11,7 +11,7 @@ class InitialTransactionsSeeder extends Seeder
 {
     private $allPlayers;
     private $sizeOfSaveBlock = 200;
-    private $valueOfInitialBonus = 10;
+    private $valueOfInitialBonus = 100;
     public function run(): void
     {
         $this->allPlayers = DB::table('users')->where('type', 'P')->get();
