@@ -95,6 +95,13 @@
                 tools:text="30" />
         </FrameLayout>
 
+        <Button
+            android:id="@+id/giveUpButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Desistir" />
+
     </LinearLayout>
 
     <!-- NEW: Games Won Scoreboard -->

@@ -47,6 +47,26 @@ class GameActivity : AppCompatActivity() {
         updateScoreboardView()
         updateDeckView() // <-- Atualiza o baralho
         checkIfBotPlaysFirst()
+
+        val giveUpButton = findViewById<Button>(R.id.giveUpButton)
+        giveUpButton.setOnClickListener {
+            showGiveUpConfirmationDialog()
+        }
+    }
+
+    private fun showGiveUpConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Desistir do Jogo")
+            .setMessage("Tem a certeza que quer desistir? A sua aposta será perdida.")
+            .setPositiveButton("Sim, desistir") { _, _ ->
+                // O utilizador desiste. Volta para o Dashboard.
+                val intent = Intent(this, DashboardActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                startActivity(intent)
+                finish() // Fecha a GameActivity
+            }
+            .setNegativeButton("Não", null)
+            .show()
     }
 
     //
