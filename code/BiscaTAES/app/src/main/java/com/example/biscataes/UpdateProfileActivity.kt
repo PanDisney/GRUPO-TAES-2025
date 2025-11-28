@@ -49,6 +49,7 @@ class UpdateProfileActivity : AppCompatActivity() {
 
     private lateinit var editTextNickname: EditText
     private lateinit var editTextPassword: EditText
+    private lateinit var editTextPasswordConfirmation: EditText
     private lateinit var buttonSelectAvatar: Button
     private lateinit var imageViewAvatar: ImageView
     private lateinit var buttonSaveChanges: Button
@@ -92,6 +93,7 @@ class UpdateProfileActivity : AppCompatActivity() {
 
         editTextNickname = findViewById(R.id.editTextNickname)
         editTextPassword = findViewById(R.id.editTextPassword)
+        editTextPasswordConfirmation = findViewById(R.id.editTextPasswordConfirmation)
         buttonSelectAvatar = findViewById(R.id.buttonSelectAvatar)
         imageViewAvatar = findViewById(R.id.imageViewAvatar)
         buttonSaveChanges = findViewById(R.id.buttonSaveChanges)
@@ -140,6 +142,7 @@ class UpdateProfileActivity : AppCompatActivity() {
     private fun saveChanges() {
         val newNickname = editTextNickname.text.toString().trim()
         val newPassword = editTextPassword.text.toString().trim()
+        val newPasswordConfirmation = editTextPasswordConfirmation.text.toString().trim()
 
         lifecycleScope.launch {
             try {
@@ -151,7 +154,12 @@ class UpdateProfileActivity : AppCompatActivity() {
                     hasChanges = true
                 }
                 if (newPassword.isNotEmpty()) {
+                    if (newPassword != newPasswordConfirmation) {
+                        Toast.makeText(this@UpdateProfileActivity, "Passwords do not match.", Toast.LENGTH_LONG).show()
+                        return@launch
+                    }
                     requestBody["password"] = newPassword
+                    requestBody["password_confirmation"] = newPasswordConfirmation
                     hasChanges = true
                 }
 
