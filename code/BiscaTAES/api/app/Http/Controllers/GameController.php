@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Game;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Resources\GameResource;
+use Illuminate\Support\Facades\Auth;
 
 class GameController extends Controller
 {
@@ -22,6 +24,9 @@ class GameController extends Controller
      */
     public function store(StoreGameRequest $request)
     {
+        $user = Auth::user();
+        $user->deductCoins(50);
+
         $game = Game::create($request->validated());
         return new GameResource($game);
     }

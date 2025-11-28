@@ -58,4 +58,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transaction::class);
     }
+
+    public function deductCoins(int $amount): void
+    {
+        if ($this->coins_balance < $amount) {
+            throw new \Exception('Insufficient coin balance');
+        }
+
+        $this->coins_balance -= $amount;
+        $this->save();
+
+        Transaction::create([
+            'user_id' => $this->id,
+            'type' => 'D', // D for Debit/Desist
+            'amount' => $amount,
+        ]);
+    }
 }

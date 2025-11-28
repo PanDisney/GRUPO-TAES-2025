@@ -42,5 +42,30 @@ class CoinController extends Controller
 
         return response()->json(['message' => 'Coins purchased successfully', 'coins' => $user->coins_balance]);
     }
+
+    public function deductCoins(Request $request)
+        {
+            $request->validate([
+                'amount' => 'required|integer|min:1',
+            ]);
+
+            $user = $request->user();
+            $coinsToDeduct = $request->input('amount');
+
+            if ($user->coins_balance < $coinsToDeduct) {
+                return response()->json(['message' => 'Insufficient coin balance'], 400);
+            }
+
+            $user->coins_balance -= $coinsToDeduct;
+            $user->save();
+
+            Transaction::create([
+                'user_id' => $user->id,
+                'type' => 'deduction',
+                'amount' => $coinsToDeduct,
+            ]);
+
+            return response()->json(['message' => 'Coins deducted successfully', 'coins' => $user->coins_balance]);
+        }
 }
 
