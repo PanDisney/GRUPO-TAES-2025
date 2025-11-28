@@ -20,10 +20,10 @@ class MainActivity : AppCompatActivity() {
         // 2. Definir o que acontece quando alguém clica
         playButton.setOnClickListener {
             // Ação do clique
-            val intent = Intent(this, DashboardActivity::class.java)
-
+            val intent = Intent(this, DashboardActivity::class.java).apply {
+                putExtra("IS_ANONYMOUS", true)
+            }
             startActivity(intent)
-
         }
 
         // --- 2. NOVO BOTÃO: LOGIN ---

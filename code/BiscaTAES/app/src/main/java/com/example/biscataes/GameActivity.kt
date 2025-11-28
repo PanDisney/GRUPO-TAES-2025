@@ -1,3 +1,5 @@
+@file:OptIn(InternalSerializationApi::class)
+
 package com.example.biscataes
 
 import android.content.Context
@@ -16,6 +18,33 @@ import android.widget.TextView
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope // <-- Importar lifecycleScope
+import io.ktor.client.HttpClient // <-- Importar HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO // <-- Importar CIO
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.post // <-- Importar post
+import io.ktor.client.request.setBody // <-- Importar setBody
+import io.ktor.client.statement.HttpResponse // <-- Importar HttpResponse
+import io.ktor.http.ContentType // <-- Importar ContentType
+import io.ktor.http.HttpStatusCode // <-- Importar HttpStatusCode
+import io.ktor.http.contentType // <-- Importar contentType
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.launch // <-- Importar launch
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.Serializable // <-- Importar Serializable
+import kotlinx.serialization.json.Json // <-- Importar Json
+
+// Data class to represent the request body for deducting coins
+@Serializable
+data class DeductCoinsRequest(val amount: Int)
+
+// Data class to represent the API response
+@Serializable
+data class CoinApiResponse(val message: String, val coins: Int? = null)
 
 
 class GameActivity : AppCompatActivity() {
@@ -24,6 +53,33 @@ class GameActivity : AppCompatActivity() {
     private var isUiLocked = false
     private var currentCoins: Int = 0
     private var entryFee: Int = 0
+    private var isAnonymous: Boolean = false
+
+    // Configured Json instance for Ktor (from DashboardActivity)
+    private val jsonSerializer = Json {
+        ignoreUnknownKeys = true
+    }
+
+    // Ktor HTTP Client with Authentication (from DashboardActivity)
+    private val client by lazy {
+        HttpClient(CIO) {
+            install(ContentNegotiation) {
+                json(jsonSerializer)
+            }
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        val token = getAuthToken()
+                        if (token != null) {
+                            BearerTokens(token, "") // refresh token is not used
+                        } else {
+                            null
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +88,7 @@ class GameActivity : AppCompatActivity() {
 
         currentCoins = intent.getIntExtra("CURRENT_COINS", 0)
         entryFee = intent.getIntExtra("ENTRY_FEE", 0)
+        isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
 
         if (entryFee > 0) { // Only deduct if there is an entry fee
             currentCoins -= entryFee
@@ -54,19 +111,82 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
+    private fun getAuthToken(): String? {
+        val sharedPref = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
+        return sharedPref.getString("auth_token", null)
+    }
+
     private fun showGiveUpConfirmationDialog() {
         AlertDialog.Builder(this)
             .setTitle("Desistir do Jogo")
-            .setMessage("Tem a certeza que quer desistir? A sua aposta será perdida.")
+            .setMessage("Tem a certeza que quer desistir? Serão deduzidas 50 moedas do seu saldo.")
             .setPositiveButton("Sim, desistir") { _, _ ->
-                // O utilizador desiste. Volta para o Dashboard.
-                val intent = Intent(this, DashboardActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                startActivity(intent)
-                finish() // Fecha a GameActivity
+                if (isAnonymous) {
+                    handleAnonymousGiveUp()
+                } else {
+                    deductCoinsApiCall(50)
+                }
             }
             .setNegativeButton("Não", null)
             .show()
+    }
+
+    private fun handleAnonymousGiveUp() {
+        val resultIntent = Intent().apply {
+            putExtra("FINAL_COINS", currentCoins)
+        }
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
+
+    private fun deductCoinsApiCall(amount: Int) {
+        lifecycleScope.launch {
+            try {
+                val response: HttpResponse = client.post("http://10.0.2.2:8000/api/coins/deduct") {
+                    contentType(ContentType.Application.Json)
+                    setBody(DeductCoinsRequest(amount))
+                }
+
+                when (response.status) {
+                    HttpStatusCode.OK -> {
+                        val apiResponse = response.body<CoinApiResponse>()
+                        Toast.makeText(this@GameActivity, apiResponse.message, Toast.LENGTH_SHORT).show()
+                        val resultIntent = Intent().apply {
+                            putExtra("FINAL_COINS", apiResponse.coins)
+                        }
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
+                    }
+                    HttpStatusCode.BadRequest -> {
+                        val apiResponse = response.body<CoinApiResponse>()
+                        Toast.makeText(this@GameActivity, "Erro: ${apiResponse.message}", Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+                    HttpStatusCode.Unauthorized -> {
+                        Toast.makeText(this@GameActivity, "Sessão expirada. Por favor, faça login novamente.", Toast.LENGTH_LONG).show()
+                        handleAuthenticationError("Session expired or invalid token.")
+                    }
+                    else -> {
+                        Toast.makeText(this@GameActivity, "Erro ao deduzir moedas: ${response.status.value}", Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("GameActivity", "Error deducting coins", e)
+                Toast.makeText(this@GameActivity, "Erro de rede. Por favor, tente novamente.", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+    }
+
+    private fun handleAuthenticationError(errorMessage: String) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
+        getSharedPreferences("auth_prefs", Context.MODE_PRIVATE).edit().remove("auth_token").apply()
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 
     //
@@ -469,19 +589,19 @@ class GameActivity : AppCompatActivity() {
             message = "O Bot venceu a partida por ${gameEngine.botGamesWon} a ${gameEngine.playerGamesWon}!"
         }
 
-        var finalCoins = currentCoins
-        if (gameEngine.playerGamesWon >= 4) {
-            finalCoins += entryFee * 2
-        }
-
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
-        builder.setMessage("$message\n\nSaldo final: $finalCoins moedas.")
+        builder.setMessage("$message\n\nRetornando ao Menu Principal.") // Adjusted message
         builder.setCancelable(false)
 
         builder.setPositiveButton("Voltar ao Menu") { _, _ ->
-            val resultIntent = Intent()
-            resultIntent.putExtra("FINAL_COINS", finalCoins)
+            var finalCoins = currentCoins
+            if (gameEngine.playerGamesWon >= 4) {
+                finalCoins += entryFee * 2
+            }
+            val resultIntent = Intent().apply {
+                putExtra("FINAL_COINS", finalCoins)
+            }
             setResult(RESULT_OK, resultIntent)
             finish()
         }

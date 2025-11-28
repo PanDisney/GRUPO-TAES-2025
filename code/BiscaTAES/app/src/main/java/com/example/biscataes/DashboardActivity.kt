@@ -104,7 +104,21 @@ class DashboardActivity : AppCompatActivity() {
 
         initializeViews()
         setupListeners()
-        fetchUserData()
+
+        // Check if the user is anonymous
+        val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
+        if (isAnonymous) {
+            setupAnonymousUser()
+        } else {
+            fetchUserData()
+        }
+    }
+
+    private fun setupAnonymousUser() {
+        currentUser = UserDataResponse(name = "Anonymous", email = "", coins = 500)
+        updateUiWithUserData(currentUser!!)
+        rankingButton.isEnabled = true
+        buyCoinsButton.isEnabled = true
     }
 
     private fun initializeViews() {
@@ -197,9 +211,11 @@ class DashboardActivity : AppCompatActivity() {
     private fun startGameWithMode(startMode: String?) {
         currentUser?.let { user ->
             if (user.coins >= MOCK_ENTRY_FEE) {
+                val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
                 val intent = Intent(this, GameActivity::class.java).apply {
                     putExtra("CURRENT_COINS", user.coins)
                     putExtra("ENTRY_FEE", MOCK_ENTRY_FEE)
+                    putExtra("IS_ANONYMOUS", isAnonymous)
                     startMode?.let { putExtra("START_MODE", it) }
                 }
                 gameLauncher.launch(intent)
@@ -211,12 +227,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun handleFetchError(errorMessage: String) {
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
-        welcomeText.text = "Welcome!"
-        avatarImageView.visibility = View.GONE
-        coinsBalanceText.visibility = View.GONE
-        buyCoinsButton.visibility = View.GONE
-        developerModeLayout.visibility = View.GONE
-        startGameButton.isEnabled = false
+        setupAnonymousUser()
     }
 
     private fun handleAuthenticationError(errorMessage: String) {
