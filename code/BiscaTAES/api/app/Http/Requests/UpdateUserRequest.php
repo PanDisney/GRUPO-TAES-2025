@@ -33,7 +33,7 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users')->ignore($userId)
             ],
-            'photo_avatar_filename' => ['nullable', 'string', 'max:255'],
+            'photo_avatar_filename' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
     }
 }

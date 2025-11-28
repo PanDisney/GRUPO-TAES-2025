@@ -69,7 +69,7 @@ class GamesTransactionsSeeder extends Seeder
             DB::table('coin_purchases')->insert($coin_purchases);
             $this->command->info("Saved " . count($coin_purchases) . " coin purchases");
         }
-        $this->updateAllUsersBalance();
+        // $this->updateAllUsersBalance();
         $this->command->info("Game related Transactions Created Successfully.");
     }
 

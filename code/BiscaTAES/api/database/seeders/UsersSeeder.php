@@ -32,6 +32,7 @@ class UsersSeeder extends Seeder
         ['type' => 'P', 'name' => 'Player D', 'email' => 'pd@mail.pt', 'gender' => 'M', 'softdelete' => true],
         ['type' => 'P', 'name' => 'Player E', 'email' => 'pe@mail.pt', 'gender' => 'F', 'softdelete' => false],
         ['type' => 'P', 'name' => 'Player F', 'email' => 'pf@mail.pt', 'gender' => 'M', 'softdelete' => true],
+        ['type' => 'P', 'name' => 'Francisco Silva', 'email' => 'aluno@mail.com', 'gender' => 'M', 'softdelete' => false],
     ];
 
     public static $userTypes = [

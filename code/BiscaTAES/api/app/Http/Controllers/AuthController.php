@@ -46,7 +46,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'nickname' => $request->nickname,
-            'coins_balance' => 10, // Default coins for new users
+            'coins_balance' => 100, // Default coins for new users
             'type' => 'P', // Default type for new users
         ]);
 

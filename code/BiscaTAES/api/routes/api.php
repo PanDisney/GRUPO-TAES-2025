@@ -16,6 +16,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'me']);
     Route::get('/users/me', [UserController::class, 'me']);
     Route::put('/users/me', [UserController::class, 'updateAuthenticatedUser']);
+    Route::post('/users/me', [UserController::class, 'updateAuthenticatedUser']);
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/user/coins', [CoinController::class, 'getCoins']);
     Route::get('/user/transactions', [CoinController::class, 'getTransactions']);
@@ -33,7 +34,8 @@ Route::get('/metadata', function (Request $request) {
     //abort(500, 'Something went wrong');
     return [
         "name" => "DAD 2025/26 Worksheet API",
-        "version" => "0.0.1"
+        "version" => "0.0.1",
+        "entry_fee" => 50
     ];
 });
 

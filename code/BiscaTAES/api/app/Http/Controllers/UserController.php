@@ -66,6 +66,11 @@ class UserController extends Controller
             $validated['password'] = Hash::make($validated['password']);
         }
 
+        if ($request->hasFile('photo_avatar_filename')) {
+            $path = $request->file('photo_avatar_filename')->store('public/avatars');
+            $validated['photo_avatar_filename'] = basename($path);
+        }
+
         $user->update($validated);
 
         return new UserResource($user);

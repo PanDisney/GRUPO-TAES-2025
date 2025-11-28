@@ -2,6 +2,7 @@
 
 package com.example.biscataes
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -24,12 +25,16 @@ import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json // Added Json import
+import kotlinx.serialization.json.Json
 
 // Wrapper class to match the {"data": {...}} structure from the API
 @Serializable
@@ -41,14 +46,27 @@ data class ApiResponse(
 data class UserDataResponse(
     val name: String,
     val email: String,
-    var coins: Int
+    var coins: Int,
+    val nickname: String?,
+    val photo_avatar_filename: String?
+)
+
+@Serializable
+data class PurchaseRequest(val amount: Int)
+
+@Serializable
+data class PurchaseResponse(val message: String, val coins: Int)
+
+@Serializable
+data class MetadataResponse(
+    val name: String,
+    val version: String,
+    val entry_fee: Int
 )
 
 class DashboardActivity : AppCompatActivity() {
 
-    companion object {
-        private const val MOCK_ENTRY_FEE = 50
-    }
+    private var entryFee: Int = 50 // Default value
 
     // Configured Json instance for Ktor
     private val jsonSerializer = Json {
@@ -60,6 +78,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var rankingButton: Button
     private lateinit var customizationButton: Button
     private lateinit var buyCoinsButton: Button
+    private lateinit var updateProfileButton: Button
     private lateinit var welcomeText: TextView
     private lateinit var avatarImageView: ImageView
     private lateinit var coinsBalanceText: TextView
@@ -98,6 +117,13 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    private val updateProfileLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            fetchUserData() // Refresh user data after profile update
+            Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
@@ -105,6 +131,7 @@ class DashboardActivity : AppCompatActivity() {
         initializeViews()
         setupListeners()
         fetchUserData()
+        fetchMetadata()
     }
 
     private fun initializeViews() {
@@ -112,6 +139,7 @@ class DashboardActivity : AppCompatActivity() {
         rankingButton = findViewById(R.id.buttonRanking)
         customizationButton = findViewById(R.id.buttonCustomization)
         buyCoinsButton = findViewById(R.id.buttonBuyCoins)
+        updateProfileButton = findViewById(R.id.buttonUpdateProfile)
         welcomeText = findViewById(R.id.welcomeText)
         avatarImageView = findViewById(R.id.avatarImageView)
         coinsBalanceText = findViewById(R.id.coinsBalanceText)
@@ -138,11 +166,15 @@ class DashboardActivity : AppCompatActivity() {
         customizationButton.setOnClickListener { startActivity(Intent(this, CustomizationActivity::class.java)) }
 
         buyCoinsButton.setOnClickListener {
-            currentUser?.let { user ->
-                user.coins += 100
-                updateCoinDisplayAndButtonState()
-                Toast.makeText(this, "100 coins added!", Toast.LENGTH_SHORT).show()
-            } ?: Toast.makeText(this, "Please log in to buy coins.", Toast.LENGTH_SHORT).show()
+            purchaseCoins(10) // Purchase 10 euros worth of coins
+        }
+
+        updateProfileButton.setOnClickListener {
+            val intent = Intent(this, UpdateProfileActivity::class.java).apply {
+                putExtra("CURRENT_NICKNAME", currentUser?.nickname)
+                putExtra("CURRENT_AVATAR_FILENAME", currentUser?.photo_avatar_filename)
+            }
+            updateProfileLauncher.launch(intent)
         }
     }
 
@@ -178,8 +210,50 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    private fun fetchMetadata() {
+        lifecycleScope.launch {
+            try {
+                val response: HttpResponse = client.get("http://10.0.2.2:8000/api/metadata")
+
+                if (response.status == HttpStatusCode.OK) {
+                    val metadata = response.body<MetadataResponse>()
+                    entryFee = metadata.entry_fee
+                    updateCoinDisplayAndButtonState()
+                } else {
+                    Toast.makeText(this@DashboardActivity, "Could not retrieve game settings.", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("DashboardActivity", "Error fetching metadata", e)
+                Toast.makeText(this@DashboardActivity, "Could not retrieve game settings.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun purchaseCoins(euros: Int) {
+        lifecycleScope.launch {
+            try {
+                val response: HttpResponse = client.post("http://10.0.2.2:8000/api/coins/purchase") {
+                    contentType(io.ktor.http.ContentType.Application.Json)
+                    setBody(PurchaseRequest(amount = euros))
+                }
+
+                if (response.status == HttpStatusCode.OK) {
+                    val purchaseResponse = response.body<PurchaseResponse>()
+                    currentUser?.coins = purchaseResponse.coins
+                    updateCoinDisplayAndButtonState()
+                    Toast.makeText(this@DashboardActivity, "Coins purchased successfully!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this@DashboardActivity, "Purchase failed. Status: ${response.status}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Log.e("DashboardActivity", "Error purchasing coins", e)
+                Toast.makeText(this@DashboardActivity, "An error occurred during purchase.", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun updateUiWithUserData(userData: UserDataResponse) {
-        welcomeText.text = "Welcome, ${userData.name}!"
+        welcomeText.text = "Welcome, ${userData.nickname ?: userData.name}!"
         coinsBalanceText.text = "Coins: ${userData.coins}"
         avatarImageView.visibility = View.VISIBLE
         coinsBalanceText.visibility = View.VISIBLE
@@ -191,20 +265,20 @@ class DashboardActivity : AppCompatActivity() {
     private fun updateCoinDisplayAndButtonState() {
         val currentCoins = currentUser?.coins ?: 0
         coinsBalanceText.text = "Coins: $currentCoins"
-        startGameButton.isEnabled = currentCoins >= MOCK_ENTRY_FEE
+        startGameButton.isEnabled = currentCoins >= entryFee
     }
 
     private fun startGameWithMode(startMode: String?) {
         currentUser?.let { user ->
-            if (user.coins >= MOCK_ENTRY_FEE) {
+            if (user.coins >= entryFee) {
                 val intent = Intent(this, GameActivity::class.java).apply {
                     putExtra("CURRENT_COINS", user.coins)
-                    putExtra("ENTRY_FEE", MOCK_ENTRY_FEE)
+                    putExtra("ENTRY_FEE", entryFee)
                     startMode?.let { putExtra("START_MODE", it) }
                 }
                 gameLauncher.launch(intent)
             } else {
-                Toast.makeText(this, "Insufficient balance to start game! You need $MOCK_ENTRY_FEE coins.", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Insufficient balance to start game! You need $entryFee coins.", Toast.LENGTH_LONG).show()
             }
         } ?: Toast.makeText(this, "Please log in to start a game.", Toast.LENGTH_SHORT).show()
     }
