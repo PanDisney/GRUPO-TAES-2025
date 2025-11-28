@@ -19,7 +19,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('/user/coins', [CoinController::class, 'getCoins']);
     Route::get('/user/transactions', [CoinController::class, 'getTransactions']);
-    Route::post('/coins/deduct', [CoinController::class, 'deductCoins']);
     Route::post('/coins/purchase', [CoinController::class, 'purchaseCoins']);
 });
 
