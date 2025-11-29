@@ -20,9 +20,21 @@ import org.openqa.selenium.Keys as Keys
 Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\BiscaTAES\\app\\build\\outputs\\apk\\debug\\app-debug.apk', 
     true)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Jogar Anonimo'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Login'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo'), 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Email'), 'aluno@mail.com', 0)
+
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Password'), '123', 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
+
+Mobile.takeScreenshot('C:\\Users\\User\\AppData\\Local\\Temp\\screenshot1735743531650268796.png')
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Update Profile'), 0)
+
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Antonio Sueca'), 'Antonio Bisca', 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Save Changes'), 0)
 
 WebUI.delay(5)
 

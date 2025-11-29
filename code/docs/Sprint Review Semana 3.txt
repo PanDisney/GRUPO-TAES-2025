@@ -1,0 +1,28 @@
+Semana 3 - Sprint Review
+
+COISAS POR FAZER:
+US-15: Visualização do Histórico de Partidas
+
+
+TESTES KATALON(SEMANA 3)
+Teste Conquista Bandeira
+Teste Desistir Partida
+Teste Comprar Moedas
+Teste Atualizar Perfil
+
+FEITO:
+
+US-10: Progressão de Partida (4 Jogos) - botão de "Desistir" 
+US-11: Ecrã de Resultados da Partida
+US-26: Criar Developer Mode 
+US-27: Criar Modo de Jogo - No Shuffle
+US-28: Criar Modo de Jogo - Bandeira
+US-29: Implementação do Backend
+US-10: Progressão de Partida (4 Jogos) - botão de "Desistir" 
+
+STORY POINTS: 30
+
+DAILY MEETINGS: 3 por dia
+
+ERROS A CORRIGIR: Dashboard do Login e Anónimo são Iguais!!! Modo anónimo não funcional
+                  Teste Atualizar Perfil não funcional a 100% 

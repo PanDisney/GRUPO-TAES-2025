@@ -4,15 +4,14 @@ COISAS POR FAZER:
 
 US-10: Progressão de Partida (4 Jogos) - botão de "Desistir" 
 
-TESTES KATALON(SEMANA 3)
-
 USER STORIES:
 
 US-11: Ecrã de Resultados da Partida
 US-13: Conquista Bandeira(testar)
+US-26: Criar Developer Mode 
+US-27: Criar Modo de Jogo - No Shuffle
+US-28: Criar Modo de Jogo - Bandeira
+US-29: Implementação do Backend
 US-15: Visualização do Histórico de Partidas
 
-
 STORY POINTS: 30
-
-DAILY MEETINGS: 

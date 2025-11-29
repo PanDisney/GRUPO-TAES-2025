@@ -24,5 +24,7 @@ Mobile.tap(findTestObject('android.widget.Button - Jogar Anonimo'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Classificacao'), 0)
 
+WebUI.delay(5)
+
 Mobile.closeApplication()
 

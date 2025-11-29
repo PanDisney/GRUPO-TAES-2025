@@ -24,11 +24,13 @@ Mobile.tap(findTestObject('android.widget.Button - Login'), 0)
 
 Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Email'), 'aluno@mail.com', 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Password'), '1234', 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Password'), '123', 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Classificacao Login'), 0)
+
+WebUI.delay(5)
 
 Mobile.closeApplication()
 

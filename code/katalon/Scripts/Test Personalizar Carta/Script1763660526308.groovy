@@ -30,3 +30,7 @@ Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo'), 0)
 
+Mobile.closeApplication()
+
+WebUI.delay(5)
+

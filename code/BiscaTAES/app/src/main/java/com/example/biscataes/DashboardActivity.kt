@@ -80,6 +80,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var buyCoinsButton: Button
     private lateinit var updateProfileButton: Button
     private lateinit var welcomeText: TextView
+    private lateinit var welcomeUserText: TextView
     private lateinit var avatarImageView: ImageView
     private lateinit var coinsBalanceText: TextView
     private lateinit var developerModeLayout: LinearLayout
@@ -157,6 +158,7 @@ class DashboardActivity : AppCompatActivity() {
         buyCoinsButton = findViewById(R.id.buttonBuyCoins)
         updateProfileButton = findViewById(R.id.buttonUpdateProfile)
         welcomeText = findViewById(R.id.welcomeText)
+        welcomeUserText = findViewById(R.id.welcomeUserText)
         avatarImageView = findViewById(R.id.avatarImageView)
         coinsBalanceText = findViewById(R.id.coinsBalanceText)
         developerModeLayout = findViewById(R.id.developerModeLayout)
@@ -269,7 +271,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun updateUiWithUserData(userData: UserDataResponse) {
-        welcomeText.text = "Welcome, ${userData.nickname ?: userData.name}!"
+        welcomeUserText.text = userData.nickname ?: userData.name
         coinsBalanceText.text = "Coins: ${userData.coins}"
         avatarImageView.visibility = View.VISIBLE
         coinsBalanceText.visibility = View.VISIBLE
@@ -301,7 +303,8 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun handleFetchError(errorMessage: String) {
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
-        welcomeText.text = "Welcome!"
+        welcomeText.text = "Welcome"
+        welcomeUserText.text = ""
         avatarImageView.visibility = View.GONE
         coinsBalanceText.visibility = View.GONE
         buyCoinsButton.visibility = View.GONE
