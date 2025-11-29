@@ -130,6 +130,22 @@ class DashboardActivity : AppCompatActivity() {
 
         initializeViews()
         setupListeners()
+
+        // Check if the user is anonymous
+        val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
+        if (isAnonymous) {
+            setupAnonymousUser()
+        } else {
+            fetchUserData()
+        }
+    }
+
+    private fun setupAnonymousUser() {
+        currentUser = UserDataResponse(name = "Anonymous", email = "", coins = 500, nickname = null, photo_avatar_filename = null)
+        updateUiWithUserData(currentUser!!)
+        rankingButton.isEnabled = true
+        buyCoinsButton.isEnabled = true
+
         fetchUserData()
         fetchMetadata()
     }
