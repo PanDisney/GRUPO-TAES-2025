@@ -2,6 +2,7 @@ Semana 3 - Sprint Review
 
 COISAS POR FAZER:
 US-15: Visualização do Histórico de Partidas
+Teste Conquista Capote
 
 
 TESTES KATALON(SEMANA 3)
@@ -26,3 +27,5 @@ DAILY MEETINGS: 3 por dia
 
 ERROS A CORRIGIR: Dashboard do Login e Anónimo são Iguais!!! Modo anónimo não funcional
                   Teste Atualizar Perfil não funcional a 100% 
+                  Não foi possível adicionar atualizar foto do user
+              
