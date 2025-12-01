@@ -1,0 +1,19 @@
+Semana 4
+
+COISAS POR FAZER:
+
+ERROS A CORRIGIR: Dashboard do Login e Anónimo são Iguais!!! Modo anónimo não funcional
+                  Teste Atualizar Perfil não funcional a 100% 
+                  Não foi possível adicionar atualizar foto do user
+
+US-15: Visualização do Histórico de Partidas
+Teste Conquista Capote
+
+USER STORIES:
+
+US-16: Filtro e Ordenação do Histórico
+US-17: Visualização das Classificações Pessoais
+US-19: Visualização de Personalizações Disponíveis
+US-21: Seleção e Aplicação de Avatar
+
+STORY POINTS:

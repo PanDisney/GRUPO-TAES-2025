@@ -134,7 +134,7 @@
 
 ---
 
-## US-11: Ecrã de Resultados da Partida 
+## US-11: Ecrã de Resultados da Partida ✅
 **Como** um utilizador  
 **Quero** ver os resultados detalhados após a partida  
 **Para** compreender o desempenho e as recompensas
@@ -166,7 +166,7 @@
 
 ---
 
-## US-13: Conquista Bandeira
+## US-13: Conquista Bandeira ✅
 **Como** um utilizador  
 **Quero** ganhar a conquista Bandeira (3 marcas)  
 **Para** obter o máximo de pontos bónus
@@ -282,7 +282,7 @@
 
 ---
 
-## US-22: Seleção e Aplicação de Baralho Personalizado
+## US-22: Seleção e Aplicação de Baralho Personalizado ✅
 **Como** um utilizador registado  
 **Quero** selecionar um baralho personalizado  
 **Para** ter uma experiência visual única durante as partidas
