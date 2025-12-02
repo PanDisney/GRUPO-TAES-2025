@@ -16,4 +16,4 @@ US-17: Visualização das Classificações Pessoais
 US-19: Visualização de Personalizações Disponíveis
 US-21: Seleção e Aplicação de Avatar
 
-STORY POINTS:
+STORY POINTS: 30
