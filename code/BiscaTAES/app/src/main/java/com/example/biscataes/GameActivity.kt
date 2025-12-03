@@ -90,7 +90,7 @@ class GameActivity : AppCompatActivity() {
         entryFee = intent.getIntExtra("ENTRY_FEE", 0)
         isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
 
-        if (entryFee > 0) { // Only deduct if there is an entry fee
+        if (!isAnonymous && entryFee > 0) { // Only deduct if there is an entry fee AND user is not anonymous
             currentCoins -= entryFee
         }
 

@@ -113,9 +113,17 @@ class DashboardActivity : AppCompatActivity() {
 
     private val gameLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
-            currentUser?.coins = result.data?.getIntExtra("FINAL_COINS", currentUser?.coins ?: 0) ?: (currentUser?.coins ?: 0)
-            updateCoinDisplayAndButtonState()
-            Toast.makeText(this, "Welcome back! Current balance: ${currentUser?.coins ?: 0} coins.", Toast.LENGTH_LONG).show()
+            val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
+
+            if (isAnonymous) {
+                // For anonymous user, just refresh the UI
+                currentUser?.let { updateUiWithUserData(it, isAnonymous = true) }
+            } else {
+                // For logged-in user, update coins and show toast
+                currentUser?.coins = result.data?.getIntExtra("FINAL_COINS", currentUser?.coins ?: 0) ?: (currentUser?.coins ?: 0)
+                currentUser?.let { updateUiWithUserData(it, isAnonymous = false) }
+                Toast.makeText(this, "Welcome back! Current balance: ${currentUser?.coins ?: 0} coins.", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
@@ -143,13 +151,11 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun setupAnonymousUser() {
-        currentUser = UserDataResponse(name = "Anonymous", email = "", coins = 500, nickname = null, photo_avatar_filename = null)
-        updateUiWithUserData(currentUser!!)
-        rankingButton.isEnabled = true
-        buyCoinsButton.isEnabled = true
-
-        fetchUserData()
-        fetchMetadata()
+        // Create a placeholder user object for anonymous session
+        val anonymousUser = UserDataResponse(name = "Guest", email = "", coins = 0, nickname = "Guest", photo_avatar_filename = null)
+        currentUser = anonymousUser
+        updateUiWithUserData(anonymousUser, isAnonymous = true)
+        fetchMetadata() // Keep fetching metadata for game rules like entry fee
     }
 
     private fun initializeViews() {
@@ -213,7 +219,7 @@ class DashboardActivity : AppCompatActivity() {
                         val apiResponse = response.body<ApiResponse>()
                         val userData = apiResponse.data
                         currentUser = userData
-                        updateUiWithUserData(userData)
+                        updateUiWithUserData(userData, isAnonymous = false)
                     }
                     HttpStatusCode.Unauthorized -> {
                         val errorBody = response.body<String>()
@@ -237,7 +243,7 @@ class DashboardActivity : AppCompatActivity() {
                 if (response.status == HttpStatusCode.OK) {
                     val metadata = response.body<MetadataResponse>()
                     entryFee = metadata.entry_fee
-                    updateCoinDisplayAndButtonState()
+                    currentUser?.let { updateUiWithUserData(it, isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)) }
                 } else {
                     Toast.makeText(this@DashboardActivity, "Could not retrieve game settings.", Toast.LENGTH_SHORT).show()
                 }
@@ -259,7 +265,7 @@ class DashboardActivity : AppCompatActivity() {
                 if (response.status == HttpStatusCode.OK) {
                     val purchaseResponse = response.body<PurchaseResponse>()
                     currentUser?.coins = purchaseResponse.coins
-                    updateCoinDisplayAndButtonState()
+                    currentUser?.let { updateUiWithUserData(it, isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)) }
                     Toast.makeText(this@DashboardActivity, "Coins purchased successfully!", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this@DashboardActivity, "Purchase failed. Status: ${response.status}", Toast.LENGTH_SHORT).show()
@@ -271,40 +277,58 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateUiWithUserData(userData: UserDataResponse) {
+    private fun updateUiWithUserData(userData: UserDataResponse, isAnonymous: Boolean = false) {
         welcomeUserText.text = userData.nickname ?: userData.name
-        coinsBalanceText.text = "Coins: ${userData.coins}"
-
-        if (!userData.photo_avatar_filename.isNullOrEmpty()) {
-            val imageUrl = "http://10.0.2.2:8000/storage/photos_avatars/${userData.photo_avatar_filename}"
-            avatarImageView.load(imageUrl) {
-                crossfade(true)
-                placeholder(R.drawable.anonymous) // Assuming 'anonymous.png' is in drawable
-                error(R.drawable.anonymous)
-            }
-        } else {
-            avatarImageView.setImageResource(R.drawable.anonymous)
-        }
-
         avatarImageView.visibility = View.VISIBLE
-        coinsBalanceText.visibility = View.VISIBLE
-        buyCoinsButton.visibility = View.VISIBLE
-        developerModeLayout.visibility = View.GONE
-        updateCoinDisplayAndButtonState()
-    }
 
-    private fun updateCoinDisplayAndButtonState() {
-        val currentCoins = currentUser?.coins ?: 0
-        coinsBalanceText.text = "Coins: $currentCoins"
-        startGameButton.isEnabled = currentCoins >= entryFee
+        if (isAnonymous) {
+            coinsBalanceText.visibility = View.GONE
+            avatarImageView.setImageResource(R.drawable.anonymous)
+            
+            // Disable buttons for anonymous user
+            updateProfileButton.isEnabled = false
+            buyCoinsButton.isEnabled = false
+            rankingButton.isEnabled = false
+            
+            // Enable essential buttons
+            startGameButton.isEnabled = true
+            customizationButton.isEnabled = true
+        } else {
+            coinsBalanceText.text = "Coins: ${userData.coins}"
+            coinsBalanceText.visibility = View.VISIBLE
+
+            if (!userData.photo_avatar_filename.isNullOrEmpty()) {
+                val imageUrl = "http://10.0.2.2:8000/storage/photos_avatars/${userData.photo_avatar_filename}"
+                avatarImageView.load(imageUrl) {
+                    crossfade(true)
+                    placeholder(R.drawable.anonymous)
+                    error(R.drawable.anonymous)
+                }
+            } else {
+                avatarImageView.setImageResource(R.drawable.anonymous)
+            }
+
+            // Enable/disable buttons based on logged-in state
+            updateProfileButton.isEnabled = true
+            buyCoinsButton.isEnabled = true
+            rankingButton.isEnabled = true
+            customizationButton.isEnabled = true
+            
+            val currentCoins = currentUser?.coins ?: 0
+            startGameButton.isEnabled = currentCoins >= entryFee
+        }
     }
 
     private fun startGameWithMode(startMode: String?) {
+        val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
         currentUser?.let { user ->
-            if (user.coins >= entryFee) {
+            if (isAnonymous || user.coins >= entryFee) {
                 val intent = Intent(this, GameActivity::class.java).apply {
-                    putExtra("CURRENT_COINS", user.coins)
+                    putExtra("IS_ANONYMOUS", isAnonymous)
                     putExtra("ENTRY_FEE", entryFee)
+                    if (!isAnonymous) {
+                        putExtra("CURRENT_COINS", user.coins)
+                    }
                     startMode?.let { putExtra("START_MODE", it) }
                 }
                 gameLauncher.launch(intent)
