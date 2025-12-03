@@ -64,6 +64,25 @@ data class MetadataResponse(
     val entry_fee: Int
 )
 
+@Serializable
+data class StartGameRequest(
+    val type: String = "bisca", // Assuming "bisca" is the default/only type
+    val player1_id: Int,
+    val player2_id: Int? = null, // Can be null for a bot, or a specific user ID
+    val status: String = "in_progress"
+)
+
+@Serializable
+data class GameCreationResponse(
+    val id: Int,
+    val player1_id: Int,
+    val player2_id: Int?,
+    val type: String,
+    val status: String,
+    val began_at: String
+    // Other fields if needed, but 'id' is crucial
+)
+
 class DashboardActivity : AppCompatActivity() {
 
     private var entryFee: Int = 50 // Default value
@@ -79,6 +98,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var customizationButton: Button
     private lateinit var buyCoinsButton: Button
     private lateinit var updateProfileButton: Button
+    private lateinit var buttonGameHistory: Button
     private lateinit var welcomeText: TextView
     private lateinit var welcomeUserText: TextView
     private lateinit var avatarImageView: ImageView
@@ -157,6 +177,7 @@ class DashboardActivity : AppCompatActivity() {
         customizationButton = findViewById(R.id.buttonCustomization)
         buyCoinsButton = findViewById(R.id.buttonBuyCoins)
         updateProfileButton = findViewById(R.id.buttonUpdateProfile)
+        buttonGameHistory = findViewById(R.id.buttonGameHistory)
         welcomeText = findViewById(R.id.welcomeText)
         welcomeUserText = findViewById(R.id.welcomeUserText)
         avatarImageView = findViewById(R.id.avatarImageView)
@@ -194,6 +215,8 @@ class DashboardActivity : AppCompatActivity() {
             }
             updateProfileLauncher.launch(intent)
         }
+
+        buttonGameHistory.setOnClickListener { startActivity(Intent(this, GameHistoryActivity::class.java)) }
     }
 
     private fun getAuthToken(): String? {
@@ -289,12 +312,43 @@ class DashboardActivity : AppCompatActivity() {
     private fun startGameWithMode(startMode: String?) {
         currentUser?.let { user ->
             if (user.coins >= entryFee) {
-                val intent = Intent(this, GameActivity::class.java).apply {
-                    putExtra("CURRENT_COINS", user.coins)
-                    putExtra("ENTRY_FEE", entryFee)
-                    startMode?.let { putExtra("START_MODE", it) }
+                lifecycleScope.launch {
+                    try {
+                        val response: HttpResponse = client.post("http://10.0.2.2:8000/api/games") {
+                            contentType(ContentType.Application.Json)
+                            setBody(StartGameRequest(
+                                player1_id = user.id, // Assuming user.id is available in currentUser
+                                status = "in_progress"
+                            ))
+                        }
+
+                        when (response.status) {
+                            HttpStatusCode.Created -> {
+                                val gameResponse = response.body<GameCreationResponse>()
+                                val intent = Intent(this@DashboardActivity, GameActivity::class.java).apply {
+                                    putExtra("CURRENT_COINS", user.coins)
+                                    putExtra("ENTRY_FEE", entryFee)
+                                    putExtra("GAME_ID", gameResponse.id) // Pass the game ID
+                                    startMode?.let { putExtra("START_MODE", it) }
+                                }
+                                gameLauncher.launch(intent)
+                            }
+                            HttpStatusCode.BadRequest -> {
+                                val errorBody = response.body<String>()
+                                Toast.makeText(this@DashboardActivity, "Error creating game: $errorBody", Toast.LENGTH_LONG).show()
+                            }
+                            HttpStatusCode.Unauthorized -> {
+                                handleAuthenticationError("Session expired. Please log in again.")
+                            }
+                            else -> {
+                                Toast.makeText(this@DashboardActivity, "Failed to create game. Status: ${response.status}", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.e("DashboardActivity", "Error creating game", e)
+                        Toast.makeText(this@DashboardActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
                 }
-                gameLauncher.launch(intent)
             } else {
                 Toast.makeText(this, "Insufficient balance to start game! You need $entryFee coins.", Toast.LENGTH_LONG).show()
             }

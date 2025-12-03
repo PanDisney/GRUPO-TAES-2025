@@ -22,6 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/transactions', [CoinController::class, 'getTransactions']);
     Route::post('/coins/deduct', [CoinController::class, 'deductCoins']);
     Route::post('/coins/purchase', [CoinController::class, 'purchaseCoins']);
+    Route::get('/games/best', [GameController::class, 'bestGames']);
+    Route::post('/games/quit', [GameController::class, 'quitGame']);
     Route::apiResource('games', GameController::class);
 });
 

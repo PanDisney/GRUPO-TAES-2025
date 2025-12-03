@@ -16,7 +16,11 @@ class GameController extends Controller
      */
     public function index()
     {
-        return GameResource::collection(Game::all());
+        $user = Auth::user();
+        $games = Game::where('player1_id', $user->id)
+            ->orWhere('player2_id', $user->id)
+            ->get();
+        return GameResource::collection($games);
     }
 
     /**
@@ -54,5 +58,33 @@ class GameController extends Controller
     public function destroy(Game $game)
     {
         //
+    }
+
+    public function bestGames()
+    {
+        $games = Game::whereNotNull('winner_id')
+            ->orderBy('ended_at', 'desc')
+            ->paginate(15); // Adjust pagination limit as needed
+        return GameResource::collection($games);
+    }
+
+    public function quitGame(Request $request)
+    {
+        $request->validate([
+            'game_id' => 'required|exists:games,id',
+        ]);
+
+        $user = Auth::user();
+        $game = Game::findOrFail($request->game_id);
+
+        if ($game->player1_id !== $user->id && $game->player2_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized to quit this game.'], 403);
+        }
+
+        $game->status = 'desisted';
+        $game->ended_at = now();
+        $game->save();
+
+        return new GameResource($game);
     }
 }

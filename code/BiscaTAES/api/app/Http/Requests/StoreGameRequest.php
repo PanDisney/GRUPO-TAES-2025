@@ -24,15 +24,15 @@ class StoreGameRequest extends FormRequest
     {
         return [
             'player1_id' => [
-                'sometimes',
+                'required', // Player 1 is always required for a game
                 'integer',
                 'exists:users,id',
             ],
-            'type' => ['required', Rule::in(['S', 'M'])],
-            'status' => ['required', Rule::in(['PE', 'PL', 'E', 'I'])],
+            'type' => ['required', Rule::in(['singleplayer', 'multiplayer'])],
+            'status' => ['required', Rule::in(['pending', 'in_progress', 'completed', 'desisted'])],
             'player2_id' => [
                 'nullable',
-                'required_if:type,M',
+                'required_if:type,multiplayer',
                 'exists:users,id',
                 'different:player1_id',
             ],

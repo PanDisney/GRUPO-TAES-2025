@@ -34,6 +34,9 @@
             android:name=".DashboardActivity"
             android:exported="false" />
         <activity
+            android:name=".GameHistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
