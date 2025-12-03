@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import coil.load
 
 // Wrapper class to match the {"data": {...}} structure from the API
 @Serializable
@@ -273,6 +274,18 @@ class DashboardActivity : AppCompatActivity() {
     private fun updateUiWithUserData(userData: UserDataResponse) {
         welcomeUserText.text = userData.nickname ?: userData.name
         coinsBalanceText.text = "Coins: ${userData.coins}"
+
+        if (!userData.photo_avatar_filename.isNullOrEmpty()) {
+            val imageUrl = "http://10.0.2.2:8000/storage/photos_avatars/${userData.photo_avatar_filename}"
+            avatarImageView.load(imageUrl) {
+                crossfade(true)
+                placeholder(R.drawable.anonymous) // Assuming 'anonymous.png' is in drawable
+                error(R.drawable.anonymous)
+            }
+        } else {
+            avatarImageView.setImageResource(R.drawable.anonymous)
+        }
+
         avatarImageView.visibility = View.VISIBLE
         coinsBalanceText.visibility = View.VISIBLE
         buyCoinsButton.visibility = View.VISIBLE

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('blocked')->default(false);
 
             // User Photo/Avatar
-            $table->string('photo_avatar_filename')->nullable();
+            $table->string('photo_avatar_filename')->nullable()->default('anonymous.png');
 
             // Brain Coin Balance
             $table->integer('coins_balance')->default(0);
@@ -239,20 +239,35 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::drop('coin_purchases');
-        Schema::drop('coin_transactions');
-        Schema::drop('coin_transaction_types');
-        Schema::drop('games');
-        Schema::drop('matches');
+        Schema::dropIfExists('coin_purchases');
+        Schema::dropIfExists('coin_transactions');
+        Schema::dropIfExists('coin_transaction_types');
+        Schema::dropIfExists('games');
+        Schema::dropIfExists('matches');
 
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('deleted_at');
-            $table->dropColumn('custom');
-            $table->dropColumn('coins_balance');
-            $table->dropColumn('photo_avatar_filename');
-            $table->dropColumn('blocked');
-            $table->dropColumn('nickname');
-            $table->dropColumn('type');
+            if (Schema::hasColumn('users', 'deleted_at')) {
+                $table->dropSoftDeletes();
+            }
+            if (Schema::hasColumn('users', 'custom')) {
+                $table->dropColumn('custom');
+            }
+            if (Schema::hasColumn('users', 'coins_balance')) {
+                $table->dropColumn('coins_balance');
+            }
+            if (Schema::hasColumn('users', 'photo_avatar_filename')) {
+                $table->dropColumn('photo_avatar_filename');
+            }
+            if (Schema::hasColumn('users', 'blocked')) {
+                $table->dropColumn('blocked');
+            }
+            if (Schema::hasColumn('users', 'nickname')) {
+                $table->dropUnique('users_nickname_unique');
+                $table->dropColumn('nickname');
+            }
+            if (Schema::hasColumn('users', 'type')) {
+                $table->dropColumn('type');
+            }
         });
     }
 };

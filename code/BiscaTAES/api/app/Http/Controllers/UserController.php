@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -60,19 +61,19 @@ class UserController extends Controller
     public function updateAuthenticatedUser(UpdateUserRequest $request)
     {
         $user = $request->user();
+        $dataToUpdate = $request->safe()->except('photo_avatar_filename');
 
-        $validated = $request->validated();
-
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
+        if (isset($dataToUpdate['password'])) {
+            $dataToUpdate['password'] = Hash::make($dataToUpdate['password']);
         }
 
         if ($request->hasFile('photo_avatar_filename')) {
-            $path = $request->file('photo_avatar_filename')->store('public/avatars');
-            $validated['photo_avatar_filename'] = basename($path);
+            // Correct usage of store(): specify path and disk.
+            $path = $request->file('photo_avatar_filename')->store('photos_avatars', 'public');
+            $dataToUpdate['photo_avatar_filename'] = basename($path);
         }
 
-        $user->update($validated);
+        $user->update($dataToUpdate);
 
         return new UserResource($user);
     }

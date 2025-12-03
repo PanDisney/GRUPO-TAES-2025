@@ -32,7 +32,7 @@ class UsersSeeder extends Seeder
         ['type' => 'P', 'name' => 'Player D', 'email' => 'pd@mail.pt', 'gender' => 'M', 'softdelete' => true],
         ['type' => 'P', 'name' => 'Player E', 'email' => 'pe@mail.pt', 'gender' => 'F', 'softdelete' => false],
         ['type' => 'P', 'name' => 'Player F', 'email' => 'pf@mail.pt', 'gender' => 'M', 'softdelete' => true],
-        ['type' => 'P', 'name' => 'Francisco Silva', 'email' => 'aluno@mail.com', 'gender' => 'M', 'softdelete' => false],
+        ['type' => 'P', 'name' => 'Francisco Silva', 'email' => 'aluno@mail.com', 'gender' => 'M', 'softdelete' => false, 'nickname' => 'Paquinho'],
     ];
 
     public static $userTypes = [
@@ -87,7 +87,7 @@ class UsersSeeder extends Seeder
             } else {
                 $usersAdded[$key]['updated_at'] = $createdDate;
             }
-            $usersAdded[$key]['nickname'] = ($user['gender'] == 'M' ? 'Mickey' : 'Minnie') . ($key + 1) ;
+            $usersAdded[$key]['nickname'] = $user['nickname'] ?? (($user['gender'] == 'M' ? 'Mickey' : 'Minnie') . ($key + 1));
             $usersAdded[$key]['blocked'] = false;
             $usersAdded[$key]['photo_avatar_filename'] = null;
             $usersAdded[$key]['coins_balance'] = 0;
@@ -137,6 +137,10 @@ class UsersSeeder extends Seeder
         });
         $i = 0;
         foreach($sortedUsers as $user) {
+            // If the user is 'aluno@mail.com', skip the random photo assignment
+            if ($user->email === 'aluno@mail.com') {
+                continue;
+            }
             $originalFilename = str_starts_with($user->nickname, 'Mickey') ? array_shift($this->files_M) : array_shift($this->files_F);
             if (!$originalFilename) {
                 if ((count($this->files_M) == 0) && (count($this->files_F) == 0))

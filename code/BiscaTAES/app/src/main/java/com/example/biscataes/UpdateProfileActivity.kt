@@ -5,7 +5,9 @@ package com.example.biscataes
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import android.os.Bundle
 import android.util.Log
@@ -15,6 +17,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -41,9 +44,17 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import coil.load
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import android.Manifest
+
+@Serializable
+data class ErrorResponse(
+    val message: String,
+    val errors: Map<String, List<String>>? = null
+)
 
 class UpdateProfileActivity : AppCompatActivity() {
 
@@ -53,6 +64,7 @@ class UpdateProfileActivity : AppCompatActivity() {
     private lateinit var buttonSelectAvatar: Button
     private lateinit var imageViewAvatar: ImageView
     private lateinit var buttonSaveChanges: Button
+    private lateinit var buttonBackToDashboard: Button // NEW DECLARATION
 
     private var selectedImageUri: Uri? = null
 
@@ -83,7 +95,12 @@ class UpdateProfileActivity : AppCompatActivity() {
     private val pickImage = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             selectedImageUri = result.data?.data
-            imageViewAvatar.setImageURI(selectedImageUri)
+            // Use Coil to load the selected image URI
+            imageViewAvatar.load(selectedImageUri) {
+                crossfade(true)
+                placeholder(R.drawable.anonymous)
+                error(R.drawable.anonymous)
+            }
         }
     }
 
@@ -97,6 +114,7 @@ class UpdateProfileActivity : AppCompatActivity() {
         buttonSelectAvatar = findViewById(R.id.buttonSelectAvatar)
         imageViewAvatar = findViewById(R.id.imageViewAvatar)
         buttonSaveChanges = findViewById(R.id.buttonSaveChanges)
+        buttonBackToDashboard = findViewById(R.id.buttonBackToDashboard) // NEW INITIALIZATION
 
         loadUserData()
         setupListeners()
@@ -113,15 +131,21 @@ class UpdateProfileActivity : AppCompatActivity() {
         val currentNickname = intent.getStringExtra("CURRENT_NICKNAME")
         val currentAvatarFilename = intent.getStringExtra("CURRENT_AVATAR_FILENAME")
 
-        editTextNickname.setText(currentNickname)
+        // editTextNickname.setText(currentNickname)
         // Password is not pre-filled for security reasons
 
         // Load avatar if available (you'll need an image loading library like Coil or Glide for actual URLs)
         // For local files, you can use setImageURI or similar
-        // if (!currentAvatarFilename.isNullOrEmpty()) {
-        //     val avatarUri = Uri.parse("http://10.0.2.2:8000/storage/avatars/$currentAvatarFilename")
-        //     imageViewAvatar.setImageURI(avatarUri)
-        // }
+        if (!currentAvatarFilename.isNullOrEmpty()) {
+            val imageUrl = "http://10.0.2.2:8000/storage/photos_avatars/$currentAvatarFilename"
+            imageViewAvatar.load(imageUrl) {
+                crossfade(true)
+                placeholder(R.drawable.anonymous) // Assuming 'anonymous.png' is now in drawable
+                error(R.drawable.anonymous) // Show the same placeholder on error
+            }
+        } else {
+            imageViewAvatar.setImageResource(R.drawable.anonymous)
+        }
     }
 
     private fun setupListeners() {
@@ -132,11 +156,55 @@ class UpdateProfileActivity : AppCompatActivity() {
         buttonSaveChanges.setOnClickListener {
             saveChanges()
         }
+
+        buttonBackToDashboard.setOnClickListener { // NEW LISTENER
+            setResult(Activity.RESULT_CANCELED)
+            finish()
+        }
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                launchImageChooser()
+            } else {
+                Toast.makeText(this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private fun launchImageChooser() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        pickImage.launch(intent)
     }
 
     private fun openImageChooser() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        pickImage.launch(intent)
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_IMAGES
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+
+        when {
+            ContextCompat.checkSelfPermission(
+                this,
+                permission
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                launchImageChooser()
+            }
+            shouldShowRequestPermissionRationale(permission) -> {
+                // In an educational UI, explain to the user why your app requires this
+                // permission for a specific feature to behave as expected. In this UI,
+                // include a "cancel" or "no thanks" button that allows the user to
+                // continue using your app without granting the permission.
+                // For this example, we'll just request the permission.
+                requestPermissionLauncher.launch(permission)
+            }
+            else -> {
+                requestPermissionLauncher.launch(permission)
+            }
+        }
     }
 
     private fun saveChanges() {
@@ -186,9 +254,7 @@ class UpdateProfileActivity : AppCompatActivity() {
                         setResult(Activity.RESULT_OK)
                         finish()
                     } else {
-                        val errorBody = response.body<String>()
-                        Log.e("UpdateProfileActivity", "Error updating profile: $errorBody")
-                        Toast.makeText(this@UpdateProfileActivity, "Failed to update profile: ${response.status}", Toast.LENGTH_LONG).show()
+                        handleUpdateError(response)
                     }
                 } else if (hasChanges) {
                     val response: HttpResponse = client.put("http://10.0.2.2:8000/api/users/me") {
@@ -201,9 +267,7 @@ class UpdateProfileActivity : AppCompatActivity() {
                         setResult(Activity.RESULT_OK)
                         finish()
                     } else {
-                        val errorBody = response.body<String>()
-                        Log.e("UpdateProfileActivity", "Error updating profile: $errorBody")
-                        Toast.makeText(this@UpdateProfileActivity, "Failed to update profile: ${response.status}", Toast.LENGTH_LONG).show()
+                        handleUpdateError(response)
                     }
                 } else {
                     Toast.makeText(this@UpdateProfileActivity, "No changes to save.", Toast.LENGTH_SHORT).show()
@@ -212,6 +276,23 @@ class UpdateProfileActivity : AppCompatActivity() {
                 Log.e("UpdateProfileActivity", "Error saving changes", e)
                 Toast.makeText(this@UpdateProfileActivity, "An error occurred: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
             }
+        }
+    }
+
+    private suspend fun handleUpdateError(response: HttpResponse) {
+        try {
+            val errorResponse = response.body<ErrorResponse>()
+            val errorMessage = buildString {
+                append(errorResponse.message)
+                errorResponse.errors?.values?.flatten()?.forEach {
+                    append("\n- $it")
+                }
+            }
+            Toast.makeText(this@UpdateProfileActivity, errorMessage, Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            val errorBody = response.body<String>()
+            Log.e("UpdateProfileActivity", "Error parsing error response: $errorBody", e)
+            Toast.makeText(this@UpdateProfileActivity, "Failed to update profile: ${response.status}", Toast.LENGTH_LONG).show()
         }
     }
 
