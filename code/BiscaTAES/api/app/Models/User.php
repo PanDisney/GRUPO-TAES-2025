@@ -54,6 +54,17 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get the user's photo avatar filename.
+     *
+     * @param  string|null  $value
+     * @return string
+     */
+    public function getPhotoAvatarFilenameAttribute($value)
+    {
+        return $value ?: 'anonymous.png';
+    }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
