@@ -39,8 +39,8 @@ return new class extends Migration
         Schema::create('matches', function (Blueprint $table) {
             $table->id();
 
-            // Type of games in the match (Bisca dos 3; Bisca dos 9)
-            $table->enum('type', ['3', '9'])->default('3');
+            // Type of games in the match (S: Single, M: Multiplayer)
+            $table->enum('type', ['S', 'M'])->default('M');
 
             // Player 1 (usually, creates the match)
             $table->unsignedBigInteger('player1_user_id');
@@ -58,13 +58,7 @@ return new class extends Migration
             $table->unsignedBigInteger('loser_user_id')->nullable();
             $table->foreign('loser_user_id')->references('id')->on('users');
 
-            // Match status
-            // Pending - Match is waiting for players
-            // Playing - Match is in progress
-            // Ended - Match is over
-            // Interrupted - Match was interrupted due to technical issues (not finished; no winner)
-            // Note: depending of the project's implementation, some status may never be used
-            $table->enum('status', ['Pending', 'Playing', 'Ended', 'Interrupted']);
+            $table->enum('status', ['PE', 'PL', 'E', 'I']);
 
             // The stake for this match
             $table->integer('stake')->default(3);
@@ -97,8 +91,8 @@ return new class extends Migration
         Schema::create('games', function (Blueprint $table) {
             $table->id();
 
-            // Type of game (Bisca dos 3; Bisca dos 9)
-            $table->enum('type', ['3', '9'])->default('3');
+            // Type of game (S: Single Player, M: Multiplayer)
+            $table->enum('type', ['S', 'M'])->default('S');
 
             // Player 1 (usually, creates the game)
             $table->unsignedBigInteger('player1_user_id');
@@ -129,7 +123,7 @@ return new class extends Migration
             // Ended: finished
             // Interrupted: stopped due to technical issues (unfinished; no winner)
             // Note: depending on the project’s implementation, some statuses may never be used.
-            $table->enum('status', ['Pending', 'Playing', 'Ended', 'Interrupted']);
+            $table->enum('status', ['PE', 'PL', 'E', 'I']);
 
             // Moment when the game began
             $table->dateTime('began_at')->nullable();
@@ -144,6 +138,12 @@ return new class extends Migration
 
             // After the game ended, the total of points for player 2
             $table->integer('player2_points')->nullable();
+
+            // After the game ended, the sequence of moves for player 1
+            $table->json('player1_moves')->nullable();
+
+            // After the game ended, the sequence of moves for player 2
+            $table->json('player2_moves')->nullable();
 
             // custom data
             $table->json('custom')->nullable();

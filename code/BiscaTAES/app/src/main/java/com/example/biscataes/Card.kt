@@ -29,6 +29,9 @@ data class Card(
     val rank: Rank,
     var isTrump: Boolean = false // Vamos usar isto para saber se é um trunfo
 ) {
+    override fun toString(): String {
+        return "${rank}_OF_${suit}"
+    }
     // Função útil para mais tarde
     fun getPoints(): Int = rank.points
 }

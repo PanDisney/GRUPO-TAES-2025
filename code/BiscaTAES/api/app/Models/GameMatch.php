@@ -3,31 +3,29 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class Game extends Model
+class GameMatch extends Model
 {
+    protected $table = 'matches';
     public $timestamps = false;
 
     protected $fillable = [
-        'match_id',
+        'type',
         'player1_user_id',
         'player2_user_id',
         'winner_user_id',
-        'type',
+        'loser_user_id',
         'status',
+        'stake',
         'began_at',
         'ended_at',
         'total_time',
+        'player1_marks',
+        'player2_marks',
         'player1_points',
         'player2_points',
-        'player1_moves',
-        'player2_moves',
-    ];
-
-    protected $casts = [
-        'player1_moves' => 'array',
-        'player2_moves' => 'array',
     ];
 
     public function player1(): HasOne
@@ -45,8 +43,13 @@ class Game extends Model
         return $this->hasOne(User::class, 'id', 'winner_user_id');
     }
 
-    public function match(): BelongsTo
+    public function loser(): HasOne
     {
-        return $this->belongsTo(GameMatch::class, 'match_id', 'id');
+        return $this->hasOne(User::class, 'id', 'loser_user_id');
+    }
+
+    public function games(): HasMany
+    {
+        return $this->hasMany(Game::class, 'match_id', 'id');
     }
 }
