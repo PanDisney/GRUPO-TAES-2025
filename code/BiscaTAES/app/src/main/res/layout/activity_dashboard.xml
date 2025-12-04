@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Comprar Moedas"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/buttonUpdateProfile"

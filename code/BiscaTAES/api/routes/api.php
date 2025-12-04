@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CoinController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\GameMatchController;
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -22,7 +23,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/transactions', [CoinController::class, 'getTransactions']);
     Route::post('/coins/deduct', [CoinController::class, 'deductCoins']);
     Route::post('/coins/purchase', [CoinController::class, 'purchaseCoins']);
+
+    Route::get('/matches', [GameMatchController::class, 'index']);
+    Route::get('/matches/{match}', [GameMatchController::class, 'show']);
+    Route::put('/matches/{match}', [GameMatchController::class, 'update']);
+    Route::post('/matches', [GameMatchController::class, 'store']);
     Route::apiResource('games', GameController::class);
+    Route::put('/games/{game}/move', [GameController::class, 'makeMove']);
+    Route::put('/games/{game}/end', [GameController::class, 'endGame']);
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
