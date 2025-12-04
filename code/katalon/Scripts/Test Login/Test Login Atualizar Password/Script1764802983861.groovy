@@ -22,19 +22,19 @@ Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\Bis
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Login'), 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Email'), 'pa@mail.pt', 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Email'), 'pa@mail.pt', 0)
 
-Mobile.setText(findTestObject('android.widget.EditText - Password'), 'Pass123@', 0)
+Mobile.setText(findTestObject('android.widget.EditText - Login Password'), 'Pass123@', 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Update Profile'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Atualizar Perfil'), 0)
 
 Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Nova Password'), 'Pass123!', 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Confirme a Password (1)'), 'Pass123!', 0)
+Mobile.setText(findTestObject('android.widget.EditText - Confirme a Password'), 'Pass123!', 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Salve as mudanas'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Salvar as mudancas'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar ao Dashboard'), 0)
 
@@ -42,9 +42,9 @@ Mobile.pressBack()
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Login'), 0)
 
-Mobile.setText(findTestObject('android.widget.EditText - Email'), 'pa@mail.pt', 0)
+Mobile.setText(findTestObject('android.widget.EditText - Login Email'), 'pa@mail.pt', 0)
 
-Mobile.setText(findTestObject('android.widget.EditText - Password'), 'Pass123!', 0)
+Mobile.setText(findTestObject('android.widget.EditText - Login Password'), 'Pass123!', 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
 

@@ -22,17 +22,17 @@ Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\Bis
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Login'), 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Email'), 'aluno@mail.com', 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Email'), 'aluno@mail.com', 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Password (1)'), '123', 0)
+Mobile.setText(findTestObject('android.widget.EditText - Login Password'), '123', 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
 
 Mobile.takeScreenshot('C:\\Users\\User\\AppData\\Local\\Temp\\screenshot10269608242640819050.png')
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Update Profile'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Atualizar Perfil'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Select Avatar'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Selecionar Avatar'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.RelativeLayout'), 0)
 
@@ -40,7 +40,7 @@ Mobile.tap(findTestObject('Object Repository/android.support.v7.widget.RecyclerV
 
 Mobile.tap(findTestObject('Object Repository/android.widget.ImageView'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Salve as mudanas'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Salvar as mudancas'), 0)
 
 WebUI.delay(5)
 

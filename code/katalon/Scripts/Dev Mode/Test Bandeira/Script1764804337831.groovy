@@ -26,83 +26,83 @@ Mobile.tapAndHold(findTestObject('android.widget.TextView - Welcome'), 2, 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Dev Debug Deal'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 2'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 2 Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 3'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 3 Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 4'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 4 Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 5'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 5 Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 6'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 6 Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - Q'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - Q Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - J'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - J Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - K'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - K Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 7'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 7 Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - A'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - A Hearts'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 2 (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 2 Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 3 (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 3 Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 4 (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 4 Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 5 (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 5 Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 6 (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 6 Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - Q (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - Q Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - J (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - J Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - K (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - K Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 7 (1)'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.TextView - 7 Spades'), 0)
 
 WebUI.delay(2)
 
-Mobile.tapAtPosition(84, 2228)
+Mobile.tap(findTestObject('android.widget.TextView - A Spades'), 0)
 
 WebUI.delay(5)
 

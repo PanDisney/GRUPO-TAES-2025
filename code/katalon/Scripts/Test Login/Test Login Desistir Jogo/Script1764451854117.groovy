@@ -22,13 +22,13 @@ Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\Bis
 
 Mobile.tap(findTestObject('android.widget.Button - Login'), 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Email'), 'aluno@mail.com', 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Email'), 'aluno@mail.com', 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Password'), '123', 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Password'), '123', 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo (1)'), 0)
+Mobile.tap(findTestObject('android.widget.Button - Iniciar Jogo'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Desistir'), 0)
 
