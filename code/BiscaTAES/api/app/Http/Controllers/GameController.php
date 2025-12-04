@@ -16,7 +16,12 @@ class GameController extends Controller
      */
     public function index()
     {
-        return GameResource::collection(Game::all());
+        $user = Auth::user();
+        $games = Game::where('player1_id', $user->id)
+            ->orWhere('player2_id', $user->id)
+            ->with('player1', 'player2', 'winner')
+            ->get();
+        return GameResource::collection($games);
     }
 
     /**
@@ -27,7 +32,21 @@ class GameController extends Controller
         $user = Auth::user();
         $user->deductCoins(50);
 
-        $game = Game::create($request->validated());
+        $validatedData = $request->validated();
+        $validatedData['player1_id'] = $user->id;
+
+        if ($validatedData['type'] === 'S') {
+            $bot = User::where('email', 'bot@bisca.pt')->first();
+            if ($bot) {
+                $validatedData['player2_id'] = $bot->id;
+            } else {
+                // This should not happen if the seeder has been run
+                // But it's good practice to handle it.
+                return response()->json(['error' => 'Bot user not found.'], 500);
+            }
+        }
+
+        $game = Game::create($validatedData);
         return new GameResource($game);
     }
 

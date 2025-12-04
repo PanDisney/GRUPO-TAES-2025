@@ -20,8 +20,23 @@ class Game extends Model
         'player2_moves',
     ];
 
+    protected $casts = [
+        'player1_moves' => 'array',
+        'player2_moves' => 'array',
+    ];
+
     public function player1(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'player1_id');
+    }
+
+    public function player2(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'player2_id');
+    }
+
+    public function winner(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'winner_id');
     }
 }
