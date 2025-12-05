@@ -7,8 +7,6 @@ US-15: Visualização do Histórico de Partidas
 US-16: Filtro e Ordenação do Histórico
 US-17: Visualização das Classificações Pessoais
 
-TESTES KATALON(SEMANA 3)
-
 FEITO:
 
 US-19: Visualização de Personalizações Disponíveis
