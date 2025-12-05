@@ -106,7 +106,7 @@ class GameEngine(startMode: String? = null) {
             deck.clear()
 
         } else {
-            for (i in 1..1) {
+            for (i in 1..9) {
                 deck.drawCard()?.let { player.drawToHand(it) }
                 deck.drawCard()?.let { bot.drawToHand(it) }
             }
@@ -279,12 +279,12 @@ class GameEngine(startMode: String? = null) {
         botPoints = bot.calculatePoints()
         Log.d("GameEngine", "Vaza ganha por ${winner.name}. Pontos: P $playerPoints - B $botPoints")
 
-        // if (deck.cardsRemaining() > 0) {
-        //     deck.drawCard()?.let { winner.drawToHand(it) }
-        // }
-        // if (deck.cardsRemaining() > 0) {
-        //     deck.drawCard()?.let { loser.drawToHand(it) }
-        // }
+        if (deck.cardsRemaining() > 0) {
+            deck.drawCard()?.let { winner.drawToHand(it) }
+        }
+        if (deck.cardsRemaining() > 0) {
+            deck.drawCard()?.let { loser.drawToHand(it) }
+        }
 
         if (deck.cardsRemaining() == 0) {
             Log.d("GameEngine", "Baralho vazio! As regras de 'assistir' estão agora ativas.")
