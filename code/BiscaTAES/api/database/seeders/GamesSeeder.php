@@ -147,12 +147,12 @@ class GamesSeeder extends Seeder
         $this->nextGameDateTime($d, $filteredPlayers);
         return [
             'id' => $this->matchID,
-            'type' => random_int(1,2) == 1 ? '3' : '9',
+            'type' => 'M',
             'player1_user_id' => $user1,
             'player2_user_id' => $user2,
             'winner_user_id' => null,
             'loser_user_id' => null,
-            'status' => 'Ended',
+            'status' => 'E',
             'stake' => random_int(1,4) > 1 ? 3 : random_int(4,100),
             'began_at' => $d->copy(),
             'ended_at' => null,
@@ -195,19 +195,21 @@ class GamesSeeder extends Seeder
 
         return [
             'id' => $this->gameID,
-            'type' => $match ? $match['type'] : (random_int(1, 2) == 1 ? '3' : '9'),
+            'type' => $match ? $match['type'] : 'M',
             'match_id' => $match ? $match['id'] : null,
             'player1_user_id' => $user1,
             'player2_user_id' => $user2,
             'is_draw' => $pointsUser1 == $pointsUser2,
             'winner_user_id' => $pointsUser1 > $pointsUser2 ? $user1 : ($pointsUser2 > $pointsUser1 ? $user2 : null),
             'loser_user_id' => $pointsUser1 < $pointsUser2 ? $user1 : ($pointsUser2 < $pointsUser1 ? $user2 : null),
-            'status' => 'Ended',
+            'status' => 'E',
             'began_at' => $begin_d,
             'ended_at' => $d->copy(),
             'total_time' => $duration,
             'player1_points' => $pointsUser1,
             'player2_points' => $pointsUser2,
+            'player1_moves' => null,
+            'player2_moves' => null,
             'custom' => null
         ];
     }

@@ -2,6 +2,8 @@
 
 package com.example.biscataes
 
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -197,6 +199,11 @@ class DashboardActivity : AppCompatActivity() {
         devDebugDealButton.text = "Dev: Debug Deal"
     }
 
+
+// ... other imports
+
+// ... inside DashboardActivity class
+
     private fun setupListeners() {
         welcomeText.setOnLongClickListener {
             developerModeLayout.visibility = if (developerModeLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -212,7 +219,7 @@ class DashboardActivity : AppCompatActivity() {
         customizationButton.setOnClickListener { startActivity(Intent(this, CustomizationActivity::class.java)) }
 
         buyCoinsButton.setOnClickListener {
-            purchaseCoins(10) // Purchase 10 euros worth of coins
+            showPurchaseCoinsDialog()
         }
 
         updateProfileButton.setOnClickListener {
@@ -225,6 +232,38 @@ class DashboardActivity : AppCompatActivity() {
 
         buttonGameHistory.setOnClickListener { startActivity(Intent(this, GameHistoryActivity::class.java)) }
     }
+
+    private fun showPurchaseCoinsDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Comprar Moedas")
+
+        val input = EditText(this)
+        input.hint = "Euros a comprar (e.g., 5)"
+        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        builder.setView(input)
+
+        builder.setPositiveButton("Confirmar") { dialog, _ ->
+            val amountText = input.text.toString()
+            if (amountText.isNotEmpty()) {
+                try {
+                    val amount = amountText.toInt()
+                    if (amount > 0) {
+                        purchaseCoins(amount)
+                    } else {
+                        Toast.makeText(this, "Por favor, insira um valor positivo.", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: NumberFormatException) {
+                    Toast.makeText(this, "Por favor, insira um número válido.", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                Toast.makeText(this, "Por favor, insira um valor.", Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton("Cancelar") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
+    }
+
 
     private fun getAuthToken(): String? {
         val sharedPref = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
