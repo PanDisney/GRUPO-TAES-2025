@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<TestCaseEntity>
-   <description></description>
-   <name>Test Login Update Profile</name>
-   <tag></tag>
-   <comment></comment>
-   <recordOption>OTHER</recordOption>
-   <testCaseGuid>376a6aa7-43c7-4f7f-a890-95a0c43c3df2</testCaseGuid>
-</TestCaseEntity>

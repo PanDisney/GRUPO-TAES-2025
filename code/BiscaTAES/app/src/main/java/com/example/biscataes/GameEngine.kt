@@ -75,7 +75,27 @@ class GameEngine(startMode: String? = null) {
             return
         }
 
-        if (startMode == "DEBUG_DEAL") {
+        if (startMode == "NO_SHUFFLE") {
+            val allCards = deck.getCards().toMutableList()
+            val highValueCards = allCards.filter { it.rank == Rank.ACE || it.rank == Rank.SEVEN }
+            highValueCards.forEach { player.drawToHand(it) }
+            allCards.removeAll(highValueCards)
+
+            val remainingPlayerHand = 9 - player.getHand().size
+            for (i in 0 until remainingPlayerHand) {
+                if (allCards.isNotEmpty()) {
+                    player.drawToHand(allCards.removeAt(0))
+                }
+            }
+            for (i in 1..9) {
+                if (allCards.isNotEmpty()) {
+                    bot.drawToHand(allCards.removeAt(0))
+                }
+            }
+            deck.clear()
+            allCards.forEach{ deck.getCards().add(it)}
+
+        } else if (startMode == "DEBUG_DEAL") {
             val trumpSuit = trumpCard!!.suit
             val otherSuit = Suit.values().first { it != trumpSuit }
             val playerHandCards = deck.getCards().filter { it.suit == trumpSuit || it.suit == otherSuit }

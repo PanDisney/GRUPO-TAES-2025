@@ -824,12 +824,15 @@ class GameActivity : AppCompatActivity() {
 
         if (trumpCard != null) {
             // 3. Usar as funções helper que já temos
-            trumpView.text = "${getRankSymbol(trumpCard.rank)}\n${getSuitSymbol(trumpCard.suit)}"
+            trumpView.text = getSuitSymbol(trumpCard.suit)
+            trumpView.gravity = Gravity.CENTER
+            trumpView.textSize = 32f
+
 
             val shape = GradientDrawable()
             shape.shape = GradientDrawable.RECTANGLE
             shape.setColor(Color.WHITE)
-            shape.setStroke(2, Color.BLACK)
+            shape.setStroke(4, Color.BLUE) // Borda azul para destacar
             shape.cornerRadius = 15f
             trumpView.background = shape
 
