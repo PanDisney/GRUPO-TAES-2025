@@ -10,11 +10,12 @@ US-17: Visualização das Classificações Pessoais
 FEITO:
 
 US-19: Visualização de Personalizações Disponíveis
-US-21: Seleção e Aplicação de Avatar
+US-21: Seleção e Aplicação de Avatar(nome e password)
 ERROS semana 3: Dashboard do Login e Anónimo são Iguais!!! Modo anónimo não funcional
                   Teste Atualizar Perfil não funcional a 100% 
                   Não foi possível adicionar atualizar foto do user
 Teste Conquista Capote
+
 
 STORY POINTS: 30
 
