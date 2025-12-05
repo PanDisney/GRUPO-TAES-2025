@@ -28,15 +28,11 @@ Mobile.setText(findTestObject('android.widget.EditText - Login Password'), '123'
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
 
-Mobile.takeScreenshot('C:\\Users\\User\\AppData\\Local\\Temp\\screenshot10269608242640819050.png')
-
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Atualizar Perfil'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Selecionar Avatar'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.RelativeLayout'), 0)
-
-Mobile.tap(findTestObject('Object Repository/android.support.v7.widget.RecyclerView'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.ImageView'), 0)
 
