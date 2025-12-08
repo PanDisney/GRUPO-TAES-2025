@@ -23,10 +23,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:columnCount="2"
-        android:rowCount="2"
+        android:rowCount="4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle">
+        app:layout_constraintTop_toBottomOf="@+id/tvTitle">
 
         <ImageButton
             android:id="@+id/btnRed"
@@ -67,6 +67,102 @@
             android:scaleType="fitCenter"
             android:src="@drawable/back_card_abandoned"
             android:contentDescription="Abandoned Back" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_margin="16dp">
+
+            <ImageButton
+                android:id="@+id/btnSilver"
+                android:layout_width="100dp"
+                android:layout_height="150dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/back_card_silver"
+                android:contentDescription="Silver Back" />
+
+            <TextView
+                android:id="@+id/tvSilverPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="200 coins"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="16dp"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/btnBlack"
+                android:layout_width="100dp"
+                android:layout_height="150dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Black Back"
+                android:scaleType="fitCenter"
+                android:src="@drawable/back_card_black" />
+
+            <TextView
+                android:id="@+id/tvBlackPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="50 coins"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="16dp"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/btnRainbow"
+                android:layout_width="100dp"
+                android:layout_height="150dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Rainbow Back"
+                android:scaleType="fitCenter"
+                android:src="@drawable/back_card_rainbow" />
+
+            <TextView
+                android:id="@+id/tvRainbowPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="500 coins"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="16dp"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/btnPurple"
+                android:layout_width="100dp"
+                android:layout_height="150dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Purple Back"
+                android:scaleType="fitCenter"
+                android:src="@drawable/back_card_purple" />
+
+            <TextView
+                android:id="@+id/tvPurplePrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="25 coins"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </GridLayout>
 

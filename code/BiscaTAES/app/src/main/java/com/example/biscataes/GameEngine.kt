@@ -281,10 +281,10 @@ class GameEngine(startMode: String? = null, private val fastMode: Boolean = fals
         botPoints = bot.calculatePoints()
         Log.d("GameEngine", "Vaza ganha por ${winner.name}. Pontos: P $playerPoints - B $botPoints")
 
-        if (deck.cardsRemaining() > 0 && !fastMode) {
+        if (deck.cardsRemaining() > 0) {
             deck.drawCard()?.let { winner.drawToHand(it) }
         }
-        if (deck.cardsRemaining() > 0 && !fastMode) {
+        if (deck.cardsRemaining() > 0) {
             deck.drawCard()?.let { loser.drawToHand(it) }
         }
 

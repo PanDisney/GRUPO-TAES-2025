@@ -1,0 +1,20 @@
+COISAS POR FAZER da semana passada:
+
+
+US-15: Visualização do Histórico de Partidas - CALVIN
+US-16: Filtro e Ordenação do Histórico - CALVIN
+US-17: Visualização das Classificações Pessoais - PANDA
+
+
+Semana 5- 
+
+	## US-24: Recuperação de Senha - EU 
+	## US-20: Compra de Personalizações  - DUA 
+	## US-18: Visualização das Classificações Globais - PANDA
+	## US-14: Notificações do Sistema - EU 
+	## testes katalon - DUA 
+	## US - 00: BACKEND - TERMINAR O BACKEND 
+
+---> 
+	
+coco

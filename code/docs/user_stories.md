@@ -242,7 +242,7 @@
 
 ---
 
-## US-19: Visualização de Personalizações Disponíveis
+## US-19: Visualização de Personalizações Disponíveis ✅
 **Como** um utilizador registado  
 **Quero** ver as personalizações disponíveis (avatares e baralhos)  
 **Para** personalizar a minha experiência de jogo
@@ -255,7 +255,7 @@
 
 ---
 
-## US-20: Compra de Personalizações
+## US-20: Compra de Personalizações 
 **Como** um utilizador registado  
 **Quero** comprar avatares e baralhos com moedas  
 **Para** personalizar a minha experiência de jogo
@@ -268,7 +268,7 @@
 
 ---
 
-## US-21: Seleção e Aplicação de Avatar
+## US-21: Seleção e Aplicação de Avatar ✅
 **Como** um utilizador registado  
 **Quero** selecionar e aplicar um avatar personalizado  
 **Para** mostrar a minha identidade na aplicação
@@ -295,7 +295,7 @@
 
 ---
 
-## US-23: Sincronização de Dados com Backend
+## US-23: Sincronização de Dados com Backend ✅
 **Como** um utilizador registado  
 **Quero** que os meus dados sejam sincronizados com o servidor  
 **Para** manter as minhas informações seguras e acessíveis
