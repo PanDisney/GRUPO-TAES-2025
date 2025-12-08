@@ -63,8 +63,6 @@ data class User(
 @Serializable
 data class Game(
     val id: Int,
-    val player1: User,
-    val player2: User,
     val type: String,
     val status: String,
     val player1_points: Int? = null,
@@ -87,13 +85,17 @@ data class CreateGameRequest(
 
     val match_id: Int,
 
+    val type: String, // Add type field
+
     val status: String,
 
     @SerialName("winner_user_id")
 
-    val winnerId: Int?,
+        val winnerId: Int?,
 
-    val player1_points: Int?,
+        val is_draw: Boolean, // Add is_draw field
+
+        val player1_points: Int?,
 
     val player2_points: Int?,
 
@@ -109,25 +111,39 @@ data class CreateGameRequest(
 
 @Serializable
 
+
+
 data class UpdateMatchRequest(
+
+
 
     val status: String,
 
+
+
     @SerialName("winner_user_id")
+
+
 
     val winnerId: Int?,
 
+
+
     @SerialName("loser_user_id")
+
+
 
     val loserId: Int?,
 
+
+
     val player1_marks: Int,
 
-    val player2_marks: Int,
 
-    val player1_points: Int,
 
-    val player2_points: Int
+    val player2_marks: Int
+
+
 
 )
 
@@ -137,9 +153,11 @@ class GameActivity : AppCompatActivity() {
 
 
 
-    private lateinit var gameEngine: GameEngine
+        private lateinit var gameEngine: GameEngine
 
-    private var isUiLocked = false
+
+
+            private var isUiLocked = false
 
     private var currentCoins: Int = 0
 
@@ -296,16 +314,9 @@ class GameActivity : AppCompatActivity() {
 
 
         private fun initializeLocalGame() {
-
-
-
             val startMode = intent.getStringExtra("START_MODE")
-
-
-
-            gameEngine = GameEngine(startMode)
-
-
+            val fastMode = intent.getBooleanExtra("FAST_MODE", false)
+            gameEngine = GameEngine(startMode, fastMode)
 
     
 
@@ -405,153 +416,327 @@ class GameActivity : AppCompatActivity() {
 
     
 
-    private fun createNewGameInBackend(status: String, winnerId: Int?) {
-
-        val currentMatchId = matchId ?: return // Ensure matchId is available
+            private suspend fun createNewGameInBackend(status: String, winnerId: Int?) {
 
 
 
-        lifecycleScope.launch {
+    
 
-            try {
-
-                val requestBody = CreateGameRequest(
-
-                    match_id = currentMatchId,
-
-                    status = status,
-
-                    winnerId = winnerId,
-
-                    player1_points = gameEngine.playerPoints,
-
-                    player2_points = gameEngine.botPoints,
-
-                    player1_moves = gameEngine.playerMovesHistory,
-
-                    player2_moves = gameEngine.botMovesHistory,
-
-                    total_time = null // TODO: Implement game timer
-
-                )
+                val currentMatchId = matchId ?: return // Ensure matchId is available
 
 
 
-                Log.d("SAVE_GAME_DEBUG", "Sending POST to /api/games")
+    
 
-                Log.d("SAVE_GAME_DEBUG", "Request Body: ${jsonSerializer.encodeToString(CreateGameRequest.serializer(), requestBody)}")
+                val isDraw = winnerId == null && status == "E"
 
 
 
-                val response: HttpResponse = client.post("http://10.0.2.2:8000/api/games") {
+    
 
-                    contentType(ContentType.Application.Json)
+                try {
 
-                    setBody(requestBody)
+
+
+    
+
+                    val requestBody = CreateGameRequest(
+
+
+
+    
+
+                        match_id = currentMatchId,
+
+
+
+    
+
+                        type = "S", // Set type to Single Player
+
+
+
+    
+
+                        status = status,
+
+
+
+    
+
+                        winnerId = winnerId,
+
+
+
+    
+
+                        is_draw = isDraw,
+
+
+
+    
+
+                        player1_points = gameEngine.playerPoints,
+
+
+
+    
+
+                        player2_points = gameEngine.botPoints,
+
+
+
+    
+
+                        player1_moves = gameEngine.playerMovesHistory,
+
+
+
+    
+
+                        player2_moves = gameEngine.botMovesHistory,
+
+
+
+    
+
+                        total_time = null // TODO: Implement game timer
+
+
+
+    
+
+                    )
+
+
+
+    
+
+        
+
+
+
+    
+
+                    Log.d("SAVE_GAME_DEBUG", "Sending POST to /api/games")
+
+
+
+    
+
+                    Log.d("SAVE_GAME_DEBUG", "Request Body: ${jsonSerializer.encodeToString(CreateGameRequest.serializer(), requestBody)}")
+
+
+
+    
+
+        
+
+
+
+    
+
+                    val response: HttpResponse = client.post("http://10.0.2.2:8000/api/games") {
+
+
+
+    
+
+                        contentType(ContentType.Application.Json)
+
+
+
+    
+
+                        setBody(requestBody)
+
+
+
+    
+
+                    }
+
+
+
+    
+
+        
+
+
+
+    
+
+                    if (response.status == HttpStatusCode.Created) { // Expect 201 Created for POST
+
+
+
+    
+
+                        Log.d("GameActivity", "Game record created successfully.")
+
+
+
+    
+
+                    } else {
+
+
+
+    
+
+                        Log.e("GameActivity", "Failed to create game record. Status: ${response.status.value}")
+
+
+
+    
+
+                    }
+
+
+
+    
+
+        
+
+
+
+    
+
+                } catch (e: Exception) {
+
+
+
+    
+
+                    Log.e("GameActivity", "Error creating game record", e)
+
+
+
+    
 
                 }
 
 
 
-                if (response.status == HttpStatusCode.Created) { // Expect 201 Created for POST
-
-                    Log.d("GameActivity", "Game record created successfully.")
-
-                } else {
-
-                    Log.e("GameActivity", "Failed to create game record. Status: ${response.status.value}")
-
-                }
-
-
-
-            } catch (e: Exception) {
-
-                Log.e("GameActivity", "Error creating game record", e)
+    
 
             }
 
-        }
-
-    }
 
 
-
-    private fun updateMatchOnBackend(winnerId: Int?, loserId: Int?) {
-
-        val currentMatchId = matchId ?: return
+            private suspend fun updateMatchOnBackend(winnerId: Int?, loserId: Int?) {
 
 
 
-        lifecycleScope.launch {
-
-            try {
-
-                // This is a simplification. In a real app, you would sum the points
-
-                // from all 'game' objects belonging to this match.
-
-                val totalPlayer1Points = gameEngine.playerGamesWon * 61 // Placeholder sum
-
-                val totalPlayer2Points = gameEngine.botGamesWon * 61 // Placeholder sum
+                val currentMatchId = matchId ?: return
 
 
 
-                val requestBody = UpdateMatchRequest(
-
-                    status = "E", // Ended
-
-                    winnerId = winnerId,
-
-                    loserId = loserId,
-
-                    player1_marks = gameEngine.playerGamesWon,
-
-                    player2_marks = gameEngine.botGamesWon,
-
-                    player1_points = totalPlayer1Points,
-
-                    player2_points = totalPlayer2Points
-
-                )
+        
 
 
 
-                Log.d("UPDATE_MATCH_DEBUG", "Sending PUT to /api/matches/$currentMatchId")
-
-                Log.d("UPDATE_MATCH_DEBUG", "Request Body: ${jsonSerializer.encodeToString(UpdateMatchRequest.serializer(), requestBody)}")
+                try {
 
 
 
-                val response: HttpResponse = client.put("http://10.0.2.2:8000/api/matches/$currentMatchId") {
+                    val requestBody = UpdateMatchRequest(
 
-                    contentType(ContentType.Application.Json)
 
-                    setBody(requestBody)
+
+                        status = "E", // Ended
+
+
+
+                        winnerId = winnerId,
+
+
+
+                        loserId = loserId,
+
+
+
+                        player1_marks = gameEngine.playerGamesWon,
+
+
+
+                        player2_marks = gameEngine.botGamesWon
+
+
+
+                    )
+
+
+
+        
+
+
+
+                    Log.d("UPDATE_MATCH_DEBUG", "Sending PUT to /api/matches/$currentMatchId")
+
+
+
+                    Log.d("UPDATE_MATCH_DEBUG", "Request Body: ${jsonSerializer.encodeToString(UpdateMatchRequest.serializer(), requestBody)}")
+
+
+
+        
+
+
+
+                    val response: HttpResponse = client.put("http://10.0.2.2:8000/api/matches/$currentMatchId") {
+
+
+
+                        contentType(ContentType.Application.Json)
+
+
+
+                        setBody(requestBody)
+
+
+
+                    }
+
+
+
+        
+
+
+
+                    if (response.status == HttpStatusCode.OK) {
+
+
+
+                        Log.d("GameActivity", "Match updated successfully.")
+
+
+
+                    } else {
+
+
+
+                        Log.e("GameActivity", "Failed to update match. Status: ${response.status.value}")
+
+
+
+                    }
+
+
+
+                } catch (e: Exception) {
+
+
+
+                    Log.e("GameActivity", "Error updating match", e)
+
+
 
                 }
 
 
-
-                if (response.status == HttpStatusCode.OK) {
-
-                    Log.d("GameActivity", "Match updated successfully.")
-
-                } else {
-
-                    Log.e("GameActivity", "Failed to update match. Status: ${response.status.value}")
-
-                }
-
-            } catch (e: Exception) {
-
-                Log.e("GameActivity", "Error updating match", e)
 
             }
-
-        }
-
-    }
 
 
 
@@ -565,7 +750,9 @@ class GameActivity : AppCompatActivity() {
                     handleAnonymousGiveUp()
                 } else {
                     // When giving up, the game is Interrupted and the bot wins.
-                    createNewGameInBackend(status = "I", winnerId = player2?.id)
+                    lifecycleScope.launch {
+                        createNewGameInBackend(status = "I", winnerId = player2?.id)
+                    }
                     // TODO: The backend should handle the coin deduction and the client should get the new balance.
                     // For now, just finish the activity.
                     finish()
@@ -1015,7 +1202,9 @@ class GameActivity : AppCompatActivity() {
         }
 
         // Create a new game record in the backend for this finished game
-        createNewGameInBackend("E", gameWinnerId)
+        lifecycleScope.launch {
+            createNewGameInBackend("E", gameWinnerId)
+        }
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
@@ -1035,15 +1224,24 @@ class GameActivity : AppCompatActivity() {
     private fun showEndMatchDialog() {
         val title: String
         val message: String
+        val winnerId: Int?
+        val loserId: Int?
 
         if (gameEngine.playerGamesWon >= 4) {
             title = "VITÓRIA NA PARTIDA!"
             message = "Parabéns, você venceu a partida por ${gameEngine.playerGamesWon} a ${gameEngine.botGamesWon}!"
-            updateMatchOnBackend(winnerId = player1?.id, loserId = player2?.id)
+            winnerId = player1?.id
+            loserId = player2?.id
         } else {
             title = "DERROTA NA PARTIDA"
             message = "O Bot venceu a partida por ${gameEngine.botGamesWon} a ${gameEngine.playerGamesWon}!"
-            updateMatchOnBackend(winnerId = player2?.id, loserId = player1?.id)
+            winnerId = player2?.id
+            loserId = player1?.id
+        }
+
+        lifecycleScope.launch {
+            createNewGameInBackend("E", winnerId)
+            updateMatchOnBackend(winnerId, loserId)
         }
 
         var finalCoins = currentCoins

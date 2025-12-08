@@ -58,19 +58,6 @@ class GameMatchController extends Controller
             'type' => 'S',   // Single Player
         ]);
 
-        // Create an initial game for the match
-        $match->games()->create([
-            'player1_user_id' => $user->id,
-            'player2_user_id' => $bot->id,
-            'type' => 'S', // Single Player
-            'status' => 'PL', // Playing
-            'began_at' => now(),
-            'player1_points' => 0,
-            'player2_points' => 0,
-            'player1_moves' => [],
-            'player2_moves' => [],
-        ]);
-
         $match->load('player1', 'player2');
 
         return new GameMatchResource($match);
@@ -79,17 +66,27 @@ class GameMatchController extends Controller
     public function update(UpdateMatchRequest $request, GameMatch $match)
     {
         $validatedData = $request->validated();
-        $match->update($validatedData);
 
-        // If the match status is set to 'E' (Ended), update all associated games
         if (isset($validatedData['status']) && $validatedData['status'] === 'E') {
+            if ($match->began_at) {
+                $validatedData['total_time'] = $match->began_at->diffInSeconds(now());
+            }
+
+            if ($validatedData['player1_marks'] > $validatedData['player2_marks']) {
+                $validatedData['winner_user_id'] = $match->player1_user_id;
+            } elseif ($validatedData['player2_marks'] > $validatedData['player1_marks']) {
+                $validatedData['winner_user_id'] = $match->player2_user_id;
+            }
+
             $match->games()
-                ->whereIn('status', ['PE', 'PL']) // Only update pending or playing games
+                ->whereIn('status', ['PE', 'PL'])
                 ->update([
-                    'status' => 'I', // Mark as Interrupted
+                    'status' => 'I',
                     'ended_at' => now(),
                 ]);
         }
+
+        $match->update($validatedData);
 
         return new GameMatchResource($match);
     }

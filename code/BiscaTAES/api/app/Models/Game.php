@@ -14,6 +14,7 @@ class Game extends Model
         'player1_user_id',
         'player2_user_id',
         'winner_user_id',
+        'is_draw', // Add this
         'type',
         'status',
         'began_at',
@@ -26,6 +27,7 @@ class Game extends Model
     ];
 
     protected $casts = [
+        'is_draw' => 'boolean', // Add this
         'player1_moves' => 'array',
         'player2_moves' => 'array',
     ];

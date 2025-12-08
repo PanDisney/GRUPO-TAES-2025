@@ -34,6 +34,7 @@ class GameController extends Controller
         $user->deductCoins(50);
 
         $validatedData = $request->validated();
+        Log::debug('Validated data for Game::create', $validatedData); // Add this log
         $validatedData['player1_user_id'] = $user->id;
 
         if ($validatedData['type'] === 'S') {

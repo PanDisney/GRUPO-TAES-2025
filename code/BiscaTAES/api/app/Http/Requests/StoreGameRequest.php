@@ -25,6 +25,7 @@ class StoreGameRequest extends FormRequest
         $rules = [
             'status' => ['required', Rule::in(['PE', 'PL', 'E', 'I'])],
             'winner_user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'is_draw' => ['nullable', 'boolean'], // Add this line
             'player1_moves' => ['nullable', 'array'],
             'player2_moves' => ['nullable', 'array'],
             'player1_points' => ['nullable', 'integer'],
