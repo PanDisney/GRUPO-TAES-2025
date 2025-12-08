@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MoveData(val turn: Int, val card: String)
 
-class GameEngine(startMode: String? = null) {
+class GameEngine(startMode: String? = null, private val fastMode: Boolean = false) {
 
     enum class GameResult{
         PLAYER_WINS,
@@ -75,7 +75,28 @@ class GameEngine(startMode: String? = null) {
             return
         }
 
-        if (startMode == "DEBUG_DEAL") {
+        if (startMode == "NO_SHUFFLE") {
+            val allCards = deck.getCards().toMutableList()
+            val highValueCards = allCards.filter { it.rank == Rank.ACE || it.rank == Rank.SEVEN }
+            highValueCards.forEach { player.drawToHand(it) }
+            allCards.removeAll(highValueCards)
+
+            val remainingPlayerHand = if (fastMode) 1 - player.getHand().size else 9 - player.getHand().size
+            for (i in 0 until remainingPlayerHand) {
+                if (allCards.isNotEmpty()) {
+                    player.drawToHand(allCards.removeAt(0))
+                }
+            }
+            val cardsToDeal = if (fastMode) 1 else 9
+            for (i in 1..cardsToDeal) {
+                if (allCards.isNotEmpty()) {
+                    bot.drawToHand(allCards.removeAt(0))
+                }
+            }
+            deck.clear()
+            allCards.forEach{ deck.getCards().add(it)}
+
+        } else if (startMode == "DEBUG_DEAL") {
             val trumpSuit = trumpCard!!.suit
             val otherSuit = Suit.values().first { it != trumpSuit }
             val playerHandCards = deck.getCards().filter { it.suit == trumpSuit || it.suit == otherSuit }
@@ -86,7 +107,8 @@ class GameEngine(startMode: String? = null) {
             deck.clear()
 
         } else {
-            for (i in 1..1) {
+            val cardsToDeal = if (fastMode) 1 else 9
+            for (i in 1..cardsToDeal) {
                 deck.drawCard()?.let { player.drawToHand(it) }
                 deck.drawCard()?.let { bot.drawToHand(it) }
             }
@@ -259,12 +281,12 @@ class GameEngine(startMode: String? = null) {
         botPoints = bot.calculatePoints()
         Log.d("GameEngine", "Vaza ganha por ${winner.name}. Pontos: P $playerPoints - B $botPoints")
 
-        // if (deck.cardsRemaining() > 0) {
-        //     deck.drawCard()?.let { winner.drawToHand(it) }
-        // }
-        // if (deck.cardsRemaining() > 0) {
-        //     deck.drawCard()?.let { loser.drawToHand(it) }
-        // }
+        if (deck.cardsRemaining() > 0 && !fastMode) {
+            deck.drawCard()?.let { winner.drawToHand(it) }
+        }
+        if (deck.cardsRemaining() > 0 && !fastMode) {
+            deck.drawCard()?.let { loser.drawToHand(it) }
+        }
 
         if (deck.cardsRemaining() == 0) {
             Log.d("GameEngine", "Baralho vazio! As regras de 'assistir' estão agora ativas.")

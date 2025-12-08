@@ -18,9 +18,8 @@ class GameResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'player1' => new UserResource($this->player1),
-            'player2' => new UserResource($this->whenLoaded('player2')),
             'winner' => new UserResource($this->whenLoaded('winner')),
+            'is_draw' => $this->is_draw, // Add this line
             'type' => $this->type,
             'status' => $this->status,
             'player1_moves' => $this->player1_moves,
