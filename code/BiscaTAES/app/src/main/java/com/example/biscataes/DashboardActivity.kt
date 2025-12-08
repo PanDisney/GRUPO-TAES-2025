@@ -369,6 +369,7 @@ class DashboardActivity : AppCompatActivity() {
                         putExtra("CURRENT_COINS", user.coins)
                     }
                     startMode?.let { putExtra("START_MODE", it) }
+                    putExtra("FAST_MODE", false) // Enable fast mode
                 }
                 gameLauncher.launch(intent)
             } else {
