@@ -15,6 +15,4 @@ Semana 5-
 	## testes katalon - DUA 
 	## US - 00: BACKEND - TERMINAR O BACKEND 
 
----> 
-	
-coco
+--->
