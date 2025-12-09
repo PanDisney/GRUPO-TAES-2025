@@ -18,6 +18,9 @@
         android:theme="@style/Theme.BiscaTAES"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".GameDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".UpdateProfileActivity"
             android:exported="false" />
         <activity
