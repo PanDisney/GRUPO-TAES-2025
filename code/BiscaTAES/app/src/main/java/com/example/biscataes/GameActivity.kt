@@ -60,24 +60,9 @@ data class User(
     val photo_avatar_filename: String? = null
 )
 
-@Serializable
-data class Game(
-    val id: Int,
-    val type: String,
-    val status: String,
-    val player1_points: Int? = null,
-    val player2_points: Int? = null,
-    val player1_moves: List<MoveData>? = null,
-    val player2_moves: List<MoveData>? = null,
-    val total_time: Int? = null
-)
 
-@Serializable
-data class GameMatch(
-    val id: Int,
-    val player1: User,
-    val player2: User
-)
+
+
 
 @Serializable
 

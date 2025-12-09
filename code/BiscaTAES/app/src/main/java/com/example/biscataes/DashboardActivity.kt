@@ -79,6 +79,7 @@ class DashboardActivity : AppCompatActivity() {
     // UI Elements
     private lateinit var startGameButton: Button
     private lateinit var rankingButton: Button
+    private lateinit var matchHistoryButton: Button
     private lateinit var customizationButton: Button
     private lateinit var buyCoinsButton: Button
     private lateinit var updateProfileButton: Button
@@ -163,6 +164,7 @@ class DashboardActivity : AppCompatActivity() {
     private fun initializeViews() {
         startGameButton = findViewById(R.id.buttonStartGame)
         rankingButton = findViewById(R.id.buttonRanking)
+        matchHistoryButton = findViewById(R.id.buttonMatchHistory)
         customizationButton = findViewById(R.id.buttonCustomization)
         buyCoinsButton = findViewById(R.id.buttonBuyCoins)
         updateProfileButton = findViewById(R.id.buttonUpdateProfile)
@@ -195,6 +197,7 @@ class DashboardActivity : AppCompatActivity() {
         devDebugDealButton.setOnClickListener { startGameWithMode("DEBUG_DEAL") }
 
         rankingButton.setOnClickListener { startActivity(Intent(this, RankingActivity::class.java)) }
+        matchHistoryButton.setOnClickListener { startActivity(Intent(this, MatchHistoryActivity::class.java)) }
         customizationButton.setOnClickListener { startActivity(Intent(this, CustomizationActivity::class.java)) }
 
         buyCoinsButton.setOnClickListener {
@@ -369,7 +372,7 @@ class DashboardActivity : AppCompatActivity() {
                         putExtra("CURRENT_COINS", user.coins)
                     }
                     startMode?.let { putExtra("START_MODE", it) }
-                    putExtra("FAST_MODE", false) // Enable fast mode
+                    putExtra("FAST_MODE", true) // Enable fast mode
                 }
                 gameLauncher.launch(intent)
             } else {

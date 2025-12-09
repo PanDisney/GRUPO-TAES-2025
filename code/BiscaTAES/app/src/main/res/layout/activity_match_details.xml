@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".MatchDetailsActivity">
+
+    <TextView
+        android:id="@+id/text_match_details_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Match Details"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/text_match_players"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        tools:text="Players: Player1 vs Player2" />
+
+    <TextView
+        android:id="@+id/text_match_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Score: 4 - 2" />
+
+    <TextView
+        android:id="@+id/text_match_winner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Winner: Player1" />
+
+    <TextView
+        android:id="@+id/text_games_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Games"
+        android:textSize="20sp"
+        android.textStyle="bold" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_games"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_game" />
+
+</LinearLayout>

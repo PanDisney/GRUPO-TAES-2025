@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:id="@+id/match_item_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/text_match_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            tools:text="Match ID: 123" />
+
+        <TextView
+            android:id="@+id/text_players"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Players: Player1 vs Player2" />
+
+        <TextView
+            android:id="@+id/text_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Score: 4 - 2" />
+
+        <TextView
+            android:id="@+id/text_winner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Winner: Player1" />
+
+        <TextView
+            android:id="@+id/text_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Status: Finished" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
