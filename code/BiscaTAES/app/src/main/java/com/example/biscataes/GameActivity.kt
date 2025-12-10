@@ -57,7 +57,9 @@ data class User(
     val name: String,
     val nickname: String,
     val email: String,
-    val photo_avatar_filename: String? = null
+    val photo_avatar_filename: String? = null,
+    @SerialName("selected_card_back_image_name")
+    val selected_card_back_image_name: String? = null
 )
 
 
@@ -202,6 +204,15 @@ class GameActivity : AppCompatActivity() {
                 matchId = matchResponse.id
                 player1 = matchResponse.player1
                 player2 = matchResponse.player2
+
+                // Save player1's chosen card back to SharedPreferences
+                player1?.selected_card_back_image_name?.let { cardBackName ->
+                    val sharedPref = getSharedPreferences("GameSettings", Context.MODE_PRIVATE)
+                    with(sharedPref.edit()) {
+                        putString("card_back", cardBackName)
+                        apply()
+                    }
+                }
 
                 initializeLocalGame()
 
