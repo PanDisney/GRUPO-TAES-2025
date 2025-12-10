@@ -86,4 +86,23 @@ class UserController extends Controller
         $user->delete();
         return response()->noContent();
     }
+
+    public function selectCardFace(Request $request)
+    {
+        $request->validate([
+            'card_face_id' => 'required|exists:card_faces,id',
+        ]);
+
+        $user = $request->user();
+        $cardFaceId = $request->input('card_face_id');
+
+        if (!$user->cardFaces()->where('card_face_id', $cardFaceId)->exists()) {
+            return response()->json(['message' => 'You do not own this card face.'], 400);
+        }
+
+        $user->selected_card_face_id = $cardFaceId;
+        $user->save();
+
+        return response()->json(['message' => 'Card face selected successfully.']);
+    }
 }

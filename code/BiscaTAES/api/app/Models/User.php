@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Transaction;
+use App\Models\CardFace;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -29,6 +32,7 @@ class User extends Authenticatable
         'coins_balance',
         'type',
         'photo_avatar_filename',
+        'selected_card_face_id',
     ];
 
     /**
@@ -70,19 +74,34 @@ class User extends Authenticatable
         return $this->hasMany(Transaction::class);
     }
 
-    public function deductCoins(int $amount): void
+    public function deductCoins(int $amount, int $coinTransactionTypeId): void
     {
-        if ($this->coins_balance < $amount) {
-            throw new \Exception('Insufficient coin balance');
-        }
+        DB::transaction(function () use ($amount, $coinTransactionTypeId) {
+            $user = $this->lockForUpdate()->find($this->id);
 
-        $this->coins_balance -= $amount;
-        $this->save();
+            if ($user->coins_balance < $amount) {
+                throw new \Exception('Insufficient coin balance');
+            }
 
-        Transaction::create([
-            'user_id' => $this->id,
-            'type' => 'D', // D for Debit/Desist
-            'amount' => $amount,
-        ]);
+            $user->coins_balance -= $amount;
+            $user->save();
+
+            Transaction::create([
+                'user_id' => $user->id,
+                'coin_transaction_type_id' => $coinTransactionTypeId,
+                'coins' => -$amount, // Negative for deduction
+                'transaction_datetime' => Carbon::now(),
+            ]);
+        });
+    }
+
+    public function cardFaces()
+    {
+        return $this->belongsToMany(CardFace::class, 'user_card_face', 'user_id', 'card_face_id');
+    }
+
+    public function selectedCardFace()
+    {
+        return $this->belongsTo(CardFace::class, 'selected_card_face_id');
     }
 }
