@@ -16,7 +16,8 @@ object ScoreManager {
     private const val KEY_MATCHES = "matches_played"
     private const val KEY_CAPOTES = "capotes"
     private const val KEY_BANDEIRAS = "bandeiras"
-    private const val KEY_ACHIEVEMENTS = "achievements"
+    private const val KEY_ACHIEVEMENTS_COUNT = "achievements"
+    private const val KEY_UNLOCKED_ACHIEVEMENTS = "unlocked_achievements_set"
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -37,16 +38,16 @@ object ScoreManager {
                 val currentCapotes = prefs.getInt(KEY_CAPOTES, 0)
                 val currentBandeiras = prefs.getInt(KEY_BANDEIRAS, 0)
 
-                // US-12: Award coins based on score
+                // US-12: Award coins based on score - Updated values
                 val currentCoins = prefs.getInt(KEY_COINS, 0)
                 val coinsEarned = when {
-                    gameLog.playerFinalPoints == 120 -> {
+                    gameLog.playerFinalPoints == 120 -> { // Capote
                         editor.putInt(KEY_CAPOTES, currentCapotes + 1)
-                        50 // Capote
+                        80 
                     }
-                    gameLog.playerFinalPoints > 90 -> {
+                    gameLog.playerFinalPoints > 90 -> { // Bandeira
                         editor.putInt(KEY_BANDEIRAS, currentBandeiras + 1)
-                        25   // Good win (Bandeira)
+                        40
                     }
                     else -> 10                // Normal win
                 }
@@ -54,7 +55,7 @@ object ScoreManager {
                 // Show a toast message to the user
                 Toast.makeText(context, "Ganhou $coinsEarned moedas!", Toast.LENGTH_SHORT).show()
                 
-                checkAchievements(context, prefs, editor, current + 1, currentCoins + coinsEarned)
+                checkAchievements(context, prefs, editor, gameLog.playerFinalPoints)
             }
             GameEngine.GameResult.BOT_WINS -> {
                 val current = prefs.getInt(KEY_BOT_WINS, 0)
@@ -90,22 +91,29 @@ object ScoreManager {
         editor.apply()
     }
 
-    private fun checkAchievements(context: Context, prefs: android.content.SharedPreferences, editor: android.content.SharedPreferences.Editor, wins: Int, coins: Int) {
-        // Simple mock achievement logic
-        var achievements = prefs.getInt(KEY_ACHIEVEMENTS, 0)
-        // Example: Achievement for first win
-        if (wins == 1 && achievements < 1) {
-            achievements++
-            Toast.makeText(context, "Conquista Desbloqueada: Primeira Vitória!", Toast.LENGTH_SHORT).show()
+    private fun checkAchievements(context: Context, prefs: android.content.SharedPreferences, editor: android.content.SharedPreferences.Editor, playerPoints: Int) {
+        // Retrieve current unlocked achievements
+        val unlockedSet = prefs.getStringSet(KEY_UNLOCKED_ACHIEVEMENTS, mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        var newUnlock = false
+
+        // Achievement: Bandeira Victory (Points > 90)
+        if (playerPoints > 90 && !unlockedSet.contains("ACH_BANDEIRA")) {
+            unlockedSet.add("ACH_BANDEIRA")
+            Toast.makeText(context, "Conquista Desbloqueada: Mestre da Bandeira!", Toast.LENGTH_LONG).show()
+            newUnlock = true
         }
-        // Example: Achievement for 100 coins
-        if (coins >= 100 && achievements < 2) {
-             if (achievements == 0 && wins > 1) achievements = 2 // catch up if logic is weird, simplification
-             else if (achievements == 1) achievements++
-             
-             // Just ensuring it increments, logic can be more complex
+
+        // Achievement: Capote Victory (Points == 120)
+        if (playerPoints == 120 && !unlockedSet.contains("ACH_CAPOTE")) {
+            unlockedSet.add("ACH_CAPOTE")
+            Toast.makeText(context, "Conquista Desbloqueada: Rei do Capote!", Toast.LENGTH_LONG).show()
+            newUnlock = true
         }
-        editor.putInt(KEY_ACHIEVEMENTS, achievements)
+
+        if (newUnlock) {
+            editor.putStringSet(KEY_UNLOCKED_ACHIEVEMENTS, unlockedSet)
+            editor.putInt(KEY_ACHIEVEMENTS_COUNT, unlockedSet.size)
+        }
     }
 
     data class Stats(
@@ -129,7 +137,7 @@ object ScoreManager {
             prefs.getInt(KEY_CAPOTES, 0),
             prefs.getInt(KEY_BANDEIRAS, 0),
             prefs.getInt(KEY_COINS, 0),
-            prefs.getInt(KEY_ACHIEVEMENTS, 0)
+            prefs.getInt(KEY_ACHIEVEMENTS_COUNT, 0)
         )
     }
 
@@ -154,22 +162,5 @@ object ScoreManager {
                     null
                 }
             }
-    }
-    
-    data class RankingEntry(val name: String, val wins: Int, val coins: Int, val achievements: Int)
-
-    fun getGlobalRankings(context: Context): List<RankingEntry> {
-        val stats = getStats(context)
-        val playerEntry = RankingEntry("Você", stats.playerWins, stats.coins, stats.achievements)
-        
-        // Mock data for other players
-        val mockEntries = listOf(
-            RankingEntry("Mestre da Bisca", 50, 2500, 10),
-            RankingEntry("SuecaKing", 30, 1200, 5),
-            RankingEntry("Bot Alpha", 20, 800, 3),
-            RankingEntry("Novato123", 2, 50, 0)
-        )
-        
-        return (mockEntries + playerEntry).sortedByDescending { it.wins }
     }
 }
