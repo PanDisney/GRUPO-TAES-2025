@@ -69,11 +69,9 @@ data class User(
 @Serializable
 
 data class CreateGameRequest(
-
     val match_id: Int,
     val type: String, // Add type field
     val status: String,
-
     @SerialName("winner_user_id")
     val winnerId: Int?,
     val is_draw: Boolean, // Add is_draw field
@@ -81,8 +79,9 @@ data class CreateGameRequest(
     val player2_points: Int?,
     val player1_moves: List<MoveData>,
     val player2_moves: List<MoveData>,
-    val total_time: Int?
-
+    val total_time: Int?,
+    val trump_card: String?,
+    val first_trick_leader_id: Int?
 )
 
 
@@ -179,7 +178,7 @@ class GameActivity : AppCompatActivity() {
         val startMode = intent.getStringExtra("START_MODE")
         val fastMode = intent.getBooleanExtra("FAST_MODE", false)
 
-        gameEngine = GameEngine(startMode, fastMode)
+        gameEngine = GameEngine(player1, player2, startMode, fastMode)
 
         // Draw the initial UI based on the new GameEngine state
         drawPlayerHand()
@@ -241,7 +240,9 @@ class GameActivity : AppCompatActivity() {
                 player2_points = gameEngine.botPoints,
                 player1_moves = gameEngine.playerMovesHistory,
                 player2_moves = gameEngine.botMovesHistory,
-                total_time = null // TODO: Implement game timer
+                total_time = null, // TODO: Implement game timer
+                trump_card = gameEngine.trumpCard?.toString(),
+                first_trick_leader_id = gameEngine.firstTrickLeaderId
             )
 
             Log.d("SAVE_GAME_DEBUG", "Sending POST to /api/games")

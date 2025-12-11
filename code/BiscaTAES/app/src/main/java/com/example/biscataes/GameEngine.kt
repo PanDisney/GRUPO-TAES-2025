@@ -9,7 +9,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MoveData(val turn: Int, val card: String)
 
-class GameEngine(startMode: String? = null, private val fastMode: Boolean = false) {
+class GameEngine(
+    private val player1: User?,
+    private val player2: User?,
+    startMode: String? = null,
+    private val fastMode: Boolean = false
+) {
 
     enum class GameResult{
         PLAYER_WINS,
@@ -17,6 +22,10 @@ class GameEngine(startMode: String? = null, private val fastMode: Boolean = fals
         DRAW,
         UNDEFINED
     }
+
+    var firstTrickLeaderId: Int? = null
+        private set
+
 
     var gameResult: GameResult = GameResult.UNDEFINED
         private set
@@ -123,6 +132,7 @@ class GameEngine(startMode: String? = null, private val fastMode: Boolean = fals
         } else {
             isPlayerTurnToLead = true
         }
+        firstTrickLeaderId = if (isPlayerTurnToLead) player1?.id else player2?.id
 
         Log.d("GameEngine", "--- Jogo Iniciado ---")
         Log.d("GameEngine", "TRUNFO: $trumpCard")

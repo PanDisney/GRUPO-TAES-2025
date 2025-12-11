@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Resources\GameResource;
+use App\Services\BiscaGameService; // Already there
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -49,6 +50,7 @@ class GameController extends Controller
 
         Log::debug('Data for Game::create', $validatedData);
         $game = Game::create($validatedData);
+        // Load relationships and new fields if they exist
         $game->load('player1', 'player2');
         return new GameResource($game);
     }
@@ -58,7 +60,53 @@ class GameController extends Controller
      */
     public function show(Game $game)
     {
-        $game->load('player1', 'player2', 'winner');
+        $game->load('player1', 'player2', 'winner', 'firstTrickLeader');
+
+        $tricks = [];
+        $player1Moves = $game->player1_moves ?? [];
+        $player2Moves = $game->player2_moves ?? [];
+        $leaderId = $game->first_trick_leader_id;
+        $trumpSuit = null;
+        if ($game->trump_card) {
+            $trumpCard = BiscaGameService::parseCard($game->trump_card);
+            $trumpSuit = $trumpCard['suit'] ?? null;
+        }
+
+        $numTricks = count($player1Moves);
+        for ($i = 0; $i < $numTricks; $i++) {
+            $player1Move = $player1Moves[$i];
+            $player2Move = $player2Moves[$i];
+
+            $player1Card = BiscaGameService::parseCard($player1Move['card']);
+            $player2Card = BiscaGameService::parseCard($player2Move['card']);
+
+            $winnerId = null;
+            if ($player1Card && $player2Card && $trumpSuit && $leaderId) {
+                $winnerId = BiscaGameService::determineTrickWinner(
+                    $player1Card,
+                    $player2Card,
+                    $trumpSuit,
+                    $leaderId,
+                    $game->player1_user_id,
+                    $game->player2_user_id
+                );
+            }
+
+            $tricks[] = [
+                'trick_number' => $i + 1,
+                'leader_id' => $leaderId,
+                'player1_card' => $player1Move['card'],
+                'player2_card' => $player2Move['card'],
+                'winner_id' => $winnerId,
+            ];
+
+            if ($winnerId) {
+                $leaderId = $winnerId;
+            }
+        }
+
+        $game->tricks = $tricks;
+
         return new GameResource($game);
     }
 
