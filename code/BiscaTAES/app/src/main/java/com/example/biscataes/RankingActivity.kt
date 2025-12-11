@@ -41,6 +41,11 @@ data class Transaction(
 )
 
 @Serializable
+data class TransactionListResponse(
+    val data: List<Transaction>
+)
+
+@Serializable
 data class UserListResponse(
     val data: List<RankingUser>
 )
@@ -128,6 +133,7 @@ class RankingActivity : AppCompatActivity() {
                 var wins = 0
                 var capotes = 0
                 var bandeiras = 0
+                var coinsEarnedPlaying = 0 // Calculate based on server matches
 
                 matches.forEach { match ->
                     if (match.winner?.email == currentUserEmail) {
@@ -137,18 +143,30 @@ class RankingActivity : AppCompatActivity() {
                             if (myPoints == 120) capotes++
                             else if (myPoints > 90) bandeiras++
                         }
+                        // Calculate coins earned from this match
+                        val winnerPoints = if (match.player1.email == currentUserEmail) match.player1_marks else match.player2_marks
+                        val points = winnerPoints ?: 0
+                        val coins = when {
+                            points == 120 -> 80
+                            points > 90 -> 40
+                            else -> 10
+                        }
+                        coinsEarnedPlaying += coins
                     }
                 }
 
-                // Fetch transactions for Purchased Coins ONLY
+                // Fetch transactions for Purchased Coins (API + Local)
                 var coinsPurchased = 0
                 
                 try {
-                     val transactions: List<Transaction> = client.get("http://10.0.2.2:8000/api/user/transactions").body()
+                     // 1. Get from API (if any)
+                     val response: TransactionListResponse = client.get("http://10.0.2.2:8000/api/user/transactions").body()
+                     val transactions = response.data
                      
                      transactions.forEach { transaction ->
                          val amount = transaction.amount ?: 0
-                         if (transaction.type == "purchase" || transaction.type == "Coin purchase") {
+                         if (transaction.type.contains("purchase", ignoreCase = true) || 
+                             transaction.type.contains("compra", ignoreCase = true)) {
                              coinsPurchased += amount
                          }
                      }
@@ -156,10 +174,11 @@ class RankingActivity : AppCompatActivity() {
                     Log.e("RankingActivity", "Error fetching transactions", e)
                 }
 
-                // Use ScoreManager (Local Storage) for "Coins Earned Playing" as requested.
-                // This aligns the "Personal" stats with what is shown in the "Global" ranking for the current user.
-                val localStats = ScoreManager.getStats(this@RankingActivity)
-                val coinsEarnedPlaying = localStats.coins
+                // 2. Add local purchased coins (fallback for missing API transaction records)
+                val prefs = getSharedPreferences("BiscaPrefs", Context.MODE_PRIVATE)
+                val localPurchased = prefs.getInt("local_purchased_coins", 0)
+                coinsPurchased += localPurchased
+
 
                 updatePersonalStatsUI(matchesPlayed, wins, capotes, bandeiras, currentCoins, coinsPurchased, coinsEarnedPlaying)
 
@@ -167,7 +186,10 @@ class RankingActivity : AppCompatActivity() {
                 Log.e("RankingActivity", "Error fetching stats", e)
                 Toast.makeText(this@RankingActivity, "Failed to load stats.", Toast.LENGTH_SHORT).show()
                 val localStats = ScoreManager.getStats(this@RankingActivity)
-                updatePersonalStatsUI(localStats.matchesPlayed, localStats.playerWins, localStats.capotes, localStats.bandeiras, localStats.coins, 0, 0)
+                
+                // Fallback to local stats for display if API fails
+                // Note: localStats.coins might be outdated compared to API user.coins, but it's a fallback.
+                updatePersonalStatsUI(localStats.matchesPlayed, localStats.playerWins, localStats.capotes, localStats.bandeiras, localStats.coins, 0, localStats.coins)
             }
         }
     }
@@ -236,12 +258,6 @@ class RankingActivity : AppCompatActivity() {
                     }
                 }
                 
-                // Get Local Stats for Current User
-                // Because API matches might not be fully synced or historical data might be missing/different
-                // we use the local ScoreManager to get the accurate "earned coins" for the current user.
-                val localStats = ScoreManager.getStats(this@RankingActivity)
-                val myLocalCoins = localStats.coins
-
                 // 4. Filter out Bots and update wins and coins
                 val realUsers = allUsers.filter { 
                     !it.name.contains("bot", ignoreCase = true) && 
@@ -250,14 +266,8 @@ class RankingActivity : AppCompatActivity() {
                     val calculatedWins = winsMap[user.email] ?: 0
                     val calculatedCoins = earnedCoinsMap[user.email] ?: 0
                     
-                    // Override coins for current user with local data
-                    val finalCoins = if (user.email == currentUser.email) {
-                        myLocalCoins
-                    } else {
-                        calculatedCoins
-                    }
-                    
-                    user.copy(total_wins = calculatedWins, coins = finalCoins)
+                    // Use calculatedCoins for all users, including the current user, for global consistency.
+                    user.copy(total_wins = calculatedWins, coins = calculatedCoins)
                 }
 
                 // 5. Sort by Wins (desc) then Coins (desc)
@@ -296,7 +306,8 @@ class RankingActivity : AppCompatActivity() {
                     val myRank = myIndex + 1
                     val myEntry = sortedUsers[myIndex]
                     val myDisplayName = myEntry.nickname ?: myEntry.name
-                    val myStatsText = "Sua Posição: #$myRank\n$myDisplayName - ${myEntry.total_wins ?: 0} Vitórias - ${myEntry.coins} Moedas Ganhas"
+                    val myStatsText = """Sua Posição: #$myRank
+$myDisplayName - ${myEntry.total_wins ?: 0} Vitórias - ${myEntry.coins} Moedas Ganhas"""
                     
                     // Add or Update TextView
                     if (tvUserRank == null) {
