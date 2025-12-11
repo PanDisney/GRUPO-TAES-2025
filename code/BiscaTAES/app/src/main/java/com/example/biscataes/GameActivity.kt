@@ -96,13 +96,18 @@ data class UpdateMatchRequest(
     @SerialName("loser_user_id")
     val loserId: Int?,
     val player1_marks: Int,
-    val player2_marks: Int
+    val player2_marks: Int,
+    val total_time: Int?
 )
 
 
 
 class GameActivity : AppCompatActivity() {
     private lateinit var gameEngine: GameEngine
+
+    private var matchStartTime: Long = 0
+    private var gameStartTime: Long = 0
+
 
     private var isUiLocked = false
 
@@ -178,6 +183,7 @@ class GameActivity : AppCompatActivity() {
         val startMode = intent.getStringExtra("START_MODE")
         val fastMode = intent.getBooleanExtra("FAST_MODE", false)
 
+        gameStartTime = System.currentTimeMillis()
         gameEngine = GameEngine(player1, player2, startMode, fastMode)
 
         // Draw the initial UI based on the new GameEngine state
@@ -198,6 +204,7 @@ class GameActivity : AppCompatActivity() {
     private fun startNewMatch() {
         lifecycleScope.launch {
             try {
+                matchStartTime = System.currentTimeMillis()
                 val matchResponse: GameMatch = client.post("http://10.0.2.2:8000/api/matches").body()
 
                 matchId = matchResponse.id
@@ -240,7 +247,7 @@ class GameActivity : AppCompatActivity() {
                 player2_points = gameEngine.botPoints,
                 player1_moves = gameEngine.playerMovesHistory,
                 player2_moves = gameEngine.botMovesHistory,
-                total_time = null, // TODO: Implement game timer
+                total_time = ((System.currentTimeMillis() - gameStartTime) / 1000).toInt(),
                 trump_card = gameEngine.trumpCard?.toString(),
                 first_trick_leader_id = gameEngine.firstTrickLeaderId
             )
@@ -273,7 +280,8 @@ class GameActivity : AppCompatActivity() {
                 winnerId = winnerId,
                 loserId = loserId,
                 player1_marks = gameEngine.playerGamesWon,
-                player2_marks = gameEngine.botGamesWon
+                player2_marks = gameEngine.botGamesWon,
+                total_time = ((System.currentTimeMillis() - matchStartTime) / 1000).toInt()
             )
 
             Log.d("UPDATE_MATCH_DEBUG", "Sending PUT to /api/matches/$currentMatchId")

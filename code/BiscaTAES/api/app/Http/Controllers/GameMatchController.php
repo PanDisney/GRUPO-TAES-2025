@@ -120,6 +120,7 @@ class GameMatchController extends Controller
             'player2_user_id' => $bot->id,
             'status' => 'PL', // Playing
             'type' => 'S',   // Single Player
+            'began_at' => now(),
         ]);
 
         $match->load('player1.selectedCardFace', 'player2');
@@ -132,10 +133,6 @@ class GameMatchController extends Controller
         $validatedData = $request->validated();
 
         if (isset($validatedData['status']) && $validatedData['status'] === 'E') {
-            if ($match->began_at) {
-                $validatedData['total_time'] = $match->began_at->diffInSeconds(now());
-            }
-
             if ($validatedData['player1_marks'] > $validatedData['player2_marks']) {
                 $validatedData['winner_user_id'] = $match->player1_user_id;
             } elseif ($validatedData['player2_marks'] > $validatedData['player1_marks']) {

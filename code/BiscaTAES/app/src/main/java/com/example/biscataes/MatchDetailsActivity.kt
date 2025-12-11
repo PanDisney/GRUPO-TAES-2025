@@ -39,6 +39,24 @@ class MatchDetailsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.text_match_players).text = "Players: ${match.player1.nickname} vs ${match.player2.nickname}"
         findViewById<TextView>(R.id.text_match_score).text = "Score: ${match.player1_marks ?: 0} - ${match.player2_marks ?: 0}"
         findViewById<TextView>(R.id.text_match_winner).text = "Winner: ${match.winner?.nickname ?: "In Progress"}"
+
+        val matchTimeTextView = findViewById<TextView>(R.id.text_match_time)
+        match.total_time?.let { totalTimeSeconds ->
+            val minutes = totalTimeSeconds / 60
+            val seconds = totalTimeSeconds % 60
+            matchTimeTextView.text = "Tempo da Partida: %02d:%02d".format(minutes, seconds)
+        } ?: run {
+            matchTimeTextView.text = "Tempo da Partida: N/A"
+        }
+
+        val matchDateTextView = findViewById<TextView>(R.id.text_match_date)
+        match.began_at?.let {
+            // Extract date part from "YYYY-MM-DD HH:MM:SS"
+            val date = it.substring(0, 10)
+            matchDateTextView.text = "Data: $date"
+        } ?: run {
+            matchDateTextView.text = "Data: N/A"
+        }
     }
 
     private fun setupRecyclerView(fetchedGames: List<Game>) {

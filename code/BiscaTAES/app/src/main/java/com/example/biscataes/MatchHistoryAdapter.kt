@@ -20,6 +20,8 @@ class MatchHistoryAdapter(
         val score: TextView = itemView.findViewById(R.id.text_score)
         val winner: TextView = itemView.findViewById(R.id.text_winner)
         val status: TextView = itemView.findViewById(R.id.text_status)
+        val date: TextView = itemView.findViewById(R.id.text_match_date)
+        val time: TextView = itemView.findViewById(R.id.text_match_time)
         val layout: LinearLayout = itemView.findViewById(R.id.match_item_layout)
     }
 
@@ -40,6 +42,21 @@ class MatchHistoryAdapter(
             "PL" -> "Being played or interrupted"
             else -> match.status ?: "Unknown"
         }}"
+
+        match.began_at?.let {
+            holder.date.text = "Date: ${it.substring(0, 10)}"
+        } ?: run {
+            holder.date.text = "Date: N/A"
+        }
+
+        match.total_time?.let { totalTimeSeconds ->
+            val minutes = totalTimeSeconds / 60
+            val seconds = totalTimeSeconds % 60
+            holder.time.text = "Time: %02d:%02d".format(minutes, seconds)
+        } ?: run {
+            holder.time.text = "Time: N/A"
+        }
+
 
         holder.layout.setOnClickListener { listener(match) }
     }

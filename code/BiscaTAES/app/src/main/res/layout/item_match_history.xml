@@ -46,6 +46,18 @@
             android:layout_height="wrap_content"
             tools:text="Status: Finished" />
 
+        <TextView
+            android:id="@+id/text_match_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Date: 2025-12-11" />
+
+        <TextView
+            android:id="@+id/text_match_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Time: 00:00" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
