@@ -294,10 +294,9 @@ class GameActivity : AppCompatActivity() {
                     // When giving up, the game is Interrupted and the bot wins.
                     lifecycleScope.launch {
                         createNewGameInBackend(status = "I", winnerId = player2?.id)
-                        updateMatchOnBackend(winnerId = player2?.id, loserId = player1?.id)
                     }
-                    // The backend automatically deducts the coins on match creation (transaction id 4 - Match stake)
-                    // No need to deduct again. The balance will be updated on Dashboard refresh.
+                    // TODO: The backend should handle the coin deduction and the client should get the new balance.
+                    // For now, just finish the activity.
                     finish()
                 }
             }
@@ -800,21 +799,18 @@ class GameActivity : AppCompatActivity() {
         }
 
         var finalCoins = currentCoins
-        // Note: The logic for coin rewards is likely handled by the backend (observers/listeners)
-        // or we need to rely on what the backend gives us next time we check /user/coins.
-        // For local display purposes we can estimate:
-        // But since we are returning to Dashboard, Dashboard will refresh user data anyway.
+        if (gameEngine.playerGamesWon >= 4) {
+            finalCoins += entryFee * 2
+        }
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
-        builder.setMessage("$message\n\nSaldo será atualizado.")
+        builder.setMessage("$message\n\nSaldo final: $finalCoins moedas.")
         builder.setCancelable(false)
 
         builder.setPositiveButton("Voltar ao Menu") { _, _ ->
             val resultIntent = Intent()
-            // We don't really know the final coins without querying the API, so we let Dashboard refresh it.
-            // Sending -1 or similar to indicate "force refresh" might be better, or just rely on onResume in Dashboard.
-            // The existing Dashboard logic refreshes from API onResume/onActivityResult if we set flags right.
+            resultIntent.putExtra("FINAL_COINS", finalCoins)
             setResult(RESULT_OK, resultIntent)
             finish()
         }
