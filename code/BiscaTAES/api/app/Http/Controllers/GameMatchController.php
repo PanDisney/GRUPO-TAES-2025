@@ -48,6 +48,7 @@ class GameMatchController extends Controller
     public function store(Request $request)
     {
         $user = Auth::user();
+        $user->deductCoins(50, 4); // Deduct 50 coins for a 'Match stake' (ID 4)
         $bot = User::where('email', 'bot@bisca.pt')->first();
 
         // For single player, we create a match against the bot

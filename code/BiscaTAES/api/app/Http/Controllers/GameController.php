@@ -31,7 +31,6 @@ class GameController extends Controller
     public function store(StoreGameRequest $request)
     {
         $user = Auth::user();
-        $user->deductCoins(50);
 
         $validatedData = $request->validated();
         Log::debug('Validated data for Game::create', $validatedData); // Add this log
