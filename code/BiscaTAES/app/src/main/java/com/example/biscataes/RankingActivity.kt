@@ -134,8 +134,8 @@ class RankingActivity : AppCompatActivity() {
                         wins++
                         val myPoints = if (match.player1.email == currentUserEmail) match.player1_marks else match.player2_marks
                         if (myPoints != null) {
-                             if (myPoints == 120) capotes++
-                             else if (myPoints > 90) bandeiras++
+                            if (myPoints == 120) capotes++
+                            else if (myPoints > 90) bandeiras++
                         }
                     }
                 }
@@ -166,8 +166,8 @@ class RankingActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("RankingActivity", "Error fetching stats", e)
                 Toast.makeText(this@RankingActivity, "Failed to load stats.", Toast.LENGTH_SHORT).show()
-                 val localStats = ScoreManager.getStats(this@RankingActivity)
-                 updatePersonalStatsUI(localStats.matchesPlayed, localStats.playerWins, localStats.capotes, localStats.bandeiras, localStats.coins, 0, 0)
+                val localStats = ScoreManager.getStats(this@RankingActivity)
+                updatePersonalStatsUI(localStats.matchesPlayed, localStats.playerWins, localStats.capotes, localStats.bandeiras, localStats.coins, 0, 0)
             }
         }
     }

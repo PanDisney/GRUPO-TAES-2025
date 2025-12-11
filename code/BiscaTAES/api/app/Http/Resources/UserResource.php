@@ -24,6 +24,9 @@ class UserResource extends JsonResource
             'photo_avatar_filename' => $this->photo_avatar_filename,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'selected_card_back_image_name' => $this->whenLoaded('selectedCardFace', function () {
+                return $this->selectedCardFace?->image_name;
+            }),
         ];
     }
 }

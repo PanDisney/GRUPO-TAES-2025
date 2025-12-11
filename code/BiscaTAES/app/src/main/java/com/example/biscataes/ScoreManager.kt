@@ -117,8 +117,8 @@ object ScoreManager {
     }
 
     data class Stats(
-        val playerWins: Int, 
-        val botWins: Int, 
+        val playerWins: Int,
+        val botWins: Int,
         val draws: Int,
         val matchesPlayed: Int,
         val capotes: Int,

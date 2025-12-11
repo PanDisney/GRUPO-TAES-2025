@@ -36,6 +36,18 @@
         tools:text="Winner: Player1" />
 
     <TextView
+        android:id="@+id/text_match_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Tempo da Partida: 00:00" />
+
+    <TextView
+        android:id="@+id/text_match_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Data: 2025-12-11" />
+
+    <TextView
         android:id="@+id/text_games_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

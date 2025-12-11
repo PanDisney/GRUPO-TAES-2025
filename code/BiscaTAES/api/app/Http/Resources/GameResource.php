@@ -18,8 +18,10 @@ class GameResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'player1' => new UserResource($this->whenLoaded('player1')),
+            'player2' => new UserResource($this->whenLoaded('player2')),
             'winner' => new UserResource($this->whenLoaded('winner')),
-            'is_draw' => $this->is_draw, // Add this line
+            'is_draw' => $this->is_draw,
             'type' => $this->type,
             'status' => $this->status,
             'player1_moves' => $this->player1_moves,
@@ -27,6 +29,8 @@ class GameResource extends JsonResource
             'total_time' => $this->total_time,
             'player1_points' => $this->player1_points,
             'player2_points' => $this->player2_points,
+            'tricks' => $this->when(isset($this->tricks), $this->tricks),
+            'trump_card' => $this->trump_card,
         ];
     }
 }

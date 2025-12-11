@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/trick_number_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="Trick 1:"
+        android:textSize="16sp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginEnd="8dp">
+
+        <TextView
+            android:id="@+id/player1_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player 1"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/player1_card_textview"
+            android:layout_width="80dp"
+            android:layout_height="120dp"
+            android:gravity="center"
+            android:text="A\n♥"
+            android:textSize="20sp" />
+        <TextView
+            android:id="@+id/winner_label_player1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Winner"
+            android:visibility="gone"
+            android:textColor="@android:color/holo_green_dark"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginEnd="16dp">
+
+        <TextView
+            android:id="@+id/player2_name_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Player 2"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/player2_card_textview"
+            android:layout_width="80dp"
+            android:layout_height="120dp"
+            android:gravity="center"
+            android:text="K\n♠"
+            android:textSize="20sp" />
+        <TextView
+            android:id="@+id/winner_label_player2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Winner"
+            android:visibility="gone"
+            android:textColor="@android:color/holo_green_dark"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+</TableRow>

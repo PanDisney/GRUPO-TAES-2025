@@ -29,6 +29,7 @@ class UpdateMatchRequest extends FormRequest
             'player2_marks' => ['nullable', 'integer'],
             'player1_points' => ['nullable', 'integer'],
             'player2_points' => ['nullable', 'integer'],
+            'total_time' => ['nullable', 'numeric'],
         ];
     }
 }

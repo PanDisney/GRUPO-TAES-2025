@@ -22,18 +22,22 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json // Add this line
+
 
 @Serializable
 data class LoginRequest(val email: String, val password: String)
 
 @Serializable
-data class LoginResponse(val token: String)
+data class LoginResponse(val token: String, val user: User)
 
 class LoginActivity : AppCompatActivity() {
 
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
-            json()
+            json(Json {
+                ignoreUnknownKeys = true
+            })
         }
     }
 
@@ -63,7 +67,7 @@ class LoginActivity : AppCompatActivity() {
 
                     if (response.status == HttpStatusCode.OK) {
                         val loginResponse = response.body<LoginResponse>()
-                        saveAuthToken(loginResponse.token)
+                        saveAuthData(loginResponse.token, loginResponse.user.id)
 
                         Toast.makeText(this@LoginActivity, "Login successful!", Toast.LENGTH_LONG).show()
 
@@ -81,10 +85,11 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveAuthToken(token: String) {
+    private fun saveAuthData(token: String, userId: Int) {
         val sharedPref = getSharedPreferences("auth_prefs", Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             putString("auth_token", token)
+            putInt("user_id", userId)
             apply()
         }
     }

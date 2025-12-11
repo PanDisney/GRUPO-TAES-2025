@@ -33,6 +33,8 @@ class StoreGameRequest extends FormRequest
             'began_at' => ['nullable', 'date'],
             'ended_at' => ['nullable', 'date'],
             'total_time' => ['nullable', 'integer'],
+            'trump_card' => ['nullable', 'string', 'regex:/^[A-Z]+_OF_[A-Z]+$/'],
+            'first_trick_leader_id' => ['nullable', 'integer', 'exists:users,id'],
         ];
 
         if ($this->isMethod('post')) {

@@ -44,6 +44,8 @@ class DatabaseSeeder extends Seeder
         DB::table('coin_purchases')->delete();
         DB::table('coin_transactions')->delete();
         DB::table('coin_transaction_types')->delete();
+        DB::table('card_faces')->delete();
+        DB::table('user_card_face')->delete();
 
         if (DB::getDriverName() === 'sqlite') {
             DB::statement("DELETE FROM sqlite_sequence WHERE name = 'users'");
@@ -52,6 +54,8 @@ class DatabaseSeeder extends Seeder
             DB::statement("DELETE FROM sqlite_sequence WHERE name = 'coin_purchases'");
             DB::statement("DELETE FROM sqlite_sequence WHERE name = 'coin_transactions'");
             DB::statement("DELETE FROM sqlite_sequence WHERE name = 'coin_transaction_types'");
+            DB::statement("DELETE FROM sqlite_sequence WHERE name = 'card_faces'");
+            DB::statement("DELETE FROM sqlite_sequence WHERE name = 'user_card_face'");
         } else {
             DB::statement('ALTER TABLE users AUTO_INCREMENT = 0');
             DB::statement('ALTER TABLE matches AUTO_INCREMENT = 0');
@@ -59,10 +63,13 @@ class DatabaseSeeder extends Seeder
             DB::statement('ALTER TABLE coin_purchases AUTO_INCREMENT = 0');
             DB::statement('ALTER TABLE coin_transactions AUTO_INCREMENT = 0');
             DB::statement('ALTER TABLE coin_transaction_types AUTO_INCREMENT = 0');
+            DB::statement('ALTER TABLE card_faces AUTO_INCREMENT = 0');
+            //DB::statement('ALTER TABLE user_card_face AUTO_INCREMENT = 0'); No auto increment
         }
 
         $this->command->info("-----------------------------------------------");
 
+        $this->call(CardFacesSeeder::class);
         $this->call(TransactionTypesSeeder::class);
         $this->call(UsersSeeder::class);
         $this->call(InitialTransactionsSeeder::class);

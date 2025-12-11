@@ -11,6 +11,8 @@ data class GameMatch(
     val player1: User,
     val player2: User,
     val status: String? = null,
+    val total_time: Int? = null, // Add this
+    val began_at: String? = null,
 
 
     val winner: User? = null,

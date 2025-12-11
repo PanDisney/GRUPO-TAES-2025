@@ -24,6 +24,8 @@ class Game extends Model
         'player2_points',
         'player1_moves',
         'player2_moves',
+        'trump_card', // Add this
+        'first_trick_leader_id', // Add this
     ];
 
     protected $casts = [
@@ -50,5 +52,10 @@ class Game extends Model
     public function match(): BelongsTo
     {
         return $this->belongsTo(GameMatch::class, 'match_id', 'id');
+    }
+
+    public function firstTrickLeader(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'first_trick_leader_id');
     }
 }

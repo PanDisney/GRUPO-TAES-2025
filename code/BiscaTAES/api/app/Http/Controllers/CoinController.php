@@ -36,8 +36,9 @@ class CoinController extends Controller
 
         Transaction::create([
             'user_id' => $user->id,
-            'type' => 'purchase',
-            'amount' => $coins,
+            'coin_transaction_type_id' => 1, // Assuming 1 is for purchases
+            'coins' => $coins,
+            'transaction_datetime' => now(),
         ]);
 
         return response()->json(['message' => 'Coins purchased successfully', 'coins' => $user->coins_balance]);

@@ -25,6 +25,8 @@ class GameMatchResource extends JsonResource
             'winner' => new UserResource($this->whenLoaded('winner')),
             'player1_marks' => $this->player1_marks, // Add this line
             'player2_marks' => $this->player2_marks, // Add this line
+            'total_time' => $this->total_time,
+            'began_at' => $this->began_at,
             'games' => GameResource::collection($this->whenLoaded('games')),
         ];
     }
