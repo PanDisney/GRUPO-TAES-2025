@@ -23,6 +23,7 @@ class TransactionTypesSeeder extends Seeder
             ['id' => 4, 'name' => 'Match stake', 'type' => 'D'],   // id = 4
             ['id' => 5, 'name' => 'Game payout', 'type' => 'C'],      // id = 5
             ['id' => 6, 'name' => 'Match payout', 'type' => 'C'],     // id = 6
+            ['id' => 7, 'name' => 'Card Face Purchase', 'type' => 'D'], // id = 7
         ]);
 
         $this->command->line("Coin Transaction Types Created Successfully.");

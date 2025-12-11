@@ -40,7 +40,7 @@ return new class extends Migration
             $table->id();
 
             // Type of games in the match (S: Single, M: Multiplayer)
-            $table->enum('type', ['S', 'M'])->default('M');
+            $table->string('type')->default('M');
 
             // Player 1 (usually, creates the match)
             $table->unsignedBigInteger('player1_user_id');
@@ -92,7 +92,7 @@ return new class extends Migration
             $table->id();
 
             // Type of game (S: Single Player, M: Multiplayer)
-            $table->enum('type', ['S', 'M'])->default('S');
+            $table->string('type')->default('S');
 
             // Player 1 (usually, creates the game)
             $table->unsignedBigInteger('player1_user_id');
@@ -170,6 +170,7 @@ return new class extends Migration
             ['name' => 'Match stake', 'type' => 'D'],   // id = 4
             ['name' => 'Game payout', 'type' => 'C'],      // id = 5
             ['name' => 'Match payout', 'type' => 'C'],     // id = 6
+            ['name' => 'Card Face Purchase', 'type' => 'D'], // id = 7
         ]);
 
         Schema::create('coin_transactions', function (Blueprint $table) {

@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CoinController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GameMatchController;
+use App\Http\Controllers\CardFaceController; // Add this line
 
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -31,6 +32,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('games', GameController::class);
     Route::put('/games/{game}/move', [GameController::class, 'makeMove']);
     Route::put('/games/{game}/end', [GameController::class, 'endGame']);
+
+    // Card Face Routes
+    Route::get('/card-faces', [CardFaceController::class, 'index']);
+    Route::post('/card-faces/{cardFace}/purchase', [CardFaceController::class, 'purchase']);
+    Route::post('/user/card-face', [UserController::class, 'selectCardFace']);
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {

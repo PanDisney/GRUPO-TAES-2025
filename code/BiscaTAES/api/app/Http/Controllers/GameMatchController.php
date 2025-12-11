@@ -58,7 +58,7 @@ class GameMatchController extends Controller
             'type' => 'S',   // Single Player
         ]);
 
-        $match->load('player1', 'player2');
+        $match->load('player1.selectedCardFace', 'player2');
 
         return new GameMatchResource($match);
     }
