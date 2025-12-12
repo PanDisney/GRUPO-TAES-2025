@@ -25,7 +25,7 @@ Para uma experiência ideal, recomenda-se o uso de um emulador Android com as se
     ```
 2.  **Instale as dependências do Composer:**
     ```bash
-    composer install
+    composer install # Ou, se 'composer' não estiver no PATH: php composer.phar install
     ```
 3.  **Configure o arquivo de ambiente:**
     - Copie `.env.example` para `.env`.
