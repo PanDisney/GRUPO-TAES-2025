@@ -12,7 +12,6 @@ object ScoreManager {
     private const val KEY_BOT_WINS = "bot_wins"
     private const val KEY_DRAWS = "draws"
     private const val KEY_HISTORY = "game_history"
-    private const val KEY_COINS = "player_coins" // US-12
     private const val KEY_MATCHES = "matches_played"
     private const val KEY_CAPOTES = "capotes"
     private const val KEY_BANDEIRAS = "bandeiras"
@@ -38,23 +37,6 @@ object ScoreManager {
                 val currentCapotes = prefs.getInt(KEY_CAPOTES, 0)
                 val currentBandeiras = prefs.getInt(KEY_BANDEIRAS, 0)
 
-                // US-12: Award coins based on score - Updated values
-                val currentCoins = prefs.getInt(KEY_COINS, 0)
-                val coinsEarned = when {
-                    gameLog.playerFinalPoints == 120 -> { // Capote
-                        editor.putInt(KEY_CAPOTES, currentCapotes + 1)
-                        80 
-                    }
-                    gameLog.playerFinalPoints > 90 -> { // Bandeira
-                        editor.putInt(KEY_BANDEIRAS, currentBandeiras + 1)
-                        40
-                    }
-                    else -> 10                // Normal win
-                }
-                editor.putInt(KEY_COINS, currentCoins + coinsEarned)
-                // Show a toast message to the user
-                Toast.makeText(context, "Ganhou $coinsEarned moedas!", Toast.LENGTH_SHORT).show()
-                
                 checkAchievements(context, prefs, editor, gameLog.playerFinalPoints)
             }
             GameEngine.GameResult.BOT_WINS -> {
@@ -123,7 +105,6 @@ object ScoreManager {
         val matchesPlayed: Int,
         val capotes: Int,
         val bandeiras: Int,
-        val coins: Int,
         val achievements: Int
     )
 
@@ -136,17 +117,11 @@ object ScoreManager {
             prefs.getInt(KEY_MATCHES, 0),
             prefs.getInt(KEY_CAPOTES, 0),
             prefs.getInt(KEY_BANDEIRAS, 0),
-            prefs.getInt(KEY_COINS, 0),
             prefs.getInt(KEY_ACHIEVEMENTS_COUNT, 0)
         )
     }
 
     // US-12: Function to get coin balance
-    fun getCoins(context: Context): Int {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_COINS, 0)
-    }
-
     fun getHistory(context: Context): List<GameLog> {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val historyStr = prefs.getString(KEY_HISTORY, "") ?: return emptyList()

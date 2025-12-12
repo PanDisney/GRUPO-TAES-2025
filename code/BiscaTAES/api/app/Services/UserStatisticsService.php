@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\UserStatistic;
 use App\Models\GameMatch;
+use App\Models\Transaction;
 
 class UserStatisticsService {
     
@@ -18,29 +19,12 @@ class UserStatisticsService {
         ->get();
 
         $totalMatches = $matches->count();
-        $totalWins = 0;
-        $coinsEarned = 0;
+        $totalWins = $matches->where('winner_user_id', $user->id)->count();
 
-        // Count wins and coins
-        foreach ($matches as $match) {
-            if ($match->winner_user_id === $user->id) {
-                $totalWins++;
-                
-                // Get the points this user got
-                $userPoints = $user->id === $match->player1_user_id 
-                    ? $match->player1_marks 
-                    : $match->player2_marks;
-
-                // Calculate coins: 120 points = 80 coins, 90+ = 40, else = 10
-                if ($userPoints == 120) {
-                    $coinsEarned += 80;
-                } elseif ($userPoints >= 91) {
-                    $coinsEarned += 40;
-                } else {
-                    $coinsEarned += 10;
-                }
-            }
-        }
+        // Calculate coins earned from match payouts
+        $coinsEarned = Transaction::where('user_id', $user->id)
+            ->where('coin_transaction_type_id', 6) // ID for 'Match payout'
+            ->sum('coins');
 
         // Calculate win rate
         $winRate = $totalMatches > 0 ? ($totalWins / $totalMatches) * 100 : 0;

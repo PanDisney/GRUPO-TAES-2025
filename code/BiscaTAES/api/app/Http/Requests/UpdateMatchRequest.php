@@ -30,6 +30,8 @@ class UpdateMatchRequest extends FormRequest
             'player1_points' => ['nullable', 'integer'],
             'player2_points' => ['nullable', 'integer'],
             'total_time' => ['nullable', 'numeric'],
+            'win_type' => ['nullable', 'string', \Illuminate\Validation\Rule::in(['NORMAL', 'CAPOTE', 'BANDEIRA'])],
+            'give_up' => ['nullable', 'boolean'],
         ];
     }
 }

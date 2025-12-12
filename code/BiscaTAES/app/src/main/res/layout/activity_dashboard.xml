@@ -81,6 +81,13 @@
             android:text="Bisca de 3" />
 
         <Button
+            android:id="@+id/buttonFastMode"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Fast Mode" />
+
+        <Button
             android:id="@+id/buttonRanking"
             android:layout_width="200dp"
             android:layout_height="wrap_content"

@@ -95,6 +95,7 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var devDebugDealButton: Button
     private lateinit var buttonBiscaDe9: Button
     private lateinit var buttonBiscaDe3: Button
+    private lateinit var buttonFastMode: Button
 
     private var currentUser: UserDataResponse? = null
 
@@ -181,6 +182,7 @@ class DashboardActivity : AppCompatActivity() {
         devDebugDealButton = findViewById(R.id.buttonDevStartBotFirst)
         buttonBiscaDe9 = findViewById(R.id.buttonBiscaDe9)
         buttonBiscaDe3 = findViewById(R.id.buttonBiscaDe3)
+        buttonFastMode = findViewById(R.id.buttonFastMode)
 
         devNoShuffleButton.text = "Dev: No Shuffle"
         devDebugDealButton.text = "Dev: Debug Deal"
@@ -195,6 +197,7 @@ class DashboardActivity : AppCompatActivity() {
 
         buttonBiscaDe9.setOnClickListener { startGameWithMode(null, deckSize = 9) }
         buttonBiscaDe3.setOnClickListener { startGameWithMode(null, deckSize = 3) }
+        buttonFastMode.setOnClickListener { startGameWithMode(null, fastMode = true) }
         devNoShuffleButton.setOnClickListener { startGameWithMode("NO_SHUFFLE") }
         devDebugDealButton.setOnClickListener { startGameWithMode("DEBUG_DEAL") }
 
@@ -397,7 +400,7 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    private fun startGameWithMode(startMode: String?, deckSize: Int? = null) {
+    private fun startGameWithMode(startMode: String?, deckSize: Int? = null, fastMode: Boolean = false) {
         val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
         currentUser?.let { user ->
             if (isAnonymous || user.coins >= entryFee) {
@@ -409,6 +412,9 @@ class DashboardActivity : AppCompatActivity() {
                     }
                     startMode?.let { putExtra("START_MODE", it) }
                     deckSize?.let { putExtra("DECK_SIZE", it) }
+                    if (fastMode) {
+                        putExtra("FAST_MODE", true)
+                    }
                 }
                 gameLauncher.launch(intent)
             } else {

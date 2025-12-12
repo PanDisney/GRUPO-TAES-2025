@@ -55,7 +55,7 @@ class CoinController extends Controller
                 // Create a new transaction
                 $transaction = Transaction::create([
                     'user_id' => $user->id,
-                    'coin_transaction_type_id' => 1, // Assuming 1 is for purchases
+                    'coin_transaction_type_id' => 2, // 2 is for purchases
                     'coins' => $coins,
                     'transaction_datetime' => now(),
                 ]);

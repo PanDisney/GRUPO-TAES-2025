@@ -73,7 +73,7 @@ class DatabaseSeeder extends Seeder
         $this->call(TransactionTypesSeeder::class);
         $this->call(UsersSeeder::class);
         $this->call(InitialTransactionsSeeder::class);
-        $this->call(GamesSeeder::class);
+        //$this->call(GamesSeeder::class);
         $this->call(GamesTransactionsSeeder::class);
 
         if (DB::getDriverName() === 'sqlite') {

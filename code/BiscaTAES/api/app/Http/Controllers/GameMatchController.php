@@ -11,6 +11,8 @@ use App\Services\BiscaGameService;
 use App\Services\UserStatisticsService;  // ⭐ ADD THIS LINE
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\Transaction;
 
 class GameMatchController extends Controller
 {
@@ -134,26 +136,85 @@ class GameMatchController extends Controller
         $validatedData = $request->validated();
 
         if (isset($validatedData['status']) && $validatedData['status'] === 'E') {
-            if ($validatedData['player1_marks'] > $validatedData['player2_marks']) {
-                $validatedData['winner_user_id'] = $match->player1_user_id;
-            } elseif ($validatedData['player2_marks'] > $validatedData['player1_marks']) {
-                $validatedData['winner_user_id'] = $match->player2_user_id;
-            }
+            DB::transaction(function () use ($validatedData, $match) {
+                $winnerId = null;
+                $loserId = null;
+                $payout = 0;
 
-            $match->games()
-                ->whereIn('status', ['PE', 'PL'])
-                ->update([
-                    'status' => 'I',
-                    'ended_at' => now(),
-                ]);
-        }
+                if (isset($validatedData['give_up']) && $validatedData['give_up']) {
+                    // Give up logic
+                    $winnerId = $validatedData['winner_user_id'];
+                    $loserId = ($winnerId == $match->player1_user_id) ? $match->player2_user_id : $match->player1_user_id;
 
-        $match->update($validatedData);
+                    // Winner gets their stake back
+                    $winner = User::find($winnerId);
+                    if ($winner) {
+                        $winner->coins_balance += 50;
+                        $winner->save();
+                        Transaction::create([
+                            'user_id' => $winnerId,
+                            'coin_transaction_type_id' => 6, // Match payout (refund)
+                            'coins' => 50,
+                            'transaction_datetime' => now(),
+                        ]);
+                    }
+                } else {
+                    // Normal match end logic
+                    if ($validatedData['player1_marks'] > $validatedData['player2_marks']) {
+                        $winnerId = $match->player1_user_id;
+                        $loserId = $match->player2_user_id;
+                    } elseif ($validatedData['player2_marks'] > $validatedData['player1_marks']) {
+                        $winnerId = $match->player2_user_id;
+                        $loserId = $match->player1_user_id;
+                    }
 
-        // ⭐ UPDATE STATS WHEN MATCH ENDS
-        if (isset($validatedData['status']) && $validatedData['status'] === 'E') {
-            UserStatisticsService::updateUserStats($match->player1);
-            UserStatisticsService::updateUserStats($match->player2);
+                    if ($winnerId) {
+                        $winner = User::find($winnerId);
+                        if ($winner) {
+                            $winType = $validatedData['win_type'] ?? 'NORMAL';
+                            switch ($winType) {
+                                case 'CAPOTE':
+                                    $payout = 150;
+                                    break;
+                                case 'BANDEIRA':
+                                    $payout = 200;
+                                    break;
+                                default: // NORMAL
+                                    $payout = 100;
+                                    break;
+                            }
+                            $winner->coins_balance += $payout;
+                            $winner->save();
+
+                            Transaction::create([
+                                'user_id' => $winnerId,
+                                'coin_transaction_type_id' => 6, // Match payout
+                                'coins' => $payout,
+                                'transaction_datetime' => now(),
+                            ]);
+                        }
+                    }
+                }
+
+                $validatedData['winner_user_id'] = $winnerId;
+                $validatedData['loser_user_id'] = $loserId;
+
+                $match->games()
+                    ->whereIn('status', ['PE', 'PL'])
+                    ->update([
+                        'status' => 'I',
+                        'ended_at' => now(),
+                    ]);
+                
+                $match->update($validatedData);
+
+                UserStatisticsService::updateUserStats($match->player1);
+                if ($match->player2) {
+                    UserStatisticsService::updateUserStats($match->player2);
+                }
+            });
+        } else {
+            $match->update($validatedData);
         }
 
         return new GameMatchResource($match);

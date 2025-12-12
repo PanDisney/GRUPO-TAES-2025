@@ -13,7 +13,8 @@ class GameEngine(
     private val player1: User?,
     private val player2: User?,
     startMode: String? = null,
-    private val deckSize: Int? = null
+    private val deckSize: Int? = null,
+    private val fastMode: Boolean = false
 ) {
 
     enum class GameResult{
@@ -90,7 +91,13 @@ class GameEngine(
             highValueCards.forEach { player.drawToHand(it) }
             allCards.removeAll(highValueCards)
 
-            val cardsToDeal = deckSize ?: 9
+            val remainingPlayerHand = (if (fastMode) 1 else (deckSize ?: 9)) - player.getHand().size
+            for (i in 0 until remainingPlayerHand) {
+                if (allCards.isNotEmpty()) {
+                    player.drawToHand(allCards.removeAt(0))
+                }
+            }
+            val cardsToDeal = if (fastMode) 1 else (deckSize ?: 9)
             for (i in 1..cardsToDeal) {
                 if (allCards.isNotEmpty()) {
                     bot.drawToHand(allCards.removeAt(0))
@@ -110,7 +117,7 @@ class GameEngine(
             deck.clear()
 
         } else {
-            val cardsToDeal = deckSize ?: 9
+            val cardsToDeal = if (fastMode) 1 else (deckSize ?: 9)
             for (i in 1..cardsToDeal) {
                 deck.drawCard()?.let { player.drawToHand(it) }
                 deck.drawCard()?.let { bot.drawToHand(it) }
@@ -285,10 +292,10 @@ class GameEngine(
         botPoints = bot.calculatePoints()
         Log.d("GameEngine", "Vaza ganha por ${winner.name}. Pontos: P $playerPoints - B $botPoints")
 
-        if (deck.cardsRemaining() > 0) {
+        if (deck.cardsRemaining() > 0 && !fastMode) {
             deck.drawCard()?.let { winner.drawToHand(it) }
         }
-        if (deck.cardsRemaining() > 0) {
+        if (deck.cardsRemaining() > 0 && !fastMode) {
             deck.drawCard()?.let { loser.drawToHand(it) }
         }
 

@@ -26,6 +26,7 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.request.get
 import io.ktor.client.request.post // <-- Importar post
 import io.ktor.client.request.put // <-- Importar put
 import io.ktor.client.request.setBody // <-- Importar setBody
@@ -89,15 +90,15 @@ data class CreateGameRequest(
 @Serializable
 data class UpdateMatchRequest(
     val status: String,
-
     @SerialName("winner_user_id")
     val winnerId: Int?,
-
     @SerialName("loser_user_id")
     val loserId: Int?,
     val player1_marks: Int,
     val player2_marks: Int,
-    val total_time: Int?
+    val total_time: Int?,
+    val win_type: String? = null,
+    val give_up: Boolean? = null
 )
 
 
@@ -182,9 +183,10 @@ class GameActivity : AppCompatActivity() {
     private fun initializeLocalGame() {
         val startMode = intent.getStringExtra("START_MODE")
         val deckSize = intent.getIntExtra("DECK_SIZE", -1)
+        val fastMode = intent.getBooleanExtra("FAST_MODE", false)
 
         gameStartTime = System.currentTimeMillis()
-        gameEngine = GameEngine(player1, player2, startMode, deckSize = if(deckSize == -1) null else deckSize)
+        gameEngine = GameEngine(player1, player2, startMode, deckSize = if(deckSize == -1) null else deckSize, fastMode = fastMode)
 
         // Draw the initial UI based on the new GameEngine state
         drawPlayerHand()
@@ -271,7 +273,7 @@ class GameActivity : AppCompatActivity() {
         }
     }
 
-    private suspend fun updateMatchOnBackend(winnerId: Int?, loserId: Int?) {
+    private suspend fun updateMatchOnBackend(winnerId: Int?, loserId: Int?, win_type: String? = null, give_up: Boolean? = null) {
         val currentMatchId = matchId ?: return
 
         try {
@@ -281,7 +283,9 @@ class GameActivity : AppCompatActivity() {
                 loserId = loserId,
                 player1_marks = gameEngine.playerGamesWon,
                 player2_marks = gameEngine.botGamesWon,
-                total_time = ((System.currentTimeMillis() - matchStartTime) / 1000).toInt()
+                total_time = ((System.currentTimeMillis() - matchStartTime) / 1000).toInt(),
+                win_type = win_type,
+                give_up = give_up
             )
 
             Log.d("UPDATE_MATCH_DEBUG", "Sending PUT to /api/matches/$currentMatchId")
@@ -311,14 +315,26 @@ class GameActivity : AppCompatActivity() {
                 if (isAnonymous) {
                     handleAnonymousGiveUp()
                 } else {
-                    // When giving up, the game is Interrupted and the bot wins.
                     lifecycleScope.launch {
-                        createNewGameInBackend(status = "I", winnerId = player2?.id)
-                        updateMatchOnBackend(winnerId = player2?.id, loserId = player1?.id)
+                        val winnerId = player2?.id
+                        val loserId = player1?.id
+                        createNewGameInBackend(status = "I", winnerId = winnerId)
+                        updateMatchOnBackend(winnerId = winnerId, loserId = loserId, give_up = true)
+
+                        // Get updated user data
+                        val response: HttpResponse = client.get("http://10.0.2.2:8000/api/user")
+                        if (response.status == HttpStatusCode.OK) {
+                            val apiResponse = response.body<ApiResponse>()
+                            val userData = apiResponse.data
+                            currentCoins = userData.coins
+                        }
+
+                        val resultIntent = Intent().apply {
+                            putExtra("FINAL_COINS", currentCoins)
+                        }
+                        setResult(RESULT_OK, resultIntent)
+                        finish()
                     }
-                    // The backend automatically deducts the coins on match creation (transaction id 4 - Match stake)
-                    // No need to deduct again. The balance will be updated on Dashboard refresh.
-                    finish()
                 }
             }
             .setNegativeButton("Não", null)
@@ -801,12 +817,21 @@ class GameActivity : AppCompatActivity() {
         val message: String
         val winnerId: Int?
         val loserId: Int?
+        var win_type: String? = null
 
         if (gameEngine.playerGamesWon >= 4) {
             title = "VITÓRIA NA PARTIDA!"
             message = "Parabéns, você venceu a partida por ${gameEngine.playerGamesWon} a ${gameEngine.botGamesWon}!"
             winnerId = player1?.id
             loserId = player2?.id
+            // Determine win_type based on last game points
+            if (gameEngine.playerPoints == 120) {
+                win_type = "BANDEIRA"
+            } else if (gameEngine.playerPoints >= 91) {
+                win_type = "CAPOTE"
+            } else {
+                win_type = "NORMAL"
+            }
         } else {
             title = "DERROTA NA PARTIDA"
             message = "O Bot venceu a partida por ${gameEngine.botGamesWon} a ${gameEngine.playerGamesWon}!"
@@ -816,14 +841,22 @@ class GameActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             createNewGameInBackend("E", winnerId)
-            updateMatchOnBackend(winnerId, loserId)
+            updateMatchOnBackend(winnerId, loserId, win_type)
+            
+            // Get updated user data
+            val response: HttpResponse = client.get("http://10.0.2.2:8000/api/user")
+            if (response.status == HttpStatusCode.OK) {
+                val apiResponse = response.body<ApiResponse>()
+                val userData = apiResponse.data
+                currentCoins = userData.coins
+            }
+            
+            val resultIntent = Intent().apply {
+                putExtra("FINAL_COINS", currentCoins)
+            }
+            setResult(RESULT_OK, resultIntent)
+            finish()
         }
-
-        var finalCoins = currentCoins
-        // Note: The logic for coin rewards is likely handled by the backend (observers/listeners)
-        // or we need to rely on what the backend gives us next time we check /user/coins.
-        // For local display purposes we can estimate:
-        // But since we are returning to Dashboard, Dashboard will refresh user data anyway.
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(title)
@@ -831,12 +864,7 @@ class GameActivity : AppCompatActivity() {
         builder.setCancelable(false)
 
         builder.setPositiveButton("Voltar ao Menu") { _, _ ->
-            val resultIntent = Intent()
-            // We don't really know the final coins without querying the API, so we let Dashboard refresh it.
-            // Sending -1 or similar to indicate "force refresh" might be better, or just rely on onResume in Dashboard.
-            // The existing Dashboard logic refreshes from API onResume/onActivityResult if we set flags right
-            setResult(RESULT_OK, resultIntent)
-            finish()
+            // The finish() is now inside the coroutine
         }
 
         val dialog = builder.create()

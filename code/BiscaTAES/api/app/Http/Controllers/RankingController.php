@@ -2,18 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\UserStatistic;
 use Auth;
+use App\Models\Transaction;
 
 class RankingController extends Controller {
     
     public function globalRankings() {
         $currentUser = Auth::user();
 
-        // Get all stats sorted by wins
-        $allStats = UserStatistic::orderByDesc('total_wins')
-            ->orderByDesc('current_coins')
-            ->get();
+        // Get all stats, excluding the bot user
+        $allStats = UserStatistic::whereHas('user', function ($query) {
+            $query->where('email', '!=', 'bot@bisca.pt');
+        })
+        ->orderByDesc('total_wins')
+        ->orderByDesc('current_coins')
+        ->get();
 
         // Get top 10
         $top10 = $allStats->take(10)->map(function($stat, $index) {
@@ -49,6 +54,11 @@ class RankingController extends Controller {
         $user = Auth::user();
         $stats = UserStatistic::where('user_id', $user->id)->first();
 
+        // Calculate purchased coins
+        $coinsPurchased = Transaction::where('user_id', $user->id)
+            ->where('coin_transaction_type_id', 2) // ID for 'Coin purchase'
+            ->sum('coins');
+
         if (!$stats) {
             return response()->json([
                 'matches_played' => 0,
@@ -56,6 +66,7 @@ class RankingController extends Controller {
                 'win_rate' => 0.0,
                 'current_coins' => $user->coins_balance ?? 0,
                 'coins_earned' => 0,
+                'coins_purchased' => $coinsPurchased,
             ]);
         }
 
@@ -65,6 +76,7 @@ class RankingController extends Controller {
             'win_rate' => $stats->win_rate,
             'current_coins' => $stats->current_coins,
             'coins_earned' => $stats->coins_earned,
+            'coins_purchased' => $coinsPurchased,
         ]);
     }
 }

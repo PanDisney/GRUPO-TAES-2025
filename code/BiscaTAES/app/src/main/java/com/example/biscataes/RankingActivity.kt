@@ -60,7 +60,8 @@ data class PersonalResponse(
     val wins: Int,
     val win_rate: Double,
     val current_coins: Int,
-    val coins_earned: Int
+    val coins_earned: Int,
+    val coins_purchased: Int
 )
 
 class RankingActivity : AppCompatActivity() {
@@ -134,7 +135,7 @@ class RankingActivity : AppCompatActivity() {
                     0,
                     response.current_coins,
                     response.coins_earned,
-                    0
+                    response.coins_purchased
                 )
 
             } catch (e: Exception) {

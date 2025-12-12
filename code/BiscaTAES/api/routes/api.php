@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('games', GameController::class);
     Route::put('/games/{game}/move', [GameController::class, 'makeMove']);
     Route::put('/games/{game}/end', [GameController::class, 'endGame']);
+    Route::post('/games/payout', [GameController::class, 'payout']);
 
     // Card Face Routes
     Route::get('/card-faces', [CardFaceController::class, 'index']);
