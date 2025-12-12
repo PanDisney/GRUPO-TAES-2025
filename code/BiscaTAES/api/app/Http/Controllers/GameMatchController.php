@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Http\Resources\GameMatchResource;
 use App\Http\Requests\UpdateMatchRequest;
 use App\Services\BiscaGameService;
+use App\Services\UserStatisticsService;  // ⭐ ADD THIS LINE
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -148,6 +149,12 @@ class GameMatchController extends Controller
         }
 
         $match->update($validatedData);
+
+        // ⭐ UPDATE STATS WHEN MATCH ENDS
+        if (isset($validatedData['status']) && $validatedData['status'] === 'E') {
+            UserStatisticsService::updateUserStats($match->player1);
+            UserStatisticsService::updateUserStats($match->player2);
+        }
 
         return new GameMatchResource($match);
     }

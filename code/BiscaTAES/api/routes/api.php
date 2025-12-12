@@ -8,8 +8,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CoinController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GameMatchController;
-use App\Http\Controllers\CardFaceController; // Add this line
-
+use App\Http\Controllers\CardFaceController;
+use App\Http\Controllers\RankingController; 
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -37,6 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/card-faces', [CardFaceController::class, 'index']);
     Route::post('/card-faces/{cardFace}/purchase', [CardFaceController::class, 'purchase']);
     Route::post('/user/card-face', [UserController::class, 'selectCardFace']);
+
+    // ⭐ RANKING ROUTES
+    Route::get('/rankings/global', [RankingController::class, 'globalRankings']);
+    Route::get('/rankings/personal', [RankingController::class, 'personalStats']);
 });
 
 Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
@@ -44,10 +48,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/users', [AdminController::class, 'index']);
 });
 
-
 Route::get('/metadata', function (Request $request) {
-
-    //abort(500, 'Something went wrong');
     return [
         "name" => "DAD 2025/26 Worksheet API",
         "version" => "0.0.1",
