@@ -9,3 +9,60 @@ Aplicação móvel de Bisca (jogo de cartas português) com um oponente bot.
 - Sistema de moedas
 - Histórico e classificações
 - Personalizações
+
+## Requisitos e Configuração
+
+### Dispositivo Recomendado
+Para uma experiência ideal, recomenda-se o uso de um emulador Android com as seguintes especificações:
+- **Dispositivo:** Medium Phone
+- **API:** 36
+- **RAM:** 4 GB
+
+### Backend (API Laravel)
+1.  **Navegue até a pasta da API:**
+    ```bash
+    cd code/BiscaTAES/api
+    ```
+2.  **Instale as dependências do Composer:**
+    ```bash
+    composer install
+    ```
+3.  **Configure o arquivo de ambiente:**
+    - Copie `.env.example` para `.env`.
+    - Configure as variáveis do banco de dados. Por exemplo, para **MySQL/MariaDB** (opção mais comum):
+        ```
+        DB_CONNECTION=mysql
+        DB_HOST=127.0.0.1
+        DB_PORT=3306
+        DB_DATABASE=laravel
+        DB_USERNAME=root
+        DB_PASSWORD=
+        ```
+    - Alternativamente, para **SQLite** (banco de dados baseado em arquivo, que não requer um servidor de DB separado):
+        ```
+        DB_CONNECTION=sqlite
+        # As variáveis DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD não são necessárias para SQLite
+        ```
+    - Se usar SQLite, crie um arquivo de banco de dados vazio em `database/database.sqlite` (ou o nome que preferir) e certifique-se de que o PHP tem permissão de escrita nessa pasta.
+4.  **Gere a chave da aplicação:**
+    ```bash
+    php artisan key:generate
+    ```
+5.  **Execute as migrações e o seeder do banco de dados:**
+    ```bash
+    php artisan migrate --seed
+    ```
+6.  **Inicie o servidor da API:**
+    ```bash
+    php artisan serve
+    ```
+
+### Frontend (Aplicativo Android)
+1.  **Abra o projeto no Android Studio:**
+    - Abra a pasta `code/BiscaTAES` como um projeto no Android Studio.
+2.  **Sincronize o Gradle:**
+    - Permita que o Android Studio sincronize os arquivos Gradle do projeto.
+3.  **Verifique o endereço da API:**
+    - No arquivo `app/src/main/java/com/example/biscataes/DashboardActivity.kt` (e outros locais relevantes), certifique-se de que o endereço da API (`http://10.0.2.2:8000/api/...`) está correto para o seu ambiente. `10.0.2.2` é o endereço padrão para o localhost do host a partir de um emulador Android.
+4.  **Execute o aplicativo:**
+    - Compile e execute o aplicativo no emulador ou em um dispositivo físico.
