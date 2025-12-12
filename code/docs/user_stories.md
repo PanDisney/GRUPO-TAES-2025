@@ -179,7 +179,7 @@
 
 ---
 
-## US-14: Notificações do Sistema
+## US-14: Notificações do Sistema ✅
 **Como** um utilizador registado  
 **Quero** receber notificações sobre eventos importantes  
 **Para** estar informado sobre classificações e novas personalizações
@@ -188,11 +188,10 @@
 - Dado que estou a usar a aplicação
 - Quando há um novo líder nas classificações ou novas personalizações disponíveis
 - Então recebo uma notificação do sistema
-- E ao tocar na notificação, sou levado para o ecrã relevante
 
 ---
 
-## US-15: Visualização do Histórico de Partidas
+## US-15: Visualização do Histórico de Partidas ✅
 **Como** um utilizador registado  
 **Quero** ver o histórico de todas as minhas partidas  
 **Para** rastrear o meu desempenho ao longo do tempo
@@ -205,7 +204,7 @@
 
 ---
 
-## US-16: Filtro e Ordenação do Histórico
+## US-16: Filtro e Ordenação do Histórico ✅
 **Como** um utilizador registado  
 **Quero** filtrar e ordenar o meu histórico  
 **Para** encontrar facilmente partidas específicas
@@ -218,7 +217,7 @@
 
 ---
 
-## US-17: Visualização das Classificações Pessoais
+## US-17: Visualização das Classificações Pessoais ✅
 **Como** um utilizador registado  
 **Quero** ver as minhas classificações pessoais  
 **Para** compreender o meu desempenho
@@ -230,7 +229,7 @@
 
 ---
 
-## US-18: Visualização das Classificações Globais
+## US-18: Visualização das Classificações Globais ✅
 **Como** um utilizador registado  
 **Quero** ver as classificações globais  
 **Para** comparar o meu desempenho com outros utilizadores
@@ -255,7 +254,7 @@
 
 ---
 
-## US-20: Compra de Personalizações 
+## US-20: Compra de Personalizações ✅
 **Como** um utilizador registado  
 **Quero** comprar avatares e baralhos com moedas  
 **Para** personalizar a minha experiência de jogo
@@ -308,16 +307,16 @@
 
 ---
 
-## US-24: Recuperação de Senha
-**Como** um utilizador registado que esqueceu a senha  
-**Quero** recuperar o acesso à minha conta  
-**Para** voltar a usar a aplicação
+## US-24: Bisca 3 ✅
+**Como** um utilizador
+**Quero** iniciar uma partida com 3 cartas na mão contra o bot
+**Para** jogar a Bisca de 3
 
 ### Critérios de Aceitação
-- Dado que estou no ecrã de login
-- Quando clico em "Esqueci a Senha"
-- Então sou redirecionado para um formulário de recuperação
-- E recebo um email com um link para redefinir a senha
+- Dado que estou no ecrã inicial
+- Quando clico em "Bisca 3"
+- Então o jogo inicia com 3 cartas na mão
+- E o bot apresenta as suas 3 cartas (ocultas)
 
 ## US-25: Compra de Moedas ✅
 **Como** um utilizador  
