@@ -28,11 +28,25 @@ Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
 
-Mobile.tap(findTestObject('android.widget.Button - Classificacoes'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Personalizar'), 0)
 
-WebUI.delay(5)
+WebUI.delay(2)
 
-Mobile.tap(findTestObject('android.widget.Button - Global'), 0)
+Mobile.tap(findTestObject('android.widget.Button - Buy(green)'), 0)
+
+WebUI.delay(2)
+
+Mobile.tap(findTestObject('android.widget.ImageView(greenDeck)'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Personalizar'), 0)
+
+Mobile.tap(findTestObject('android.widget.Button - Select(green)'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo'), 0)
 
 WebUI.delay(5)
 

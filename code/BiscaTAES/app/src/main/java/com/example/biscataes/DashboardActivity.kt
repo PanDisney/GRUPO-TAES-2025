@@ -180,11 +180,6 @@ class DashboardActivity : AppCompatActivity() {
         devDebugDealButton.text = "Dev: Debug Deal"
     }
 
-
-// ... other imports
-
-// ... inside DashboardActivity class
-
     private fun setupListeners() {
         welcomeText.setOnLongClickListener {
             developerModeLayout.visibility = if (developerModeLayout.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -306,7 +301,26 @@ class DashboardActivity : AppCompatActivity() {
 
                 if (response.status == HttpStatusCode.OK) {
                     val purchaseResponse = response.body<PurchaseResponse>()
-                    currentUser?.coins = purchaseResponse.coins
+                    
+                    // --- CORREÇÃO: Calcular a diferença real de moedas ---
+                    val oldBalance = currentUser?.coins ?: 0
+                    val newBalance = purchaseResponse.coins
+                    val coinsAdded = if (newBalance > oldBalance) {
+                        newBalance - oldBalance
+                    } else {
+                        // Fallback seguro: se por algum motivo o saldo não subiu (ex: erro de sync),
+                        // assumimos a regra 10x Euros que o utilizador confirmou.
+                        euros * 10
+                    }
+                    
+                    currentUser?.coins = newBalance
+                    
+                    // Guardar localmente o valor de MOEDAS ganhas, não os euros gastos
+                    val prefs = getSharedPreferences("BiscaPrefs", Context.MODE_PRIVATE)
+                    val currentPurchased = prefs.getInt("local_purchased_coins", 0)
+                    prefs.edit().putInt("local_purchased_coins", currentPurchased + coinsAdded).apply()
+                    // ---------------------------------------------------
+                    
                     currentUser?.let { updateUiWithUserData(it, isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)) }
                     Toast.makeText(this@DashboardActivity, "Coins purchased successfully!", Toast.LENGTH_SHORT).show()
                 } else {

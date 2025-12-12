@@ -22,19 +22,21 @@ Mobile.startApplication('D:\\Escola\\Android\\StudioProjects\\code\\BiscaTAES\\a
 
 Mobile.tap(findTestObject('android.widget.Button - Login'), 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Email'), 'aluno@mail.com', 0)
+WebUI.delay(2)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Password'), '123', 0)
+Mobile.setText(findTestObject('android.widget.EditText - Email'), 'aluno@mail.com', 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Password (1)'), '123', 0)
 
-Mobile.tap(findTestObject('android.widget.Button - Classificacoes'), 0)
+WebUI.delay(2)
 
-WebUI.delay(5)
+Mobile.tap(findTestObject('android.widget.Button - Entrar'), 0)
 
-Mobile.tap(findTestObject('android.widget.Button - Global'), 0)
+WebUI.delay(2)
 
-WebUI.delay(5)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Histrico de Partidas'), 0)
+
+WebUI.delay(2)
 
 Mobile.closeApplication()
 
