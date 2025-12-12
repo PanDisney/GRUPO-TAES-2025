@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Transaction;
-use Illuminate\Support\Facades\Auth;
+use App\Models\CoinPurchase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Throwable;
 
 class CoinController extends Controller
 {
@@ -25,21 +28,55 @@ class CoinController extends Controller
     {
         $request->validate([
             'amount' => 'required|integer|min:1',
+            'payment_type' => 'required|string|in:MBWAY,PAYPAL,IBAN,MB,VISA',
+            'payment_reference' => 'required|string',
         ]);
 
         $user = $request->user();
         $euros = $request->input('amount');
+        $paymentType = $request->input('payment_type');
+        $paymentReference = $request->input('payment_reference');
         $coins = $euros * 10;
 
-        $user->coins_balance += $coins;
-        $user->save();
+        try {
+            DB::transaction(function () use ($user, $euros, $coins, $paymentType, $paymentReference) {
+                // Call external payment gateway
+                $response = Http::post('https://dad-payments-api.vercel.app/api/debit', [
+                    'type' => $paymentType,
+                    'reference' => $paymentReference,
+                    'value' => $euros,
+                ]);
 
-        Transaction::create([
-            'user_id' => $user->id,
-            'coin_transaction_type_id' => 1, // Assuming 1 is for purchases
-            'coins' => $coins,
-            'transaction_datetime' => now(),
-        ]);
+                if (!$response->successful()) {
+                    // Payment failed, throw an exception to rollback the transaction
+                    throw new \Exception('Payment failed: ' . $response->body());
+                }
+
+                // Create a new transaction
+                $transaction = Transaction::create([
+                    'user_id' => $user->id,
+                    'coin_transaction_type_id' => 1, // Assuming 1 is for purchases
+                    'coins' => $coins,
+                    'transaction_datetime' => now(),
+                ]);
+
+                // Create a new coin purchase record
+                CoinPurchase::create([
+                    'purchase_datetime' => $transaction->transaction_datetime,
+                    'user_id' => $user->id,
+                    'coin_transaction_id' => $transaction->id,
+                    'euros' => $euros,
+                    'payment_type' => $paymentType,
+                    'payment_reference' => $paymentReference,
+                ]);
+
+                // Update user's coin balance
+                $user->coins_balance += $coins;
+                $user->save();
+            });
+        } catch (Throwable $e) {
+            return response()->json(['message' => 'An error occurred during the purchase.', 'error' => $e->getMessage()], 500);
+        }
 
         return response()->json(['message' => 'Coins purchased successfully', 'coins' => $user->coins_balance]);
     }

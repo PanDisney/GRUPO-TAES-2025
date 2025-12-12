@@ -181,10 +181,10 @@ class GameActivity : AppCompatActivity() {
 
     private fun initializeLocalGame() {
         val startMode = intent.getStringExtra("START_MODE")
-        val fastMode = intent.getBooleanExtra("FAST_MODE", false)
+        val deckSize = intent.getIntExtra("DECK_SIZE", -1)
 
         gameStartTime = System.currentTimeMillis()
-        gameEngine = GameEngine(player1, player2, startMode, fastMode)
+        gameEngine = GameEngine(player1, player2, startMode, deckSize = if(deckSize == -1) null else deckSize)
 
         // Draw the initial UI based on the new GameEngine state
         drawPlayerHand()

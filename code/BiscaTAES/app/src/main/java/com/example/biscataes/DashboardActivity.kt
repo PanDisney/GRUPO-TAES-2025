@@ -55,7 +55,11 @@ data class UserDataResponse(
 )
 
 @Serializable
-data class PurchaseRequest(val amount: Int)
+data class PurchaseRequest(
+    val amount: Int,
+    val payment_type: String,
+    val payment_reference: String
+)
 
 @Serializable
 data class PurchaseResponse(val message: String, val coins: Int)
@@ -77,7 +81,6 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     // UI Elements
-    private lateinit var startGameButton: Button
     private lateinit var rankingButton: Button
     private lateinit var matchHistoryButton: Button
     private lateinit var customizationButton: Button
@@ -90,6 +93,8 @@ class DashboardActivity : AppCompatActivity() {
     private lateinit var developerModeLayout: LinearLayout
     private lateinit var devNoShuffleButton: Button
     private lateinit var devDebugDealButton: Button
+    private lateinit var buttonBiscaDe9: Button
+    private lateinit var buttonBiscaDe3: Button
 
     private var currentUser: UserDataResponse? = null
 
@@ -162,7 +167,6 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun initializeViews() {
-        startGameButton = findViewById(R.id.buttonStartGame)
         rankingButton = findViewById(R.id.buttonRanking)
         matchHistoryButton = findViewById(R.id.buttonMatchHistory)
         customizationButton = findViewById(R.id.buttonCustomization)
@@ -175,6 +179,8 @@ class DashboardActivity : AppCompatActivity() {
         developerModeLayout = findViewById(R.id.developerModeLayout)
         devNoShuffleButton = findViewById(R.id.buttonDevStartPlayerFirst)
         devDebugDealButton = findViewById(R.id.buttonDevStartBotFirst)
+        buttonBiscaDe9 = findViewById(R.id.buttonBiscaDe9)
+        buttonBiscaDe3 = findViewById(R.id.buttonBiscaDe3)
 
         devNoShuffleButton.text = "Dev: No Shuffle"
         devDebugDealButton.text = "Dev: Debug Deal"
@@ -187,7 +193,8 @@ class DashboardActivity : AppCompatActivity() {
             true
         }
 
-        startGameButton.setOnClickListener { startGameWithMode(null) }
+        buttonBiscaDe9.setOnClickListener { startGameWithMode(null, deckSize = 9) }
+        buttonBiscaDe3.setOnClickListener { startGameWithMode(null, deckSize = 3) }
         devNoShuffleButton.setOnClickListener { startGameWithMode("NO_SHUFFLE") }
         devDebugDealButton.setOnClickListener { startGameWithMode("DEBUG_DEAL") }
 
@@ -212,18 +219,38 @@ class DashboardActivity : AppCompatActivity() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Comprar Moedas")
 
-        val input = EditText(this)
-        input.hint = "Euros a comprar (e.g., 5)"
-        input.inputType = android.text.InputType.TYPE_CLASS_NUMBER
-        builder.setView(input)
+        val layout = LinearLayout(this)
+        layout.orientation = LinearLayout.VERTICAL
+        layout.setPadding(50, 50, 50, 50)
+
+        val inputAmount = EditText(this)
+        inputAmount.hint = "Euros a comprar (e.g., 5)"
+        inputAmount.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+        layout.addView(inputAmount)
+
+        val paymentTypes = arrayOf("MBWAY", "PAYPAL", "IBAN", "MB", "VISA")
+        val paymentTypeSpinner = android.widget.Spinner(this)
+        val adapter = android.widget.ArrayAdapter(this, android.R.layout.simple_spinner_item, paymentTypes)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        paymentTypeSpinner.adapter = adapter
+        layout.addView(paymentTypeSpinner)
+
+        val inputReference = EditText(this)
+        inputReference.hint = "Referência de Pagamento"
+        layout.addView(inputReference)
+
+        builder.setView(layout)
 
         builder.setPositiveButton("Confirmar") { dialog, _ ->
-            val amountText = input.text.toString()
-            if (amountText.isNotEmpty()) {
+            val amountText = inputAmount.text.toString()
+            val paymentType = paymentTypeSpinner.selectedItem.toString()
+            val paymentReference = inputReference.text.toString()
+
+            if (amountText.isNotEmpty() && paymentReference.isNotEmpty()) {
                 try {
                     val amount = amountText.toInt()
                     if (amount > 0) {
-                        purchaseCoins(amount)
+                        purchaseCoins(amount, paymentType, paymentReference)
                     } else {
                         Toast.makeText(this, "Por favor, insira um valor positivo.", Toast.LENGTH_SHORT).show()
                     }
@@ -231,7 +258,7 @@ class DashboardActivity : AppCompatActivity() {
                     Toast.makeText(this, "Por favor, insira um número válido.", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Toast.makeText(this, "Por favor, insira um valor.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, preencha todos os campos.", Toast.LENGTH_SHORT).show()
             }
         }
         builder.setNegativeButton("Cancelar") { dialog, _ -> dialog.cancel() }
@@ -291,40 +318,37 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    private fun purchaseCoins(euros: Int) {
+    private fun purchaseCoins(euros: Int, paymentType: String, paymentReference: String) {
         lifecycleScope.launch {
             try {
                 val response: HttpResponse = client.post("http://10.0.2.2:8000/api/coins/purchase") {
                     contentType(io.ktor.http.ContentType.Application.Json)
-                    setBody(PurchaseRequest(amount = euros))
+                    setBody(PurchaseRequest(amount = euros, payment_type = paymentType, payment_reference = paymentReference))
                 }
 
                 if (response.status == HttpStatusCode.OK) {
                     val purchaseResponse = response.body<PurchaseResponse>()
                     
-                    // --- CORREÇÃO: Calcular a diferença real de moedas ---
                     val oldBalance = currentUser?.coins ?: 0
                     val newBalance = purchaseResponse.coins
                     val coinsAdded = if (newBalance > oldBalance) {
                         newBalance - oldBalance
                     } else {
-                        // Fallback seguro: se por algum motivo o saldo não subiu (ex: erro de sync),
-                        // assumimos a regra 10x Euros que o utilizador confirmou.
                         euros * 10
                     }
                     
                     currentUser?.coins = newBalance
                     
-                    // Guardar localmente o valor de MOEDAS ganhas, não os euros gastos
                     val prefs = getSharedPreferences("BiscaPrefs", Context.MODE_PRIVATE)
                     val currentPurchased = prefs.getInt("local_purchased_coins", 0)
                     prefs.edit().putInt("local_purchased_coins", currentPurchased + coinsAdded).apply()
-                    // ---------------------------------------------------
                     
                     currentUser?.let { updateUiWithUserData(it, isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)) }
                     Toast.makeText(this@DashboardActivity, "Coins purchased successfully!", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@DashboardActivity, "Purchase failed. Status: ${response.status}", Toast.LENGTH_SHORT).show()
+                    val errorBody = response.body<String>()
+                    Log.e("DashboardActivity", "Purchase failed: ${response.status} - $errorBody")
+                    Toast.makeText(this@DashboardActivity, "Purchase failed: $errorBody", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
                 Log.e("DashboardActivity", "Error purchasing coins", e)
@@ -347,7 +371,6 @@ class DashboardActivity : AppCompatActivity() {
             rankingButton.isEnabled = false
             
             // Enable essential buttons
-            startGameButton.isEnabled = true
             customizationButton.isEnabled = true
         } else {
             coinsBalanceText.text = "Coins: ${userData.coins}"
@@ -371,11 +394,10 @@ class DashboardActivity : AppCompatActivity() {
             customizationButton.isEnabled = true
             
             val currentCoins = currentUser?.coins ?: 0
-            startGameButton.isEnabled = currentCoins >= entryFee
         }
     }
 
-    private fun startGameWithMode(startMode: String?) {
+    private fun startGameWithMode(startMode: String?, deckSize: Int? = null) {
         val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
         currentUser?.let { user ->
             if (isAnonymous || user.coins >= entryFee) {
@@ -386,7 +408,7 @@ class DashboardActivity : AppCompatActivity() {
                         putExtra("CURRENT_COINS", user.coins)
                     }
                     startMode?.let { putExtra("START_MODE", it) }
-                    putExtra("FAST_MODE", true) // Enable fast mode
+                    deckSize?.let { putExtra("DECK_SIZE", it) }
                 }
                 gameLauncher.launch(intent)
             } else {
@@ -403,7 +425,6 @@ class DashboardActivity : AppCompatActivity() {
         coinsBalanceText.visibility = View.GONE
         buyCoinsButton.visibility = View.GONE
         developerModeLayout.visibility = View.GONE
-        startGameButton.isEnabled = false
     }
 
     private fun handleAuthenticationError(errorMessage: String) {
