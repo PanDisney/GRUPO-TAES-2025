@@ -2,6 +2,8 @@
 
 package com.example.biscataes
 
+import com.example.biscataes.NotificationUtils
+import com.example.biscataes.GlobalResponse
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import android.app.Activity
@@ -38,6 +40,11 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import coil.load
+import android.Manifest
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
+import android.os.Build
+
 
 // Wrapper class to match the {"data": {...}} structure from the API
 @Serializable
@@ -119,6 +126,41 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            Log.d("DashboardActivity", "Notification permission granted.")
+        } else {
+            Log.d("DashboardActivity", "Notification permission denied.")
+            // Optionally, show a message explaining why the permission is needed
+            Toast.makeText(this, "Notifications are disabled. You can enable them in settings.", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    // Permission is already granted
+                    Log.d("DashboardActivity", "Notification permission already granted.")
+                }
+                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                    // Explain to the user why the permission is needed
+                    // You can show a dialog here
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                else -> {
+                    // Directly ask for the permission
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        }
+    }
+
     private val gameLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == RESULT_OK) {
             val isAnonymous = intent.getBooleanExtra("IS_ANONYMOUS", false)
@@ -145,6 +187,9 @@ class DashboardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
+
+        NotificationUtils.createNotificationChannel(this)
+        requestNotificationPermission()
 
         initializeViews()
         setupListeners()
@@ -284,6 +329,8 @@ class DashboardActivity : AppCompatActivity() {
                         val userData = apiResponse.data
                         currentUser = userData
                         updateUiWithUserData(userData, isAnonymous = false)
+                        Log.d("DashboardActivity", "User data fetched. Triggering ranking notification.")
+                        fetchGlobalRankingAndNotify()
                     }
                     HttpStatusCode.Unauthorized -> {
                         val errorBody = response.body<String>()
@@ -435,6 +482,31 @@ class DashboardActivity : AppCompatActivity() {
         }
         startActivity(intent)
         finish()
+    }
+
+    private fun fetchGlobalRankingAndNotify() {
+        lifecycleScope.launch {
+            try {
+                Log.d("DashboardActivity", "Fetching global ranking for notification...")
+                val response: GlobalResponse = client.get(
+                    "http://10.0.2.2:8000/api/rankings/global"
+                ).body()
+
+                Log.d("DashboardActivity", "Global ranking response received: $response")
+
+                val currentUserRank = response.current_user.rank
+                val currentUserName = response.current_user.name
+                if (currentUserRank != null) {
+                    Log.d("DashboardActivity", "User rank is $currentUserRank. Showing notification.")
+                    NotificationUtils.showRankingNotification(this@DashboardActivity, currentUserRank, currentUserName)
+                } else {
+                    Log.d("DashboardActivity", "User rank is null. Notification not shown.")
+                }
+
+            } catch (e: Exception) {
+                Log.e("DashboardActivity", "Error fetching global rankings for notification", e)
+            }
+        }
     }
     
     override fun onDestroy() {
