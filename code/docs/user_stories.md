@@ -188,7 +188,7 @@
 - Dado que estou a usar a aplicação
 - Quando há um novo líder nas classificações ou novas personalizações disponíveis
 - Então recebo uma notificação do sistema
-
+ 
 ---
 
 ## US-15: Visualização do Histórico de Partidas ✅
