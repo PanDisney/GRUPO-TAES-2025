@@ -228,6 +228,7 @@ class DashboardActivity : AppCompatActivity() {
         buttonBiscaDe9 = findViewById(R.id.buttonBiscaDe9)
         buttonBiscaDe3 = findViewById(R.id.buttonBiscaDe3)
         buttonFastMode = findViewById(R.id.buttonFastMode)
+        buttonFastMode.visibility = View.GONE
 
         devNoShuffleButton.text = "Dev: No Shuffle"
         devDebugDealButton.text = "Dev: Debug Deal"
@@ -419,9 +420,8 @@ class DashboardActivity : AppCompatActivity() {
             updateProfileButton.isEnabled = false
             buyCoinsButton.isEnabled = false
             rankingButton.isEnabled = false
-            
-            // Enable essential buttons
-            customizationButton.isEnabled = true
+            customizationButton.isEnabled = false
+            matchHistoryButton.isEnabled = false
         } else {
             coinsBalanceText.text = "Coins: ${userData.coins}"
             coinsBalanceText.visibility = View.VISIBLE

@@ -66,3 +66,34 @@ Para uma experiência ideal, recomenda-se o uso de um emulador Android com as se
     - No arquivo `app/src/main/java/com/example/biscataes/DashboardActivity.kt` (e outros locais relevantes), certifique-se de que o endereço da API (`http://10.0.2.2:8000/api/...`) está correto para o seu ambiente. `10.0.2.2` é o endereço padrão para o localhost do host a partir de um emulador Android.
 4.  **Execute o aplicativo:**
     - Compile e execute o aplicativo no emulador ou em um dispositivo físico.
+
+## Contas de Teste
+Para verificar as funcionalidades da aplicação, pode utilizar as seguintes contas de teste:
+
+- **Utilizador 1:**
+    - **Email:** `aluno@mail.com`
+    - **Password:** `123`
+
+- **Utilizador 2:**
+    - **Email:** `test@mail.com`
+    - **Password:** `123`
+
+Estas contas serão criadas automaticamente ao executar o comando `php artisan migrate --seed` (ver secção Backend).
+
+## Regras da Password
+Ao alterar uma password de uma conta, as seguintes regras são aplicadas:
+- Mínimo de 3 caracteres.
+- Pelo menos uma letra maiúscula e uma minúscula.
+- Pelo menos um número.
+- Pelo menos um caracter especial (ex: `!@#$%^&*`).
+
+## Regras de Compra de Moedas (Limites por Método de Pagamento)
+A plataforma utiliza um serviço externo de pagamento simulado. Existem limites por transação para cada método de pagamento:
+
+- **MBWAY:** Máximo €5
+- **PAYPAL:** Máximo €10
+- **IBAN:** Máximo €50
+- **MB:** Máximo €20
+- **VISA:** Máximo €30
+
+Tentar comprar um valor superior a estes limites resultará numa falha da transação.
