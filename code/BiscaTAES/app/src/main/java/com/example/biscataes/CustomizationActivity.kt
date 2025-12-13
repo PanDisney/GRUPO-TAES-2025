@@ -92,13 +92,13 @@ class CustomizationActivity : AppCompatActivity() {
     private fun fetchCoinsBalance() {
         lifecycleScope.launch {
             try {
-                val response = client.get("http://10.0.2.2:8000/api/coins")
+                val response = client.get("http://10.0.2.2:8000/api/user/coins")
                 if (response.status == HttpStatusCode.OK) {
                     val coinsBalanceResponse = response.body<CoinsBalanceResponse>()
                     coinsBalanceText.text = "Coins: ${coinsBalanceResponse.coins}"
                 }
             } catch (e: Exception) {
-                // Handle error
+                Toast.makeText(this@CustomizationActivity, "Error fetching coins: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
