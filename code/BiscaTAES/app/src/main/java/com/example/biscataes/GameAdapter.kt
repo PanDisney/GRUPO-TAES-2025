@@ -5,6 +5,7 @@ package com.example.biscataes
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.serialization.InternalSerializationApi
@@ -18,6 +19,7 @@ class GameAdapter(
         val gameId: TextView = itemView.findViewById(R.id.text_game_id)
         val gameStatusWinner: TextView = itemView.findViewById(R.id.text_game_status) // This will now include status and winner
         val gameScore: TextView = itemView.findViewById(R.id.text_game_score)
+        val viewDetailsButton: Button = itemView.findViewById(R.id.btn_view_details)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GameViewHolder {
@@ -40,7 +42,7 @@ class GameAdapter(
             }
         } Winner: $winnerText" // Combine status and winner
         holder.gameScore.text = "Score: ${game.player1_points ?: 0} - ${game.player2_points ?: 0}"
-        holder.itemView.setOnClickListener { listener(game) }
+        holder.viewDetailsButton.setOnClickListener { listener(game) }
     }
 
     override fun getItemCount(): Int = games.size

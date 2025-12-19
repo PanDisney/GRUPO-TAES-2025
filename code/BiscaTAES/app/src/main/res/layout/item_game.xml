@@ -3,25 +3,38 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="16dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/border">
 
     <TextView
         android:id="@+id/text_game_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:text="Game ID: 1" />
+        android:text="Game ID: 1"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"/>
 
     <TextView
         android:id="@+id/text_game_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Status: Ended" />
+        android:text="Status: Ended"
+        android:textSize="16sp"/>
 
     <TextView
         android:id="@+id/text_game_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Score: 61 - 59" />
+        android:text="Score: 61 - 59"
+        android:textSize="16sp"/>
+
+    <Button
+        android:id="@+id/btn_view_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ver Detalhes"
+        android:layout_marginTop="8dp"/>
 
 </LinearLayout>
