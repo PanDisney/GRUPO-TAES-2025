@@ -22,17 +22,19 @@ Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\Bis
 
 Mobile.tap(findTestObject('android.widget.Button - Login'), 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Email'), 'aluno@mail.com', 0)
+WebUI.delay(2)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Password'), '123', 0)
+Mobile.setText(findTestObject('android.widget.EditText - Email'), 'aluno@mail.com', 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Entrar'), 0)
+Mobile.setText(findTestObject('android.widget.EditText - Password'), '123', 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Bisca de 9'), 0)
+WebUI.delay(2)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Desistir'), 0)
+Mobile.tap(findTestObject('android.widget.Button - Entrar'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Sim, desistir'), 0)
+WebUI.delay(2)
+
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Historico de Partidas'), 0)
 
 WebUI.delay(5)
 

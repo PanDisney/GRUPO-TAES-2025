@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<TestCaseEntity>
-   <description></description>
-   <name>Test login ver tick by tick de historico</name>
-   <tag></tag>
-   <comment></comment>
-   <recordOption>OTHER</recordOption>
-   <testCaseGuid>111653d4-68b5-4796-8b93-357f9ada1064</testCaseGuid>
-</TestCaseEntity>

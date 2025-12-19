@@ -112,7 +112,5 @@ Mobile.tapAtPosition(84, 2228)
 
 WebUI.delay(5)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar ao Menu'), 0)
-
 Mobile.closeApplication()
 

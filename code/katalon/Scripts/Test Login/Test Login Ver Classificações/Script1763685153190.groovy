@@ -17,7 +17,7 @@ import com.kms.katalon.core.windows.keyword.WindowsBuiltinKeywords as Windows
 import internal.GlobalVariable as GlobalVariable
 import org.openqa.selenium.Keys as Keys
 
-Mobile.startApplication('D:\\Escola\\Android\\StudioProjects\\code\\BiscaTAES\\app\\build\\outputs\\apk\\debug\\app-debug.apk', 
+Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\BiscaTAES\\app\\build\\outputs\\apk\\debug\\app-debug.apk', 
     true)
 
 Mobile.tap(findTestObject('android.widget.Button - Login'), 0)

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description></description>
+   <name>Test Login Comprar Moedas MBWAY</name>
+   <tag></tag>
+   <comment></comment>
+   <recordOption>OTHER</recordOption>
+   <testCaseGuid>6ee01f47-d13b-4b63-bff9-b8721ef2e9e2</testCaseGuid>
+</TestCaseEntity>

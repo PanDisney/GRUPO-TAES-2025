@@ -34,7 +34,7 @@ Mobile.tap(findTestObject('android.widget.Button - Select(green)'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Bisca de 9'), 0)
 
 WebUI.delay(5)
 

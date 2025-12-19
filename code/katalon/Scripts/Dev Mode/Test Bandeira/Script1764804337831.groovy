@@ -106,7 +106,5 @@ Mobile.tap(findTestObject('android.widget.TextView - A Spades'), 0)
 
 WebUI.delay(5)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar ao Menu'), 0)
-
 Mobile.closeApplication()
 

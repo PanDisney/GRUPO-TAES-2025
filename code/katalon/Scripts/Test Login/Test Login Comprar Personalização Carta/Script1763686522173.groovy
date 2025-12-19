@@ -17,12 +17,12 @@ import com.kms.katalon.core.windows.keyword.WindowsBuiltinKeywords as Windows
 import internal.GlobalVariable as GlobalVariable
 import org.openqa.selenium.Keys as Keys
 
-Mobile.startApplication('D:\\Escola\\Android\\StudioProjects\\code\\BiscaTAES\\app\\build\\outputs\\apk\\debug\\app-debug.apk', 
+Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\BiscaTAES\\app\\build\\outputs\\apk\\debug\\app-debug.apk', 
     true)
 
 Mobile.tap(findTestObject('android.widget.Button - Login'), 0)
 
-Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Email'), 'aluno@mail.com', 0)
+Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Email'), 'pa@mail.com', 0)
 
 Mobile.setText(findTestObject('Object Repository/android.widget.EditText - Login Password'), '123', 0)
 
@@ -46,7 +46,7 @@ Mobile.tap(findTestObject('android.widget.Button - Select(green)'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Voltar'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Bisca de 9'), 0)
 
 WebUI.delay(5)
 

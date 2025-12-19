@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<TestCaseEntity>
-   <description></description>
-   <name>Test login ver filtro de historico</name>
-   <tag></tag>
-   <comment></comment>
-   <recordOption>OTHER</recordOption>
-   <testCaseGuid>a8c1e84b-3569-44de-a661-1a8d742e2fbe</testCaseGuid>
-</TestCaseEntity>

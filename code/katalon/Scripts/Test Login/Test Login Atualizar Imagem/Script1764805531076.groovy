@@ -38,7 +38,7 @@ Mobile.tap(findTestObject('Object Repository/android.widget.ImageView'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Salvar as mudancas'), 0)
 
-WebUI.delay(5)
+WebUI.delay(10)
 
 Mobile.closeApplication()
 

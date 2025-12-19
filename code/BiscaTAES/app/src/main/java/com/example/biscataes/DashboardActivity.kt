@@ -228,7 +228,7 @@ class DashboardActivity : AppCompatActivity() {
         buttonBiscaDe9 = findViewById(R.id.buttonBiscaDe9)
         buttonBiscaDe3 = findViewById(R.id.buttonBiscaDe3)
         buttonFastMode = findViewById(R.id.buttonFastMode)
-        buttonFastMode.visibility = View.GONE
+        //buttonFastMode.visibility = View.GONE
 
         devNoShuffleButton.text = "Dev: No Shuffle"
         devDebugDealButton.text = "Dev: Debug Deal"

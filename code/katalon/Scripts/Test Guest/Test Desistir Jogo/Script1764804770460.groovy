@@ -22,7 +22,7 @@ Mobile.startApplication('C:\\Users\\User\\AndroidStudioProjects\\TAES\\code\\Bis
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Jogar Anonimo'), 0)
 
-Mobile.tap(findTestObject('Object Repository/android.widget.Button - Iniciar Jogo'), 0)
+Mobile.tap(findTestObject('Object Repository/android.widget.Button - Bisca de 9'), 0)
 
 Mobile.tap(findTestObject('Object Repository/android.widget.Button - Desistir'), 0)
 
